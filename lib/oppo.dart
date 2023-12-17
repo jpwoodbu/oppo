@@ -1,15 +1,25 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
+
 const int _broadcastPort = 7624;
 
+final _log = Logger('oppo');
+
 void main() async {
+  Logger.root.level = Level.ALL;  
+  Logger.root.onRecord.listen((record) {
+    // ignore: avoid_print
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
   final d = Discover();
   Future.delayed(const Duration(seconds: 12), d.close);
+  _log.info('Scanning for Oppo UDP-20X players...');
   await for (final info in d.listen()) {
-    print(info.name);
-    print(info.address);
-    print(info.port);
+    _log.info(info.name);
+    _log.info(info.address);
+    _log.info(info.port);
   }
 }
 
@@ -39,8 +49,7 @@ class Discover {
         try {
           yield _parseBroadcast(datagram);
         } catch (e) {
-          // TODO - change this to logging
-          print(e);
+          _log.warning('Failed to parse broadcast packet: $e');
         }
       }
     }
@@ -68,7 +77,7 @@ OppoBroadcast _parseBroadcast(Datagram datagram) {
         name = value;
         break;
       default:
-        // TODO - add error logging
+        _log.warning('Unrecognized line in broadcast packet: $line');
         break;
     }
   }
