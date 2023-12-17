@@ -8,7 +8,7 @@ const int _broadcastPort = 7624;
 final _log = Logger('oppo');
 
 void main() async {
-  Logger.root.level = Level.ALL;  
+  Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
