@@ -1,20 +1,75 @@
+import 'dart:convert';
 import 'dart:io';
+
+const int _broadcastPort = 7624;
+
+void main() async {
+  final d = Discover();
+  Future.delayed(const Duration(seconds: 12), d.close);
+  await for (final info in d.listen()) {
+    print(info.name);
+    print(info.address);
+    print(info.port);
+  }
+}
 
 class OppoBroadcast {
   InternetAddress address;
+  int port;
   String name;
 
-  OppoBroadcast(this.address, this.name);
+  OppoBroadcast(this.address, this.port, this.name);
 }
 
-Stream<OppoBroadcast> discover() async* {
-  // Setup a listening socket for broadcast UDP port 7624.
-  // Their docs say the broadcast is addressed to 239.255.255.251, but wireshark
-  // is showing their addressed to 255.255.255.255. Packets are sent by a
-  // powered on Oppo UDP-203 every 10s. I actually saw it send out a pair of
-  // identical packets every 10s.
+class Discover {
+  RawDatagramSocket? _socket; 
+
+  void close() {
+    if (_socket != null) _socket!.close();
+  }
+
+  Stream<OppoBroadcast> listen() async* {
+    _socket =
+        await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
+    _socket!.writeEventsEnabled = false;
+    await for (final event in _socket!.timeout(const Duration(seconds: 11))) {
+      switch (event) {
+        case RawSocketEvent.read:
+          final datagram = _socket!.receive();
+          if (datagram != null) yield _parseBroadcast(datagram);
+        default:
+          break;
+      }
+    }
+  }
 }
 
-OppoBroadcast _parseBroadcast(data) {
-
+OppoBroadcast _parseBroadcast(Datagram datagram) {
+  InternetAddress? address;
+  int? port;
+  String name = '';
+  String decoded = ascii.decode(datagram.data);
+  for (final line in decoded.split('\n')) {
+    if (line.isEmpty) continue;
+    final segments = line.split(':');
+    final key = segments[0].trim();
+    final value = segments[1].trim();
+    switch (key) {
+      case 'Server IP':
+        address = InternetAddress(value);
+        break;
+      case 'Server Port':
+        port = int.parse(value);
+        break;
+      case 'Server Name':
+        name = value;
+        break;
+      default:
+        // TODO - add error logging
+        break;
+    }
+  }
+  if (address == null) throw 'failed to find IP address';
+  if (port == null) throw 'failed to find port';
+  return OppoBroadcast(address, port, name);
 }
