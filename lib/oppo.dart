@@ -22,7 +22,7 @@ class OppoBroadcast {
 }
 
 class Discover {
-  RawDatagramSocket? _socket; 
+  RawDatagramSocket? _socket;
 
   void close() {
     if (_socket != null) _socket!.close();
@@ -32,13 +32,16 @@ class Discover {
     _socket =
         await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
     _socket!.writeEventsEnabled = false;
-    await for (final event in _socket!.timeout(const Duration(seconds: 11))) {
-      switch (event) {
-        case RawSocketEvent.read:
-          final datagram = _socket!.receive();
-          if (datagram != null) yield _parseBroadcast(datagram);
-        default:
-          break;
+    await for (final event in _socket!) {
+      if (event == RawSocketEvent.read) {
+        final datagram = _socket!.receive();
+        if (datagram == null) continue;
+        try {
+          yield _parseBroadcast(datagram);
+        } catch (e) {
+          // TODO - change this to logging
+          print(e);
+        }
       }
     }
   }
