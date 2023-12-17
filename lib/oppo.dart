@@ -51,7 +51,7 @@ OppoBroadcast _parseBroadcast(Datagram datagram) {
   InternetAddress? address;
   int? port;
   String name = '';
-  String decoded = ascii.decode(datagram.data);
+  final decoded = ascii.decode(datagram.data);
   for (final line in decoded.split('\n')) {
     if (line.isEmpty) continue;
     final segments = line.split(':');
