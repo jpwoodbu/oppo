@@ -146,7 +146,7 @@ class Device {
     }
   }
 
-  Future<void> togglePower() async {
+  Future<void> powerToggle() async {
     await command('POW');
   }
 
