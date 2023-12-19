@@ -35,8 +35,8 @@ void main() async {
     await device.connect();
     device.listen();
     await device.powerOn();
-    // TODO - serialize command / response pairs.
-    device.setVerboseMode(VerboseMode.detailed);
+    await device.setVerboseMode(VerboseMode.major);
+    await device.powerOn();
     // device.close();
   }
 }
@@ -145,6 +145,7 @@ class Device {
           _parseResponse(decoded);
         }
       }
+      _log.fine('Listener has stopped.');
     }
   }
 
@@ -216,6 +217,8 @@ class Device {
   Future<void> powerOn() async => await _command('PON');
   Future<void> powerOff() async => await _command('POF');
 
+  // TODO - Uh oh. This command doesn't seem to result in a response. Perhaps
+  // some commands need to avoid setting pendingResponse to true.
   Future<void> setVerboseMode(VerboseMode mode) async {
     int modeValue;
     switch (mode) {
