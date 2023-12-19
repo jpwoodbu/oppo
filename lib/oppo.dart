@@ -240,7 +240,7 @@ class Device {
   }
 
   Future<void> _command(String code,
-      {String parameters = '', int remainingDelays = 10}) async {
+      {String parameters = '', int remainingDelays = 20}) async {
     if (pendingResponse) {
       if (remainingDelays < 1) {
         _log.severe(
@@ -270,6 +270,79 @@ class Device {
   Future<void> powerToggle() async => await _command('POW');
   Future<void> powerOn() async => await _command('PON');
   Future<void> powerOff() async => await _command('POF');
+  Future<void> trayToggle() async => await _command('EJT');
+  Future<void> dim() async => await _command('DIM');
+  Future<void> pureAudio() async => await _command('PUR');
+  Future<void> volumeUp() async => await _command('VUP');
+  Future<void> volumeDown() async => await _command('VDN');
+  Future<void> mute() async => await _command('MUT');
+  // Buttons 0-9 on the numeric keypad.
+  Future<void> number1() async => await _command('NU1');
+  Future<void> number2() async => await _command('NU2');
+  Future<void> number3() async => await _command('NU3');
+  Future<void> number4() async => await _command('NU4');
+  Future<void> number5() async => await _command('NU5');
+  Future<void> number6() async => await _command('NU6');
+  Future<void> number7() async => await _command('NU7');
+  Future<void> number8() async => await _command('NU8');
+  Future<void> number9() async => await _command('NU9');
+  Future<void> number0() async => await _command('NU0');
+  /// Clear numeric input.
+  Future<void> clear() async => await _command('CLR');
+  Future<void> goto() async => await _command('GOT');
+  Future<void> home() async => await _command('HOM');
+  Future<void> pageUp() async => await _command('PUP');
+  Future<void> pageDown() async => await _command('PDN');
+  /// Show/hide on-screen display.
+  Future<void> osd() async => await _command('OSD');
+  Future<void> topMenu() async => await _command('TTL');
+  Future<void> popupMenu() async => await _command('MNU');
+  Future<void> arrowUp() async => await _command('NUP');
+  Future<void> arrowLeft() async => await _command('NLT');
+  Future<void> arrowRight() async => await _command('NRT');
+  Future<void> arrowDown() async => await _command('NDN');
+  Future<void> enter() async => await _command('SEL');
+  Future<void> setUp() async => await _command('SET');
+  Future<void> returnToPrevious() async => await _command('RET');
+  Future<void> red() async => await _command('RED');
+  Future<void> green() async => await _command('GRN');
+  Future<void> blue() async => await _command('BLU');
+  Future<void> yellow() async => await _command('YLW');
+  Future<void> stop() async => await _command('STP');
+  Future<void> play() async => await _command('PLA');
+  Future<void> pause() async => await _command('PAU');
+  Future<void> previous() async => await _command('PRE');
+  Future<void> next() async => await _command('NXT');
+  /// Fast reverse play.
+  Future<void> reverse() async => await _command('REV');
+  /// Fast forward play.
+  Future<void> forward() async => await _command('FWD');
+  /// Change audio or language track.
+  Future<void> audio() async => await _command('AUD');
+  /// Change subtitle language.
+  Future<void> subtitle() async => await _command('SUB');
+  /// Change camera angle.
+  Future<void> angle() async => await _command('ANG');
+  /// Zoom in/out and adjust aspect ratio.
+  Future<void> zoom() async => await _command('ZOM');
+  Future<void> secondaryAudioProgramToggle() async => await _command('SAP');
+  /// Set A/B repeat play points.
+  Future<void> repeatAB() async => await _command('ATB');
+  Future<void> repeat() async => await _command('RPT');
+  /// Picture-in-picture toggle.
+  Future<void> pipToggle() async => await _command('PIP');
+  Future<void> outputResolutionCycle() async => await _command('HDM');
+  Future<void> outputResolutionAuto() async => await _command('RLH');
+  /// Show defailed info. The same operation as long pressing the info button.
+  Future<void> infoDetailed() async => await _command('INH');
+  Future<void> audioVideoSyncMenu() async => await _command('AVS');
+  Future<void> gaplessPlayback() async => await _command('GAP');
+  Future<void> inputMenu() async => await _command('SRC');
+  /// No operation.
+  ///
+  /// This command is documentd and therefore included. Probably it's only
+  /// useful for testing.
+  Future<void> noOp() async => await _command('NOP');
 
   // TODO - Uh oh. This command doesn't seem to result in a response. Perhaps
   // some commands need to avoid setting pendingResponse to true.
