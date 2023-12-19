@@ -186,19 +186,19 @@ class Device {
   }
 
   Future<void> _command(String code,
-      {String parameters = '', int remainingRetries = 10}) async {
+      {String parameters = '', int remainingDelays = 10}) async {
     if (pendingResponse) {
-      if (remainingRetries < 1) {
-        _log.severe('Exhausted retries for command code: $code. Giving up.');
+      if (remainingDelays < 1) {
+        _log.severe('Giving up on getting a response for the previous command.');
         pendingResponse = false;
-        return;
+        return _command(code, parameters: parameters);
       }
       _log.warning('Waiting on a response to the previous command. '
           'Will try again in 1s.');
       await Future.delayed(
           const Duration(seconds: 1),
           () => _command(code,
-              parameters: parameters, remainingRetries: remainingRetries - 1));
+              parameters: parameters, remainingDelays: remainingDelays - 1));
       return;
     }
     final socket = _socket;
