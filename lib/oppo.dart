@@ -33,11 +33,9 @@ void main() async {
     var info = devices.first;
     final device = Device(info.name, info.address, info.port);
     await device.connect();
-    device.listen();
-    await device.powerOn();
+    device.startParser();
     await device.setVerboseMode(VerboseMode.major);
-    await device.powerOn();
-    // device.close();
+    await device.queryFirmwareVersion();
   }
 }
 
@@ -117,6 +115,8 @@ class Device {
   // TODO - Why do I get a warning if I make this var private?
   bool pendingResponse = false;
   Socket? _socket;
+  VerboseMode? verboseMode;
+  bool? powered;
 
   Device(this.name, this.address, this.port);
 
@@ -131,7 +131,7 @@ class Device {
     }
   }
 
-  void listen() async {
+  Stream<String> stream() async* {
     if (_socket == null) connect();
     final socket = _socket;
     if (socket != null) {
@@ -139,30 +139,83 @@ class Device {
       await for (final data in socket) {
         final decoded = ascii.decode(data);
         _log.info('Listener received: $decoded');
-        if (decoded.startsWith('@U')) {
-          _log.fine('Got an update message: $decoded');
-        } else {
-          _parseResponse(decoded);
-        }
+        yield decoded;
       }
       _log.fine('Listener has stopped.');
     }
   }
 
-  void _parseResponse(String response) {
+  /// Listens to inbound packet stream and parses those packets.
+  ///
+  /// Flutter apps will probably want to implement a function like this inside a
+  /// Provider/Consumer system. But for testing this package, it's handy to have
+  /// this function.
+  Future<void> startParser() async {
+    _log.info('Starting parser');
+    await for (final packet in stream()) {
+      parseResponse(packet);
+    }
+  }
+
+  void parseResponse(String response) {
     if (!response.startsWith('@')) {
       throw 'Unable to parse response. The "@" prefix is missing: $response';
     }
     final parts = response.split(' ');
-    final resultCode = parts[0].trim();
-    if (resultCode == '@ER') {
+    String resultCode;
+    // If verboseMode is not >=1, a commandCode may not be included in the
+    // response.
+    String commandCode = '';
+    String parameters;
+    if (parts.length == 2) {
+      resultCode = parts[0].trim().substring(1);
+      parameters = parts.sublist(1).join(' ').trim();
+    } else {
+      commandCode = parts[0].trim().substring(1);
+      resultCode = parts[1].trim();
+      parameters = parts.sublist(2).join(' ').trim();
+    }
+    _log.fine('Parameters: $parameters');
+    if (resultCode == 'ER') {
       _log.severe('Got an error response: $response');
-    } else if (resultCode != '@OK') {
+    } else if (resultCode != 'OK') {
       _log.severe(
           'Unable to parse response. Unexpected result code in: $response');
     }
-    _log.info('Received: $response');
     pendingResponse = false;
+    switch (commandCode) {
+      case 'QVM':
+        _parseVerboseMode(parameters);
+        break;
+      case 'QPW':
+        powered = parameters == 'ON' ? true : false;
+        break;
+      default:
+        if (commandCode.startsWith('Q') || commandCode.startsWith('U')) {
+          _log.warning('Unsupported command code: $commandCode');
+        }
+        break;
+    }
+  }
+
+  void _parseVerboseMode(String parameters) {
+    switch (parameters) {
+      case '0':
+        verboseMode = VerboseMode.off;
+        break;
+      case '1':
+        _log.warning('Got verbose mode 1 which is not supposed to be used.');
+        break;
+      case '2':
+        verboseMode = VerboseMode.major;
+        break;
+      case '3':
+        verboseMode = VerboseMode.detailed;
+        break;
+      default:
+        _log.warning('Unexpected verbose mode: $parameters');
+        break;
+    }
   }
 
   Future<void> close() async {
@@ -190,14 +243,15 @@ class Device {
       {String parameters = '', int remainingDelays = 10}) async {
     if (pendingResponse) {
       if (remainingDelays < 1) {
-        _log.severe('Giving up on getting a response for the previous command.');
+        _log.severe(
+            'Giving up on getting a response for the previous command.');
         pendingResponse = false;
         return _command(code, parameters: parameters);
       }
       _log.warning('Waiting on a response to the previous command. '
-          'Will try again in 1s.');
+          'Will try again in 500ms.');
       await Future.delayed(
-          const Duration(seconds: 1),
+          const Duration(milliseconds: 500),
           () => _command(code,
               parameters: parameters, remainingDelays: remainingDelays - 1));
       return;
@@ -232,6 +286,18 @@ class Device {
         modeValue = 3;
         break;
     }
-    await _command('SMV', parameters: modeValue.toString());
+    await _command('SVM', parameters: modeValue.toString());
+  }
+
+  Future<void> queryVerboseMode() async {
+    await _command('QVM');
+  }
+
+  Future<void> queryPowerStatus() async {
+    await _command('QPW');
+  }
+
+  Future<void> queryFirmwareVersion() async {
+    await _command('QVR');
   }
 }
