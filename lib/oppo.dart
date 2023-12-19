@@ -34,10 +34,10 @@ void main() async {
     final device = Device(info.name, info.address, info.port);
     await device.connect();
     device.listen();
-    device.powerOn();
+    await device.powerOn();
     // TODO - serialize command / response pairs.
     device.setVerboseMode(VerboseMode.detailed);
-    device.close();
+    // device.close();
   }
 }
 
@@ -114,6 +114,8 @@ class Device {
   final String name;
   final InternetAddress address;
   final int port;
+  // TODO - Why do I get a warning if I make this var private?
+  bool pendingResponse = false;
   Socket? _socket;
 
   Device(this.name, this.address, this.port);
@@ -133,6 +135,7 @@ class Device {
     if (_socket == null) connect();
     final socket = _socket;
     if (socket != null) {
+      _log.info('Listening for inbound packets.');
       await for (final data in socket) {
         final decoded = ascii.decode(data);
         _log.info('Listener received: $decoded');
@@ -158,6 +161,7 @@ class Device {
           'Unable to parse response. Unexpected result code in: $response');
     }
     _log.info('Received: $response');
+    pendingResponse = false;
   }
 
   Future<void> close() async {
@@ -165,6 +169,8 @@ class Device {
     if (socket != null) {
       await socket.flush();
       await socket.close();
+      _socket = null;
+      _log.info('Closed connection.');
     }
   }
 
@@ -179,18 +185,36 @@ class Device {
     return '#$code$parameters\r';
   }
 
-  void _command(String code, {String parameters = ''}) async {
-    if (_socket == null) await connect();
+  Future<void> _command(String code,
+      {String parameters = '', int remainingRetries = 10}) async {
+    if (pendingResponse) {
+      if (remainingRetries < 1) {
+        _log.severe('Exhausted retries for command code: $code. Giving up.');
+        pendingResponse = false;
+        return;
+      }
+      _log.warning('Waiting on a response to the previous command. '
+          'Will try again in 1s.');
+      await Future.delayed(
+          const Duration(seconds: 1),
+          () => _command(code,
+              parameters: parameters, remainingRetries: remainingRetries - 1));
+      return;
+    }
     final socket = _socket;
-    if (socket != null) {}
     final c = _formatCommand(code, parameters);
-    _log.info('Sending command: $c');
-    _socket?.write(c);
+    if (socket != null) {
+      _log.info('Sending command: $c');
+      socket.write(c);
+      pendingResponse = true;
+    } else {
+      _log.severe('Socket is not open. Unable to send command code: $code');
+    }
   }
 
-  void powerToggle() => _command('POW');
-  void powerOn() => _command('PON');
-  void powerOff() => _command('POF');
+  void powerToggle() async => await _command('POW');
+  Future<void> powerOn() async => await _command('PON');
+  void powerOff() async => await _command('POF');
 
   void setVerboseMode(VerboseMode mode) async {
     int modeValue;
@@ -205,6 +229,6 @@ class Device {
         modeValue = 3;
         break;
     }
-    _command('SMV', parameters: modeValue.toString());
+    await _command('SMV', parameters: modeValue.toString());
   }
 }
