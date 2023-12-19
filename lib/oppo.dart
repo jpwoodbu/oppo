@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -14,21 +15,29 @@ void main() async {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
+  // Uncomment if you want to exercise the discovery feature. Also comment out
+  // the devices.add() call below. While testing on WSL, it's convenient to skip
+  // discovery.
+  /*
   final d = Discover();
-  // Future.delayed(const Duration(seconds: 12), d.close);
   _log.info('Scanning for Oppo UDP-20X players...');
   await for (final info in d.listen()) {
     _log.info('Found Oppo device at ${info.address.address}');
     d.close();
     devices.add(info);
   }
+  */
+  devices.add(OppoBroadcast(InternetAddress('192.168.86.149'), 23, 'unknown'));
 
   if (devices.isNotEmpty) {
     var info = devices.first;
     final device = Device(info.name, info.address, info.port);
     await device.connect();
-    await device.powerOff();
-    await device.close();
+    device.listen();
+    device.powerOn();
+    // TODO - serialize command / response pairs.
+    device.setVerboseMode(VerboseMode.detailed);
+    device.close();
   }
 }
 
@@ -99,10 +108,12 @@ OppoBroadcast _parseBroadcast(Datagram datagram) {
   return OppoBroadcast(address, port, name);
 }
 
+enum VerboseMode { off, major, detailed }
+
 class Device {
-  String name;
-  InternetAddress address;
-  int port;
+  final String name;
+  final InternetAddress address;
+  final int port;
   Socket? _socket;
 
   Device(this.name, this.address, this.port);
@@ -110,13 +121,51 @@ class Device {
   Future<void> connect() async {
     _socket = await Socket.connect(address, port,
         timeout: const Duration(seconds: 3));
-    _log.fine('Connected to device at ${address.address}.');
-    _socket?.encoding = const AsciiCodec();
+    _log.info('Connected to device at ${address.address}.');
+    final socket = _socket;
+    if (socket != null) {
+      socket.encoding = const AsciiCodec();
+      socket.setOption(SocketOption.tcpNoDelay, true);
+    }
+  }
+
+  void listen() async {
+    if (_socket == null) connect();
+    final socket = _socket;
+    if (socket != null) {
+      await for (final data in socket) {
+        final decoded = ascii.decode(data);
+        _log.info('Listener received: $decoded');
+        if (decoded.startsWith('@U')) {
+          _log.fine('Got an update message: $decoded');
+        } else {
+          _parseResponse(decoded);
+        }
+      }
+    }
+  }
+
+  void _parseResponse(String response) {
+    if (!response.startsWith('@')) {
+      throw 'Unable to parse response. The "@" prefix is missing: $response';
+    }
+    final parts = response.split(' ');
+    final resultCode = parts[0].trim();
+    if (resultCode == '@ER') {
+      _log.severe('Got an error response: $response');
+    } else if (resultCode != '@OK') {
+      _log.severe(
+          'Unable to parse response. Unexpected result code in: $response');
+    }
+    _log.info('Received: $response');
   }
 
   Future<void> close() async {
-    await _socket?.flush();
-    await _socket?.close();
+    final socket = _socket;
+    if (socket != null) {
+      await socket.flush();
+      await socket.close();
+    }
   }
 
   String _formatCommand(String code, String parameters) {
@@ -130,31 +179,32 @@ class Device {
     return '#$code$parameters\r';
   }
 
-  Future<void> command(String code, {String parameters = ''}) async {
+  void _command(String code, {String parameters = ''}) async {
     if (_socket == null) await connect();
-    var c = _formatCommand(code, parameters);
-    _log.fine('Sending command: $c');
+    final socket = _socket;
+    if (socket != null) {}
+    final c = _formatCommand(code, parameters);
+    _log.info('Sending command: $c');
     _socket?.write(c);
-    await _socket?.flush();
-    _log.fine('Waiting for a response...');
-    await for (final response
-        // The API docs say that if there is no response to a command within 10s,
-        // the command should be considered lost and can be retransmitted.
-        in _socket!.timeout(const Duration(seconds: 10))) {
-      _log.info(ascii.decode(response));
-      break;
+  }
+
+  void powerToggle() => _command('POW');
+  void powerOn() => _command('PON');
+  void powerOff() => _command('POF');
+
+  void setVerboseMode(VerboseMode mode) async {
+    int modeValue;
+    switch (mode) {
+      case VerboseMode.off:
+        modeValue = 0;
+        break;
+      case VerboseMode.major:
+        modeValue = 2;
+        break;
+      case VerboseMode.detailed:
+        modeValue = 3;
+        break;
     }
-  }
-
-  Future<void> powerToggle() async {
-    await command('POW');
-  }
-
-  Future<void> powerOn() async {
-    await command('PON');
-  }
-
-  Future<void> powerOff() async {
-    await command('POF');
+    _command('SMV', parameters: modeValue.toString());
   }
 }
