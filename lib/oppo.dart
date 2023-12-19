@@ -212,11 +212,11 @@ class Device {
     }
   }
 
-  void powerToggle() async => await _command('POW');
+  Future<void> powerToggle() async => await _command('POW');
   Future<void> powerOn() async => await _command('PON');
-  void powerOff() async => await _command('POF');
+  Future<void> powerOff() async => await _command('POF');
 
-  void setVerboseMode(VerboseMode mode) async {
+  Future<void> setVerboseMode(VerboseMode mode) async {
     int modeValue;
     switch (mode) {
       case VerboseMode.off:
