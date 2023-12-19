@@ -344,8 +344,6 @@ class Device {
   /// useful for testing.
   Future<void> noOp() async => await _command('NOP');
 
-  // TODO - Uh oh. This command doesn't seem to result in a response. Perhaps
-  // some commands need to avoid setting pendingResponse to true.
   Future<void> setVerboseMode(VerboseMode mode) async {
     int modeValue;
     switch (mode) {
@@ -362,15 +360,62 @@ class Device {
     await _command('SVM', parameters: modeValue.toString());
   }
 
-  Future<void> queryVerboseMode() async {
-    await _command('QVM');
-  }
+  Future<void> setHdmiResolution() async {}
+  Future<void> setZoomRatio() async {}
+  Future<void> setVolume(int level) async {}
+  Future<void> setMute() async => await _command('SVL', parameters: 'MUTE');
+  Future<void> setRepeatMode() async {}
+  Future<void> searchTo(String position) async {}
+  Future<void> directPlay() async => await _command('DPL');
+  /// Clear command buffers.
+  Future<void> reset() async => await _command('RST');
+  // -10 to 10
+  Future<void> setSubtitleShift(int shift) async {}
+  // 0 to 5.
+  Future<void> setOsdPosition(int position) async {}
+  Future<void> setTimeInformationDisplay() async {}
+  Future<void> setHdrSetting() async {}
+  Future<void> setInputSource() async {}
+  Future<void> setScreenSaver() async {}
+  // APP
+  Future<void> runApp() async {}
+  Future<void> setSacdPriority() async {}
+  Future<void> setSacdOutputMode() async {}
+  Future<void> setForwardPlaybackSpeed() async {}
+  Future<void> setReversePlaybackSpeed() async {}
+  Future<void> queryDirectoryItem(int index) async {}
 
-  Future<void> queryPowerStatus() async {
-    await _command('QPW');
-  }
-
-  Future<void> queryFirmwareVersion() async {
-    await _command('QVR');
-  }
+  Future<void> queryVerboseMode() async => await _command('QVM');
+  Future<void> queryPowerStatus() async => await _command('QPW');
+  Future<void> queryFirmwareVersion() async => await _command('QVR');
+  Future<void> queryVolume() async => await _command('QVL');
+  Future<void> queryResolution() async => await _command('QHD');
+  Future<void> queryPlaybackStatus() async => await _command('QPL');
+  Future<void> queryTrackOrTitle() async => await _command('QTK');
+  Future<void> queryChapter() async => await _command('QCH');
+  Future<void> queryTrackOrTitleElapsedTime() async => await _command('QTE');
+  Future<void> queryTrackOrTitleRemainingTime() async => await _command('QTR');
+  Future<void> queryChapterElapsedTime() async => await _command('QCE');
+  Future<void> queryChapterRemainingTime() async => await _command('QCR');
+  Future<void> queryTotalElapsedTime() async => await _command('QEL');
+  Future<void> queryTotalRemainingTime() async => await _command('QRE');
+  Future<void> queryDiskType() async => await _command('QDT');
+  Future<void> queryAudioType() async => await _command('QAT');
+  Future<void> querySubtitleType() async => await _command('QST');
+  Future<void> querySubtitleShift() async => await _command('QSH');
+  Future<void> queryOsdPosition() async => await _command('QOP');
+  Future<void> queryRepeatMode() async => await _command('QRP');
+  Future<void> queryZoomMode() async => await _command('QZM');
+  Future<void> queryHdrSetting() async => await _command('QHR');
+  Future<void> query3DStatus() async => await _command('Q3D');
+  Future<void> queryHdrStatus() async => await _command('QHS');
+  Future<void> queryInputSource() async => await _command('QIS');
+  Future<void> queryCddbNumber() async => await _command('QCD');
+  Future<void> queryMediaFileFormat() async => await _command('QFT');
+  Future<void> queryMediaFileName() async => await _command('QFN');
+  Future<void> queryTrackName() async => await _command('QTN');
+  Future<void> queryTrackAlbum() async => await _command('QTA');
+  Future<void> queryTrackPerformer() async => await _command('QTP');
+  Future<void> queryDirectorySize() async => await _command('QDS');
+  Future<void> queryAspectRatio() async => await _command('QAR');
 }
