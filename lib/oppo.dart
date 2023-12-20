@@ -143,6 +143,35 @@ enum PlaybackStatus {
   discMenu,
 }
 
+enum AspectRatio {
+  ratio16x9,
+  ratio21x9,
+}
+
+enum AspectRatioMode {
+  wide,
+  wideAuto,
+  moveable,
+  fixed,
+  cropped,
+}
+
+enum AspectRatioPlayback {
+  wide,
+  ratio4x3,
+  fullScreen,
+  ratio16x9or4x3,
+  ratio21x9,
+}
+
+class AspectRatioSetting {
+  AspectRatio ratio;
+  AspectRatioMode mode;
+  AspectRatioPlayback playback;
+
+  AspectRatioSetting(this.ratio, this.mode, this.playback);
+}
+
 class Device {
   final String name;
   final InternetAddress address;
