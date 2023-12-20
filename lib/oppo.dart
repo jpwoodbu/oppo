@@ -202,6 +202,10 @@ class Device {
   Device(this.name, this.address, this.port);
 
   Future<void> connect() async {
+    if (_socket != null) {
+      _log.warning('connect() called on already connected Device.');
+      return;
+    }
     _socket = await Socket.connect(address, port,
         timeout: const Duration(seconds: 3));
     _log.info('Connected to device at ${address.address}.');
