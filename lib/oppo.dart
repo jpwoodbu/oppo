@@ -34,8 +34,7 @@ void main() async {
     final device = Device(info.name, info.address, info.port);
     await device.connect();
     device.startParser();
-    await device.setVerboseMode(VerboseMode.major);
-    await device.queryFirmwareVersion();
+    await device.setVerboseMode(VerboseMode.detailed);
   }
 }
 
@@ -108,6 +107,42 @@ OppoBroadcast _parseBroadcast(Datagram datagram) {
 
 enum VerboseMode { off, major, detailed }
 
+enum PlaybackStatus {
+  noDisc,
+  loadingDisc,
+  openTray,
+  closingTray,
+  playbackStarted,
+  playbackPaused,
+  playbackStopped,
+  forwardFrameByFrame,
+  reverseFrameByFrame,
+  fastForward1,
+  fastForward2,
+  fastForward3,
+  fastForward4,
+  fastForward5,
+  fastReverse1,
+  fastReverse2,
+  fastReverse3,
+  fastReverse4,
+  fastReverse5,
+  slowForwardHalf,
+  slowForwardQuarter,
+  slowForwardEighth,
+  slowForwardSixteenth,
+  slowForwardThirtySecond,
+  fastForwardHalf,
+  fastForwardQuarter,
+  fastForwardEighth,
+  fastForwardSixteenth,
+  fastForwardThirtySecond,
+  homeMenu,
+  mediaCenter,
+  screenSaver,
+  discMenu,
+}
+
 class Device {
   final String name;
   final InternetAddress address;
@@ -117,6 +152,8 @@ class Device {
   Socket? _socket;
   VerboseMode? verboseMode;
   bool? powered;
+  String? firmwareVersion;
+  bool threeDimensional = false;
 
   Device(this.name, this.address, this.port);
 
@@ -153,47 +190,100 @@ class Device {
   Future<void> startParser() async {
     _log.info('Starting parser');
     await for (final packet in stream()) {
-      parseResponse(packet);
+      parseMessage(packet);
     }
   }
 
-  void parseResponse(String response) {
+  void parseMessage(String response) {
     if (!response.startsWith('@')) {
       throw 'Unable to parse response. The "@" prefix is missing: $response';
     }
     final parts = response.split(' ');
+    // TODO - This parsing logic only works if verbose mode is set to >=1. The
+    // default verbose mode speaks a backwards-compatible protocol that's less
+    // descriptive. Consider setting the verbose mode to 2 on connect(). Verbose
+    // mode 1 is, oddly, not defined.
     String resultCode;
-    // If verboseMode is not >=1, a commandCode may not be included in the
-    // response.
-    String commandCode = '';
+    String commandCode;
     String parameters;
-    if (parts.length == 2) {
-      resultCode = parts[0].trim().substring(1);
+    // Updates do not include a resultCode since they are not responses to
+    // commands or queries.
+    if (response.startsWith('@U')) {
+      commandCode = parts[0].trim().substring(1);
       parameters = parts.sublist(1).join(' ').trim();
+      _parseUpdate(commandCode, parameters);
     } else {
       commandCode = parts[0].trim().substring(1);
       resultCode = parts[1].trim();
       parameters = parts.sublist(2).join(' ').trim();
+      _parseResponse(commandCode, resultCode, parameters);
     }
-    _log.fine('Parameters: $parameters');
+  }
+
+  void _parseResponse(
+      String commandCode, String resultCode, String parameters) {
+    final message = [commandCode, resultCode, parameters].join(' ');
+    pendingResponse = false;
     if (resultCode == 'ER') {
-      _log.severe('Got an error response: $response');
+      _log.severe('Got an error response: $message');
     } else if (resultCode != 'OK') {
       _log.severe(
-          'Unable to parse response. Unexpected result code in: $response');
+          'Unable to parse response. Unexpected result code in: $message');
     }
-    pendingResponse = false;
     switch (commandCode) {
-      case 'QVM':
+      case 'QVM' || 'SVM':
         _parseVerboseMode(parameters);
         break;
       case 'QPW':
         powered = parameters == 'ON' ? true : false;
         break;
+      case 'QVR':
+        firmwareVersion = parameters;
+        break;
       default:
-        if (commandCode.startsWith('Q') || commandCode.startsWith('U')) {
-          _log.warning('Unsupported command code: $commandCode');
-        }
+        _log.warning('Unsupported command code: $commandCode');
+        break;
+    }
+  }
+
+  void _parseUpdate(String commandCode, String parameters) {
+    switch (commandCode) {
+      // TODO - implement.
+      case 'UPW':
+        break;
+      // TODO - implement.
+      case 'UPL':
+        break;
+      // TODO - implement.
+      case 'UVL':
+        break;
+      // TODO - implement.
+      case 'UDT':
+        break;
+      // TODO - implement.
+      case 'UAT':
+        break;
+      // TODO - implement.
+      case 'UST':
+        break;
+      // TODO - implement.
+      case 'UIS':
+        break;
+      // TODO - implement.
+      case 'U3D':
+        break;
+      // TODO - implement.
+      case 'UAR':
+        break;
+      // verboseMode.detailed messages below.
+      // TODO - implement.
+      case 'UTC':
+        break;
+      // TODO - implement.
+      case 'UVO':
+        break;
+      default:
+        _log.severe('Unsupported command code: $commandCode');
         break;
     }
   }
@@ -287,12 +377,14 @@ class Device {
   Future<void> number8() async => await _command('NU8');
   Future<void> number9() async => await _command('NU9');
   Future<void> number0() async => await _command('NU0');
+
   /// Clear numeric input.
   Future<void> clear() async => await _command('CLR');
   Future<void> goto() async => await _command('GOT');
   Future<void> home() async => await _command('HOM');
   Future<void> pageUp() async => await _command('PUP');
   Future<void> pageDown() async => await _command('PDN');
+
   /// Show/hide on-screen display.
   Future<void> osd() async => await _command('OSD');
   Future<void> topMenu() async => await _command('TTL');
@@ -313,31 +405,41 @@ class Device {
   Future<void> pause() async => await _command('PAU');
   Future<void> previous() async => await _command('PRE');
   Future<void> next() async => await _command('NXT');
+
   /// Fast reverse play.
   Future<void> reverse() async => await _command('REV');
+
   /// Fast forward play.
   Future<void> forward() async => await _command('FWD');
+
   /// Change audio or language track.
   Future<void> audio() async => await _command('AUD');
+
   /// Change subtitle language.
   Future<void> subtitle() async => await _command('SUB');
+
   /// Change camera angle.
   Future<void> angle() async => await _command('ANG');
+
   /// Zoom in/out and adjust aspect ratio.
   Future<void> zoom() async => await _command('ZOM');
   Future<void> secondaryAudioProgramToggle() async => await _command('SAP');
+
   /// Set A/B repeat play points.
   Future<void> repeatAB() async => await _command('ATB');
   Future<void> repeat() async => await _command('RPT');
+
   /// Picture-in-picture toggle.
   Future<void> pipToggle() async => await _command('PIP');
   Future<void> outputResolutionCycle() async => await _command('HDM');
   Future<void> outputResolutionAuto() async => await _command('RLH');
+
   /// Show defailed info. The same operation as long pressing the info button.
   Future<void> infoDetailed() async => await _command('INH');
   Future<void> audioVideoSyncMenu() async => await _command('AVS');
   Future<void> gaplessPlayback() async => await _command('GAP');
   Future<void> inputMenu() async => await _command('SRC');
+
   /// No operation.
   ///
   /// This command is documentd and therefore included. Probably it's only
@@ -367,6 +469,7 @@ class Device {
   Future<void> setRepeatMode() async {}
   Future<void> searchTo(String position) async {}
   Future<void> directPlay() async => await _command('DPL');
+
   /// Clear command buffers.
   Future<void> reset() async => await _command('RST');
   // -10 to 10
