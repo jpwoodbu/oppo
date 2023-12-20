@@ -59,59 +59,62 @@ class Discovery extends StatefulWidget {
 }
 
 class _DiscoveryState extends State<Discovery> {
-  // late Future<oppo.Device> _device;
-  // late final AppLifecycleListener _listener;
-  // oppo.Device? device;
-  late oppo.Discover discover;
+  late oppo.Discover _discover;
 
   @override
   void initState() {
     super.initState();
-    discover = oppo.Discover();
-
-    /*
-    _listener = AppLifecycleListener(
-      onExitRequested: () async {
-        if (device != null) {
-          _log.info('Disconnecting from Oppo.');
-          await device?.close();
-        }
-        return AppExitResponse.exit;
-      }
-    );
-    */
+    _discover = oppo.Discover();
   }
 
-  @override
-  void dispose() async {
-    super.dispose();
-    // _listener.dispose();
+  Widget _consumer(BuildContext context) {
+    return Consumer<DiscoveryChanges>(
+      builder: (context, discoveryChanges, _) =>
+          _page(context, discoveryChanges.devices),
+    );
+  }
+
+  Widget _page(BuildContext context, Set<oppo.OppoBroadcast> devices) {
+    return Scaffold(
+      appBar: AppBar(title: const Center(child: Text('Oppo Remote'))),
+      body: Center(
+        child: Column(
+          children: _devices(context, devices),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _devices(BuildContext context, Set<oppo.OppoBroadcast> devices) {
+    if (devices.isEmpty) {
+      return [const Text('Scanning for Oppo UDP-20X players...')];
+    } else {
+      return devices
+          .map(
+            (e) => Card(
+              child: SizedBox(
+                width: 300,
+                height: 75,
+                child: ListTile(
+                  leading: const Icon(Icons.album),
+                  title: Text(e.name),
+                  subtitle: Text(e.address.address),
+                  onTap: () {
+                    _discover.close();
+                  },
+                ),
+              ),
+            ),
+          )
+          .toList();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DiscoveryChanges(discover),
-      child: const ChooseDevicePage(),
-    );
-  }
-}
-
-class ChooseDevicePage extends StatelessWidget {
-  const ChooseDevicePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<DiscoveryChanges>(
-      builder: (context, discoveryChanges, _) =>
-          _build(context, discoveryChanges.devices),
-    );
-  }
-
-  Widget _build(BuildContext context, Set<oppo.OppoBroadcast> devices) {
-    return Scaffold(
-      appBar: AppBar(title: const Center(child: Text('Oppo Remote'))),
-      body: Column(children: devices.map((e) => Text(e.name)).toList()),
+      create: (context) => DiscoveryChanges(_discover),
+      child: _consumer(context),
     );
   }
 }
