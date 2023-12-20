@@ -44,6 +44,17 @@ class OppoBroadcast {
   String name;
 
   OppoBroadcast(this.address, this.port, this.name);
+
+  @override
+  int get hashCode => address.address.hashCode ^ port.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is OppoBroadcast &&
+            address.address == other.address.address &&
+            port == other.port;
+  }
 }
 
 class Discover {
