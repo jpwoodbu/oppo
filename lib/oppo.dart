@@ -61,13 +61,17 @@ class Discover {
   RawDatagramSocket? _socket;
 
   void close() {
-    if (_socket != null) _socket!.close();
+    if (_socket != null) {
+      _socket!.close();
+      _log.info('No longer listening for Oppo broadcast packets.');
+    }
   }
 
   Stream<OppoBroadcast> listen() async* {
     _socket =
         await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
     _socket!.writeEventsEnabled = false;
+    _log.info('Listening for Oppo broadcast packets.');
     await for (final event in _socket!) {
       if (event == RawSocketEvent.read) {
         final datagram = _socket!.receive();
