@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
+import 'device_changes.dart';
 import 'oppo.dart' as oppo;
 
 final _log = Logger('main');
@@ -75,11 +76,15 @@ class _DiscoveryState extends State<Discovery> {
   }
 
   Widget _page(BuildContext context, Set<oppo.OppoBroadcast> devices) {
-    return Scaffold(
-      appBar: AppBar(title: const Center(child: Text('Oppo Remote'))),
-      body: Center(
-        child: Column(
-          children: _devices(context, devices),
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Center(
+            child: Column(
+              children: _devices(context, devices),
+            ),
+          ),
         ),
       ),
     );
@@ -101,6 +106,12 @@ class _DiscoveryState extends State<Discovery> {
                   subtitle: Text(e.address.address),
                   onTap: () {
                     _discover.close();
+                    final device = oppo.Device(e.name, e.address, e.port);
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage(device)),
+                      (Route<dynamic> route) => false,
+                    );
                   },
                 ),
               ),
@@ -115,6 +126,56 @@ class _DiscoveryState extends State<Discovery> {
     return ChangeNotifierProvider(
       create: (context) => DiscoveryChanges(_discover),
       child: _consumer(context),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  final oppo.Device device;
+
+  const HomePage(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+        future: device.connect(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return const Text('Error connecting to device.');
+            }
+            return ChangeNotifierProvider(
+              create: (context) => DeviceChanges(device),
+              child: _consumer(context),
+            );
+          } else {
+            return const Text('Connecting...');
+          }
+        });
+  }
+
+  Widget _consumer(BuildContext context) {
+    return Consumer<DeviceChanges>(
+      builder: (context, deviceChanges, _) =>
+          _page(context, deviceChanges.device),
+    );
+  }
+
+  Widget _page(BuildContext context, oppo.Device device) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(title: const Center(child: Text('Oppo Remote'))),
+        body: Column(
+          children: [
+            ElevatedButton(onPressed: device.queryPowerStatus, child: const Text('query power')),
+            ElevatedButton(onPressed: device.queryFirmwareVersion, child: const Text('query firmware')),
+            ElevatedButton(onPressed: device.powerOn, child: const Text('power on')),
+            Text(device.name),
+            Text(device.firmwareVersion ?? 'unknown'),
+            Text(device.powered?.toString() ?? 'pending'),
+          ],
+        ),
+      ),
     );
   }
 }
