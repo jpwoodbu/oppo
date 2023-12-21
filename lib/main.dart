@@ -70,6 +70,14 @@ class _DiscoveryState extends State<Discovery> {
     _discover = oppo.Discover();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => DiscoveryChanges(_discover),
+      child: _consumer(context),
+    );
+  }
+
   Widget _consumer(BuildContext context) {
     return Consumer<DiscoveryChanges>(
       builder: (context, discoveryChanges, _) =>
@@ -89,17 +97,6 @@ class _DiscoveryState extends State<Discovery> {
           ),
         ),
       ),
-    );
-  }
-
-  void _connect(oppo.Discover discover, oppo.OppoBroadcast broadcast) {
-    discover.close();
-    final device =
-        oppo.Device(broadcast.name, broadcast.address, broadcast.port);
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => Connect(device)),
-      (Route<dynamic> route) => false,
     );
   }
 
@@ -136,11 +133,14 @@ class _DiscoveryState extends State<Discovery> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => DiscoveryChanges(_discover),
-      child: _consumer(context),
+  void _connect(oppo.Discover discover, oppo.OppoBroadcast broadcast) {
+    discover.close();
+    final device =
+        oppo.Device(broadcast.name, broadcast.address, broadcast.port);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => Connect(device)),
+      (Route<dynamic> route) => false,
     );
   }
 }
@@ -154,31 +154,37 @@ class Connect extends StatefulWidget {
 }
 
 class _ConnectState extends State<Connect> {
-  bool createdProvider = false;
+  // It's important that the "connect" Future is stateful so we don't try to
+  // reconnect on hot reload.
+  late Future<void> _connect;
+
+  @override
+  void initState() {
+    super.initState();
+    _connect = widget.device.connect();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _log.fine('Rebuilding FutureBuilder.');
     return FutureBuilder<void>(
-        future: widget.device.connect(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return const Text('Error connecting to device.');
-            }
-            return ChangeNotifierProvider(
-              create: (_) {
-                _log.info('Creating change notifier provider.');
-                final deviceChanges = DeviceChanges(widget.device);
-                createdProvider = true;
-                return deviceChanges;
-              },
-              child: const HomePage(),
-            );
-          } else {
-            return const Text('Connecting...');
+      future: _connect,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasError) {
+            return const Text('Error connecting to device.');
           }
-        });
+          return ChangeNotifierProvider(
+            create: (_) {
+              final deviceChanges = DeviceChanges(widget.device);
+              return deviceChanges;
+            },
+            child: const HomePage(),
+          );
+        } else {
+          return const Text('Connecting...');
+        }
+      },
+    );
   }
 }
 
