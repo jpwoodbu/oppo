@@ -16,7 +16,7 @@ class DeviceChanges with ChangeNotifier {
   }
 
   Future<void> _handleMessages() async {
-    await for (final message in _stream) {
+    await for (final String message in _stream) {
       device.parseMessage(message);
       notifyListeners();
     }

@@ -75,14 +75,14 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
-  Widget _page(BuildContext context, Set<oppo.OppoBroadcast> devices) {
+  Widget _page(BuildContext context, Set<oppo.OppoBroadcast> broadcasts) {
     return SafeArea(
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(15.0),
           child: Center(
             child: Column(
-              children: _devices(context, devices),
+              children: _devices(context, broadcasts),
             ),
           ),
         ),
@@ -90,11 +90,12 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
-  List<Widget> _devices(BuildContext context, Set<oppo.OppoBroadcast> devices) {
-    if (devices.isEmpty) {
+  List<Widget> _devices(
+      BuildContext context, Set<oppo.OppoBroadcast> broadcasts) {
+    if (broadcasts.isEmpty) {
       return [const Text('Scanning for Oppo UDP-20X players...')];
     } else {
-      return devices
+      return broadcasts
           .map(
             (e) => Card(
               child: SizedBox(
@@ -109,7 +110,7 @@ class _DiscoveryState extends State<Discovery> {
                     final device = oppo.Device(e.name, e.address, e.port);
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (context) => HomePage(device)),
+                      MaterialPageRoute(builder: (context) => Connect(device)),
                       (Route<dynamic> route) => false,
                     );
                   },
@@ -130,52 +131,90 @@ class _DiscoveryState extends State<Discovery> {
   }
 }
 
-class HomePage extends StatelessWidget {
+class Connect extends StatefulWidget {
   final oppo.Device device;
+  const Connect(this.device, {super.key});
 
-  const HomePage(this.device, {super.key});
+  @override
+  State<Connect> createState() => _ConnectState();
+}
+
+class _ConnectState extends State<Connect> {
+  bool createdProvider = false;
 
   @override
   Widget build(BuildContext context) {
+    _log.fine('Rebuilding FutureBuilder.');
     return FutureBuilder<void>(
-        future: device.connect(),
+        future: widget.device.connect(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
               return const Text('Error connecting to device.');
             }
             return ChangeNotifierProvider(
-              create: (context) => DeviceChanges(device),
-              child: _consumer(context),
+              create: (context) {
+                _log.info('Creating change notifier provider.');
+
+                final deviceChanges = DeviceChanges(widget.device);
+                createdProvider = true;
+                return deviceChanges;
+              },
+              child: const HomePage(),
             );
           } else {
             return const Text('Connecting...');
           }
         });
   }
+}
 
-  Widget _consumer(BuildContext context) {
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Consumer<DeviceChanges>(
       builder: (context, deviceChanges, _) =>
-          _page(context, deviceChanges.device),
+          _build(context, deviceChanges.device),
     );
   }
 
-  Widget _page(BuildContext context, oppo.Device device) {
+  Widget _build(BuildContext context, oppo.Device device) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(title: const Center(child: Text('Oppo Remote'))),
-        body: Column(
-          children: [
-            ElevatedButton(onPressed: device.queryPowerStatus, child: const Text('query power')),
-            ElevatedButton(onPressed: device.queryFirmwareVersion, child: const Text('query firmware')),
-            ElevatedButton(onPressed: device.powerOn, child: const Text('power on')),
-            Text(device.name),
-            Text(device.firmwareVersion ?? 'unknown'),
-            Text(device.powered?.toString() ?? 'pending'),
-          ],
-        ),
+        body: device.powered ?? false
+            ? _buttons(context, device)
+            : _notPoweredOn(context, device),
       ),
+    );
+  }
+
+  Widget _notPoweredOn(BuildContext context, oppo.Device device) {
+    return ElevatedButton(
+        onPressed: device.powerOn, child: const Text('power on'));
+  }
+
+  Widget _buttons(BuildContext context, oppo.Device device) {
+    return Column(
+      children: [
+        ElevatedButton(
+            onPressed: device.queryPowerStatus,
+            child: const Text('query power')),
+        ElevatedButton(
+            onPressed: device.queryFirmwareVersion,
+            child: const Text('query firmware')),
+        ElevatedButton(
+            onPressed: device.powerOn, child: const Text('power on')),
+        ElevatedButton(
+            onPressed: device.powerOff, child: const Text('power off')),
+        ElevatedButton(onPressed: device.mute, child: const Text('mute')),
+        const SizedBox(height: 10),
+        Text(device.name),
+        Text(device.firmwareVersion ?? 'pending'),
+        Text(device.powered?.toString() ?? 'pending'),
+      ],
     );
   }
 }
