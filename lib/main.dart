@@ -167,9 +167,8 @@ class _ConnectState extends State<Connect> {
               return const Text('Error connecting to device.');
             }
             return ChangeNotifierProvider(
-              create: (context) {
+              create: (_) {
                 _log.info('Creating change notifier provider.');
-
                 final deviceChanges = DeviceChanges(widget.device);
                 createdProvider = true;
                 return deviceChanges;
