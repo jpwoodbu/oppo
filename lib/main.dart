@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
@@ -90,10 +92,30 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
+  void _connect(oppo.Discover discover, oppo.OppoBroadcast broadcast) {
+    discover.close();
+    final device =
+        oppo.Device(broadcast.name, broadcast.address, broadcast.port);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => Connect(device)),
+      (Route<dynamic> route) => false,
+    );
+  }
+
   List<Widget> _devices(
       BuildContext context, Set<oppo.OppoBroadcast> broadcasts) {
     if (broadcasts.isEmpty) {
-      return [const Text('Scanning for Oppo UDP-20X players...')];
+      return [
+        const Text('Scanning for Oppo UDP-20X players...'),
+        ElevatedButton(
+          onPressed: () => _connect(
+              _discover,
+              oppo.OppoBroadcast(
+                  InternetAddress('192.168.86.149'), 23, 'My OPPO')),
+          child: const Text('Just connect to mine.'),
+        ),
+      ];
     } else {
       return broadcasts
           .map(
@@ -105,15 +127,7 @@ class _DiscoveryState extends State<Discovery> {
                   leading: const Icon(Icons.album),
                   title: Text(e.name),
                   subtitle: Text(e.address.address),
-                  onTap: () {
-                    _discover.close();
-                    final device = oppo.Device(e.name, e.address, e.port);
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => Connect(device)),
-                      (Route<dynamic> route) => false,
-                    );
-                  },
+                  onTap: () => _connect(_discover, e),
                 ),
               ),
             ),
