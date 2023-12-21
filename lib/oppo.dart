@@ -282,14 +282,14 @@ class Device {
       case 'QVM' || 'SVM':
         _parseVerboseMode(parameters);
         break;
-      case 'QPW':
+      case 'QPW' || 'PON' || 'POF':
         powered = parameters == 'ON' ? true : false;
         break;
       case 'QVR':
         firmwareVersion = parameters;
         break;
       default:
-        _log.warning('Unsupported command code: $commandCode');
+        _log.warning('[R] Unsupported command code: $commandCode');
         break;
     }
   }
@@ -331,7 +331,7 @@ class Device {
       case 'UVO':
         break;
       default:
-        _log.severe('Unsupported command code: $commandCode');
+        _log.severe('[U] Unsupported command code: $commandCode');
         break;
     }
   }
