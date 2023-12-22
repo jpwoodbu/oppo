@@ -386,7 +386,7 @@ class Device {
         pendingResponse = false;
         return _command(code, parameters: parameters);
       }
-      _log.warning('Waiting on a response to the previous command. '
+      _log.fine('Waiting on a response to the previous command. '
           'Will try again in 500ms.');
       await Future.delayed(
           const Duration(milliseconds: 500),

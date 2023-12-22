@@ -191,6 +191,11 @@ class _ConnectState extends State<Connect> {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  Future<void> _fetchAll(oppo.Device device) async {
+    await device.queryPowerStatus();
+    await device.queryFirmwareVersion();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<DeviceChanges>(
@@ -231,6 +236,9 @@ class HomePage extends StatelessWidget {
     return Column(
       children: [
         ElevatedButton(
+            onPressed: () => _fetchAll(device),
+            child: const Text('fetch all')),
+        ElevatedButton(
             onPressed: device.queryPowerStatus,
             child: const Text('query power')),
         ElevatedButton(
@@ -244,7 +252,7 @@ class HomePage extends StatelessWidget {
         const SizedBox(height: 10),
         Text(device.name),
         Text(device.firmwareVersion ?? 'pending'),
-        Text(device.powered?.toString() ?? 'pending'),
+        Text(device.powered ?? false ? 'On' : 'Off'),
       ],
     );
   }
