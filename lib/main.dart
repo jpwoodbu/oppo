@@ -211,8 +211,20 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _notPoweredOn(BuildContext context, oppo.Device device) {
-    return ElevatedButton(
-        onPressed: device.powerOn, child: const Text('power on'));
+    return SafeArea(
+      minimum: const EdgeInsets.all(15.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Power on to start using the remote.'),
+            const SizedBox(height: 10.0),
+            ElevatedButton(
+                onPressed: device.powerOn, child: const Text('Power on')),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buttons(BuildContext context, oppo.Device device) {
