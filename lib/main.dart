@@ -421,8 +421,7 @@ Widget _arrows(BuildContext context, oppo.Device device) {
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.middle,
             child: ElevatedButton(
-              // TODO - Figure out what function the Option button calls.
-              onPressed: () {},
+              onPressed: () => addHaptic(device.option),
               child: const Text('Option'),
             ),
           ),
@@ -579,7 +578,137 @@ Widget _numberPad(BuildContext context, oppo.Device device) {
 }
 
 Widget _otherControls(BuildContext context, oppo.Device device) {
-  return Placeholder();
+  Widget colorButton(Function onTap, Color color) {
+    return GestureDetector(
+      onTap: () => addHaptic(onTap),
+      child: Container(
+        color: color,
+        child: SizedBox(
+          height: 30.0,
+          width: 60.0,
+        ),
+      ),
+    );
+  }
+
+  return Padding(
+    padding: const EdgeInsets.all(15.0),
+    child: ListView(
+      children: [
+        Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              onPressed: device.inputMenu,
+              icon: Icon(Icons.route),
+              label: Text('Input'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.trayToggle,
+              icon: Icon(Icons.eject),
+              label: Text('Open'),
+            ),
+          ],
+        ),
+        Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: device.pureAudio,
+              child: Text('Pure audio'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.volumeDown,
+              icon: Icon(Icons.volume_down),
+              label: Text('Volume -'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.volumeUp,
+              icon: Icon(Icons.volume_up),
+              label: Text('Volume +'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.mute,
+              icon: Icon(Icons.volume_mute),
+              label: Text('Mute'),
+            ),
+          ],
+        ),
+        Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          children: [
+            colorButton(device.red, Colors.red),
+            colorButton(device.green, Colors.green),
+            colorButton(device.blue, Colors.blue),
+            colorButton(device.yellow, Colors.yellow),
+          ],
+        ),
+        Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              onPressed: device.audio,
+              icon: Icon(Icons.audiotrack),
+              label: Text('Audio'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.subtitle,
+              icon: Icon(Icons.subtitles),
+              label: Text('Subtitle'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.zoom,
+              icon: Icon(Icons.zoom_in),
+              label: Text('Zoom'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.dim,
+              icon: Icon(Icons.light_mode),
+              label: Text('Dimmer'),
+            ),
+          ],
+        ),
+        Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              onPressed: device.setUp,
+              icon: Icon(Icons.light_mode),
+              label: Text('Setup'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.repeatAB,
+              icon: Icon(Icons.light_mode),
+              label: Text('AB Replay'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.repeat,
+              icon: Icon(Icons.light_mode),
+              label: Text('Repeat'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.pictureAdjustmentMenu,
+              icon: Icon(Icons.apps),
+              label: Text('Pic'),
+            ),
+          ],
+        ),
+        Wrap(alignment: WrapAlignment.spaceEvenly, children: [
+            ElevatedButton.icon(
+              onPressed: device.outputResolutionCycle,
+              icon: Icon(Icons.aspect_ratio),
+              label: Text('Resolution'),
+            ),
+            ElevatedButton.icon(
+              onPressed: device.hdrMenu,
+              icon: Icon(Icons.hdr_strong),
+              label: Text('HDR'),
+            ),
+
+        ],),
+      ],
+    ),
+  );
 }
 
 Widget _fileViewer(BuildContext context, oppo.Device device) {
