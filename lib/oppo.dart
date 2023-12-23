@@ -480,6 +480,12 @@ class Device {
   /// Picture-in-picture toggle.
   Future<void> pipToggle() async => await _command('PIP');
   Future<void> outputResolutionCycle() async => await _command('HDM');
+  // Same as subtitle hold.
+  Future<void> subtitleShift() async => await _command('SUH');
+  Future<void> option() async => await _command('OPT');
+  Future<void> threeDimensionalMenu() async => await _command('M3D');
+  Future<void> pictureAdjustmentMenu() async => await _command('SEH');
+  Future<void> hdrMenu() async => await _command('HDR');
   Future<void> outputResolutionAuto() async => await _command('RLH');
 
   /// Show defailed info. The same operation as long pressing the info button.
@@ -513,7 +519,8 @@ class Device {
   Future<void> setHdmiResolution() async {}
   Future<void> setZoomRatio() async {}
   Future<void> setVolume(int level) async {}
-  Future<void> setMute() async => await _command('SVL', parameters: 'MUTE');
+  // This RPC seems to be redudant since there is mute().
+  // Future<void> setMute() async => await _command('SVL', parameters: 'MUTE');
   Future<void> setRepeatMode() async {}
   Future<void> searchTo(String position) async {}
   Future<void> directPlay() async => await _command('DPL');
