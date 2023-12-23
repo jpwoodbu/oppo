@@ -267,11 +267,11 @@ Widget _nameRow(BuildContext context, oppo.Device device) {
         device.name,
       ),
       IconButton(
-        onPressed: () => addHaptic(device.powerToggle),
+        // This widget is only displayed when the power is on so we explicitly
+        // call the power off function here.
+        onPressed: () => addHaptic(device.powerOff),
         icon: const Icon(
           Icons.power_settings_new,
-          // This widget is only displayed when the power is on so the color
-          // can always be blue.
           color: Colors.blue,
           semanticLabel: 'Toggle power',
         ),
