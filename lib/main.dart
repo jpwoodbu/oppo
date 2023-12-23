@@ -166,7 +166,8 @@ class _ConnectState extends State<Connect> {
   @override
   void initState() {
     super.initState();
-    _connect = widget.device.connect();
+    _connect =
+        Future.delayed(const Duration(seconds: 1), widget.device.connect);
   }
 
   @override
@@ -176,7 +177,8 @@ class _ConnectState extends State<Connect> {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return const Text('Error connecting to device.');
+            return const Scaffold(
+                body: Center(child: Text('Error connecting to device.')));
           }
           return ChangeNotifierProvider(
             create: (_) {
@@ -187,7 +189,7 @@ class _ConnectState extends State<Connect> {
             child: const HomePage(),
           );
         } else {
-          return const Text('Connecting...');
+          return const Scaffold(body: Center(child: Text('Connecting...')));
         }
       },
     );
@@ -613,9 +615,10 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
         Wrap(
           alignment: WrapAlignment.spaceEvenly,
           children: [
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: device.pureAudio,
-              child: Text('Pure audio'),
+              icon: Icon(Icons.graphic_eq),
+              label: Text('Pure audio'),
             ),
             ElevatedButton.icon(
               onPressed: device.volumeDown,
@@ -673,17 +676,17 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
           children: [
             ElevatedButton.icon(
               onPressed: device.setUp,
-              icon: Icon(Icons.light_mode),
+              icon: Icon(Icons.settings),
               label: Text('Setup'),
             ),
             ElevatedButton.icon(
               onPressed: device.repeatAB,
-              icon: Icon(Icons.light_mode),
+              icon: Icon(Icons.undo),
               label: Text('AB Replay'),
             ),
             ElevatedButton.icon(
               onPressed: device.repeat,
-              icon: Icon(Icons.light_mode),
+              icon: Icon(Icons.repeat),
               label: Text('Repeat'),
             ),
             ElevatedButton.icon(
@@ -693,7 +696,9 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
             ),
           ],
         ),
-        Wrap(alignment: WrapAlignment.spaceEvenly, children: [
+        Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          children: [
             ElevatedButton.icon(
               onPressed: device.outputResolutionCycle,
               icon: Icon(Icons.aspect_ratio),
@@ -704,8 +709,8 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
               icon: Icon(Icons.hdr_strong),
               label: Text('HDR'),
             ),
-
-        ],),
+          ],
+        ),
       ],
     ),
   );
