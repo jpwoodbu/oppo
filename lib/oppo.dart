@@ -282,7 +282,7 @@ class Device {
       case 'QVM' || 'SVM':
         _parseVerboseMode(parameters);
         break;
-      case 'QPW' || 'PON' || 'POF':
+      case 'QPW' || 'PON' || 'POF' || 'POW':
         powered = parameters == 'ON' ? true : false;
         break;
       case 'QVR':
