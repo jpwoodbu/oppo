@@ -194,8 +194,15 @@ class _ConnectState extends State<Connect> {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -209,8 +216,42 @@ class HomePage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         body: device.powered ?? false
-            ? _buttons(context, device)
+            ? IndexedStack(
+                index: currentPageIndex,
+                children: [
+                  _buttons(context, device),
+                  _numberPad(context, device),
+                  _otherControls(context, device),
+                  _fileViewer(context, device),
+                ],
+              )
             : _notPoweredOn(context, device),
+        bottomNavigationBar: device.powered ?? false
+            ? NavigationBar(
+                destinations: [
+                  NavigationDestination(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.numbers),
+                    label: 'Pad',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.miscellaneous_services),
+                    label: 'Other',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.folder),
+                    label: 'Files',
+                  ),
+                ],
+                selectedIndex: currentPageIndex,
+                onDestinationSelected: (int index) {
+                  setState(() => currentPageIndex = index);
+                },
+              )
+            : null,
       ),
     );
   }
@@ -282,8 +323,8 @@ Widget _nameRow(BuildContext context, oppo.Device device) {
 
 Widget _homeRow(BuildContext context, oppo.Device device) {
   return Wrap(
-   alignment: WrapAlignment.spaceBetween,
-   crossAxisAlignment: WrapCrossAlignment.center,
+    alignment: WrapAlignment.spaceBetween,
+    crossAxisAlignment: WrapCrossAlignment.center,
     children: [
       IconButton(
         onPressed: () => addHaptic(device.home),
@@ -483,4 +524,64 @@ Widget _positionControls(BuildContext context, oppo.Device device) {
           )),
     ],
   );
+}
+
+Widget _numberPad(BuildContext context, oppo.Device device) {
+  Widget number(Function onPressed, String label) {
+    final padding = EdgeInsets.all(8.0);
+    return Padding(
+      padding: padding,
+      child: ElevatedButton(
+        onPressed: () => addHaptic(onPressed),
+        child: Container(
+          padding: padding,
+          child: Text(label, style: Theme.of(context).textTheme.headlineLarge),
+        ),
+      ),
+    );
+  }
+
+  return Center(
+    child: Table(
+      defaultColumnWidth: IntrinsicColumnWidth(),
+      children: [
+        TableRow(
+          children: [
+            number(device.number1, '1'),
+            number(device.number2, '2'),
+            number(device.number2, '3'),
+          ],
+        ),
+        TableRow(
+          children: [
+            number(device.number4, '4'),
+            number(device.number5, '5'),
+            number(device.number6, '6'),
+          ],
+        ),
+        TableRow(
+          children: [
+            number(device.number7, '7'),
+            number(device.number8, '8'),
+            number(device.number9, '9'),
+          ],
+        ),
+        TableRow(
+          children: [
+            SizedBox(),
+            number(device.number0, '0'),
+            SizedBox(),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _otherControls(BuildContext context, oppo.Device device) {
+  return Placeholder();
+}
+
+Widget _fileViewer(BuildContext context, oppo.Device device) {
+  return Placeholder();
 }
