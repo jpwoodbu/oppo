@@ -260,6 +260,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 Future<void> _fetchAll(oppo.Device device) async {
+  await device.setVerboseMode(oppo.VerboseMode.major);
   await device.queryPowerStatus();
 }
 
@@ -580,16 +581,13 @@ Widget _numberPad(BuildContext context, oppo.Device device) {
 }
 
 Widget _otherControls(BuildContext context, oppo.Device device) {
-  Widget colorButton(Function onTap, Color color) {
-    return GestureDetector(
-      onTap: () => addHaptic(onTap),
-      child: Container(
-        color: color,
-        child: SizedBox(
-          height: 30.0,
-          width: 60.0,
-        ),
+  Widget colorButton(Function onPressed, Color color) {
+    return FilledButton(
+      onPressed: () => addHaptic(onPressed),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(color),
       ),
+      child: SizedBox(height: 30.0, width: 60.0),
     );
   }
 
