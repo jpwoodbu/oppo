@@ -114,7 +114,7 @@ class _DiscoveryState extends State<Discovery> {
           onPressed: () => _connect(
               _discover,
               oppo.OppoBroadcast(
-                  InternetAddress('192.168.86.149'), 23, 'My OPPO')),
+                  InternetAddress('192.168.86.149'), 23, 'Name unknown')),
           child: const Text('Just connect to mine.'),
         ),
       ];
@@ -218,7 +218,6 @@ class HomePage extends StatelessWidget {
 
 Future<void> _fetchAll(oppo.Device device) async {
   await device.queryPowerStatus();
-  await device.queryFirmwareVersion();
 }
 
 Widget _notPoweredOn(BuildContext context, oppo.Device device) {
