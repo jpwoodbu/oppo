@@ -2,13 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 import 'device_changes.dart';
 import 'oppo.dart' as oppo;
-
-final _log = Logger('main');
 
 void main() {
   Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;
@@ -17,6 +16,11 @@ void main() {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
   runApp(const MyApp());
+}
+
+dynamic addHaptic(Function function) {
+  HapticFeedback.lightImpact();
+  return function();
 }
 
 class MyApp extends StatelessWidget {
@@ -30,6 +34,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
+        colorSchemeSeed: Colors.blue,
       ),
       home: const Discovery(),
     );
@@ -176,6 +181,7 @@ class _ConnectState extends State<Connect> {
           return ChangeNotifierProvider(
             create: (_) {
               final deviceChanges = DeviceChanges(widget.device);
+              _fetchAll(widget.device);
               return deviceChanges;
             },
             child: const HomePage(),
@@ -191,11 +197,6 @@ class _ConnectState extends State<Connect> {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  Future<void> _fetchAll(oppo.Device device) async {
-    await device.queryPowerStatus();
-    await device.queryFirmwareVersion();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<DeviceChanges>(
@@ -207,53 +208,280 @@ class HomePage extends StatelessWidget {
   Widget _build(BuildContext context, oppo.Device device) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Center(child: Text('Oppo Remote'))),
         body: device.powered ?? false
             ? _buttons(context, device)
             : _notPoweredOn(context, device),
       ),
     );
   }
+}
 
-  Widget _notPoweredOn(BuildContext context, oppo.Device device) {
-    return SafeArea(
-      minimum: const EdgeInsets.all(15.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Power on to start using the remote.'),
-            const SizedBox(height: 10.0),
-            ElevatedButton(
-                onPressed: device.powerOn, child: const Text('Power on')),
-          ],
+Future<void> _fetchAll(oppo.Device device) async {
+  await device.queryPowerStatus();
+  await device.queryFirmwareVersion();
+}
+
+Widget _notPoweredOn(BuildContext context, oppo.Device device) {
+  return Padding(
+    padding: const EdgeInsets.all(15.0),
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Power on to start using the remote.'),
+          const SizedBox(height: 10.0),
+          IconButton(
+            onPressed: () => addHaptic(device.powerOn),
+            icon: const Icon(
+              Icons.power_settings_new,
+              color: Colors.amber,
+              semanticLabel: 'Toggle power',
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buttons(BuildContext context, oppo.Device device) {
+  return Padding(
+    padding: const EdgeInsets.all(15.0),
+    child: ListView(
+      children: [
+        _nameRow(context, device),
+        _homeRow(context, device),
+        _arrows(context, device),
+        _playControls(context, device),
+        _positionControls(context, device),
+      ],
+    ),
+  );
+}
+
+Widget _nameRow(BuildContext context, oppo.Device device) {
+  return Row(
+    mainAxisSize: MainAxisSize.max,
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        device.name,
+      ),
+      IconButton(
+        onPressed: () => addHaptic(device.powerToggle),
+        icon: const Icon(
+          Icons.power_settings_new,
+          // This widget is only displayed when the power is on so the color
+          // can always be blue.
+          color: Colors.blue,
+          semanticLabel: 'Toggle power',
+        ),
+      )
+    ],
+  );
+}
+
+Widget _homeRow(BuildContext context, oppo.Device device) {
+  return Wrap(
+   alignment: WrapAlignment.spaceBetween,
+   crossAxisAlignment: WrapCrossAlignment.center,
+    children: [
+      IconButton(
+        onPressed: () => addHaptic(device.home),
+        icon: const Icon(
+          Icons.home,
+          semanticLabel: 'home',
         ),
       ),
-    );
-  }
+      ElevatedButton.icon(
+        onPressed: () => addHaptic(device.goto),
+        icon: Icon(Icons.arrow_downward),
+        label: Text('Goto'),
+      ),
+      ElevatedButton.icon(
+        onPressed: () => addHaptic(device.clear),
+        icon: Icon(Icons.clear),
+        label: Text('Clear'),
+      ),
+      IconButton(
+        onPressed: () => addHaptic(device.osd),
+        icon: const Icon(
+          Icons.info,
+          semanticLabel: 'info',
+        ),
+      ),
+      IconButton(
+        onPressed: () => addHaptic(device.infoDetailed),
+        icon: const Icon(
+          Icons.query_stats,
+          semanticLabel: 'detailed info',
+        ),
+      ),
+    ],
+  );
+}
 
-  Widget _buttons(BuildContext context, oppo.Device device) {
-    return Column(
-      children: [
-        ElevatedButton(
-            onPressed: () => _fetchAll(device),
-            child: const Text('fetch all')),
-        ElevatedButton(
-            onPressed: device.queryPowerStatus,
-            child: const Text('query power')),
-        ElevatedButton(
-            onPressed: device.queryFirmwareVersion,
-            child: const Text('query firmware')),
-        ElevatedButton(
-            onPressed: device.powerOn, child: const Text('power on')),
-        ElevatedButton(
-            onPressed: device.powerOff, child: const Text('power off')),
-        ElevatedButton(onPressed: device.mute, child: const Text('mute')),
-        const SizedBox(height: 10),
-        Text(device.name),
-        Text(device.firmwareVersion ?? 'pending'),
-        Text(device.powered ?? false ? 'On' : 'Off'),
-      ],
-    );
-  }
+Widget _arrows(BuildContext context, oppo.Device device) {
+  const iconSize = 100.0;
+  final table = Table(
+    defaultColumnWidth: const IntrinsicColumnWidth(),
+    children: <TableRow>[
+      TableRow(
+        children: [
+          TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.topMenu),
+              child: const Text('Top'),
+            ),
+          ),
+          IconButton(
+              onPressed: () => addHaptic(device.arrowUp),
+              icon: Icon(
+                Icons.keyboard_arrow_up,
+                size: iconSize,
+                semanticLabel: 'up',
+              )),
+          TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.popupMenu),
+              child: const Text('Pop-up'),
+            ),
+          ),
+        ],
+      ),
+      TableRow(
+        children: [
+          IconButton(
+              onPressed: () => addHaptic(device.arrowLeft),
+              icon: Icon(
+                Icons.keyboard_arrow_left,
+                size: iconSize,
+                semanticLabel: 'left',
+              )),
+          IconButton(
+              onPressed: () => addHaptic(device.enter),
+              icon: Icon(
+                Icons.circle_outlined,
+                size: iconSize,
+                semanticLabel: 'enter',
+              )),
+          IconButton(
+              onPressed: () => addHaptic(device.arrowRight),
+              icon: Icon(
+                Icons.keyboard_arrow_right,
+                size: iconSize,
+                semanticLabel: 'right',
+              )),
+        ],
+      ),
+      TableRow(
+        children: [
+          TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: ElevatedButton(
+              // TODO - Figure out what function the Option button calls.
+              onPressed: () {},
+              child: const Text('Option'),
+            ),
+          ),
+          IconButton(
+              onPressed: () => addHaptic(device.arrowDown),
+              icon: Icon(
+                Icons.keyboard_arrow_down,
+                size: iconSize,
+                semanticLabel: 'down',
+              )),
+          TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: IconButton(
+                onPressed: () => addHaptic(device.returnToPrevious),
+                icon: Icon(
+                  Icons.arrow_back,
+                  size: iconSize / 3,
+                  semanticLabel: 'return to previous',
+                )),
+          ),
+        ],
+      ),
+    ],
+  );
+
+  return table;
+  /*
+  return Expanded(
+    child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints boxConstraints) {
+      return table;
+    }),
+  );
+  */
+}
+
+Widget _playControls(BuildContext context, oppo.Device device) {
+  const iconSize = 85.0;
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      IconButton(
+          onPressed: () => addHaptic(device.stop),
+          icon: Icon(
+            Icons.stop_circle,
+            size: iconSize,
+            semanticLabel: 'stop',
+          )),
+      IconButton(
+          onPressed: () => addHaptic(device.play),
+          icon: Icon(
+            Icons.play_arrow,
+            size: iconSize,
+            semanticLabel: 'play',
+          )),
+      IconButton(
+          onPressed: () => addHaptic(device.pause),
+          icon: Icon(
+            Icons.pause,
+            size: iconSize,
+            semanticLabel: 'pause',
+          )),
+    ],
+  );
+}
+
+Widget _positionControls(BuildContext context, oppo.Device device) {
+  const iconSize = 65.0;
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      IconButton(
+          onPressed: () => addHaptic(device.previous),
+          icon: Icon(
+            Icons.skip_previous,
+            size: iconSize,
+            semanticLabel: 'previous',
+          )),
+      IconButton(
+          onPressed: () => addHaptic(device.reverse),
+          icon: Icon(
+            Icons.fast_rewind,
+            size: iconSize,
+            semanticLabel: 'scan reverse',
+          )),
+      IconButton(
+          onPressed: () => addHaptic(device.forward),
+          icon: Icon(
+            Icons.fast_forward,
+            size: iconSize,
+            semanticLabel: 'scan forward',
+          )),
+      IconButton(
+          onPressed: () => addHaptic(device.next),
+          icon: Icon(
+            Icons.skip_next,
+            size: iconSize,
+            semanticLabel: 'next',
+          )),
+    ],
+  );
 }
