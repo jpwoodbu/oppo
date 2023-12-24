@@ -183,6 +183,9 @@ class _ConnectState extends State<Connect> {
           return ChangeNotifierProvider(
             create: (_) {
               final deviceChanges = DeviceChanges(widget.device);
+              // TODO - move this to a future builder for HomePage. Right now
+              // the UI is janky, where it shows the player is off for a bit
+              // even if it isn't.
               _fetchAll(widget.device);
               return deviceChanges;
             },
