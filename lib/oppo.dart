@@ -187,6 +187,62 @@ class AspectRatioSetting {
   AspectRatioSetting(this.ratio, this.mode, this.playback);
 }
 
+enum PositionType {
+  totalElapsedTime('Total elapsed time'),
+  totalRemainingTime('Total remaining time'),
+  titleElapsedTime('Title elapsed time'),
+  titleRemainingTime('Title remaining time'),
+  chapterOrTrackElapsedTime('Chapter/Track elapsed time'),
+  chapterOrTrackRemainingTime('Chapter/Track remaining time');
+
+  final String displayName;
+
+  const PositionType(this.displayName);
+}
+
+class Position {
+  int title;
+  int chapter;
+  PositionType positionType;
+  String clock;
+
+  Position(this.title, this.chapter, this.positionType, this.clock);
+}
+
+Position _parseTimeCodeUpdate(String timeCode) {
+  final parts = timeCode.split(' ');
+  if (parts.length != 4) {
+    throw 'Could not parse time code: $timeCode';
+  }
+  final title = int.parse(parts[0]);
+  final chapter = int.parse(parts[1]);
+  PositionType type;
+  switch (parts[2]) {
+    case 'E':
+      type = PositionType.totalElapsedTime;
+      break;
+    case 'R':
+      type = PositionType.totalRemainingTime;
+      break;
+    case 'T':
+      type = PositionType.titleElapsedTime;
+      break;
+    case 'X':
+      type = PositionType.titleRemainingTime;
+      break;
+    case 'C':
+      type = PositionType.chapterOrTrackElapsedTime;
+      break;
+    case 'K':
+      type = PositionType.chapterOrTrackRemainingTime;
+      break;
+    default:
+      throw 'Unable to parse position type: ${parts[2]}';
+  }
+  final clock = parts[3];
+  return Position(title, chapter, type, clock);
+}
+
 class Device {
   final String name;
   final InternetAddress address;
@@ -197,6 +253,7 @@ class Device {
   VerboseMode? verboseMode;
   bool? powered;
   String? firmwareVersion;
+  Position? position;
   bool threeDimensional = false;
 
   Device(this.name, this.address, this.port);
@@ -323,9 +380,10 @@ class Device {
       // TODO - implement.
       case 'UAR':
         break;
+
       // verboseMode.detailed messages below.
-      // TODO - implement.
       case 'UTC':
+        position = _parseTimeCodeUpdate(parameters);
         break;
       // TODO - implement.
       case 'UVO':
