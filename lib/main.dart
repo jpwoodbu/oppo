@@ -260,7 +260,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 Future<void> _fetchAll(oppo.Device device) async {
-  await device.setVerboseMode(oppo.VerboseMode.major);
+  await device.setVerboseMode(oppo.VerboseMode.detailed);
   await device.queryPowerStatus();
 }
 
@@ -293,6 +293,7 @@ Widget _buttons(BuildContext context, oppo.Device device) {
     child: ListView(
       children: [
         _nameRow(context, device),
+        _position(context, device),
         _homeRow(context, device),
         _arrows(context, device),
         _playControls(context, device),
@@ -300,6 +301,13 @@ Widget _buttons(BuildContext context, oppo.Device device) {
       ],
     ),
   );
+}
+
+Widget _position(BuildContext context, oppo.Device device) {
+  final p = device.position;
+  if (p == null) return Text('No position data.');
+  return Text('Title: ${p.title}\nChapter: ${p.chapter}\n'
+      '${p.positionType.displayName}: ${p.clock}');
 }
 
 Widget _nameRow(BuildContext context, oppo.Device device) {
