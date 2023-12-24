@@ -198,6 +198,25 @@ enum PositionType {
   final String displayName;
 
   const PositionType(this.displayName);
+
+  factory PositionType.fromTypeCode(String typeCode) {
+    switch (typeCode) {
+      case 'E':
+        return PositionType.totalElapsedTime;
+      case 'R':
+        return PositionType.totalRemainingTime;
+      case 'T':
+        return PositionType.titleElapsedTime;
+      case 'X':
+        return PositionType.titleRemainingTime;
+      case 'C':
+        return PositionType.chapterOrTrackElapsedTime;
+      case 'K':
+        return PositionType.chapterOrTrackRemainingTime;
+      default:
+        throw 'Unable to parse position type: $typeCode';
+    }
+  }
 }
 
 class Position {
@@ -214,32 +233,10 @@ Position _parseTimeCodeUpdate(String timeCode) {
   if (parts.length != 4) {
     throw 'Could not parse time code: $timeCode';
   }
-  final title = int.parse(parts[0]);
-  final chapter = int.parse(parts[1]);
-  PositionType type;
-  switch (parts[2]) {
-    case 'E':
-      type = PositionType.totalElapsedTime;
-      break;
-    case 'R':
-      type = PositionType.totalRemainingTime;
-      break;
-    case 'T':
-      type = PositionType.titleElapsedTime;
-      break;
-    case 'X':
-      type = PositionType.titleRemainingTime;
-      break;
-    case 'C':
-      type = PositionType.chapterOrTrackElapsedTime;
-      break;
-    case 'K':
-      type = PositionType.chapterOrTrackRemainingTime;
-      break;
-    default:
-      throw 'Unable to parse position type: ${parts[2]}';
-  }
-  final clock = parts[3];
+  final title = int.parse(parts[0].trim());
+  final chapter = int.parse(parts[1].trim());
+  final type = PositionType.fromTypeCode(parts[2].trim());
+  final clock = parts[3].trim();
   return Position(title, chapter, type, clock);
 }
 
