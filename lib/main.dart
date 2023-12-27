@@ -310,7 +310,7 @@ Widget _position(BuildContext context, oppo.Device device) {
   final p = device.position;
   if (p == null) return Text('No position data.');
   return Text('Title: ${p.title}\nChapter: ${p.chapter}\n'
-      '${p.positionType.displayName}: ${p.clock}');
+      '${p.timeInformation.displayName}: ${p.clock}');
 }
 
 Widget _nameRow(BuildContext context, oppo.Device device) {

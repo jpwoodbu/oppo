@@ -187,32 +187,33 @@ class AspectRatioSetting {
   AspectRatioSetting(this.ratio, this.mode, this.playback);
 }
 
-enum PositionType {
-  totalElapsedTime('Total elapsed time'),
-  totalRemainingTime('Total remaining time'),
-  titleElapsedTime('Title elapsed time'),
-  titleRemainingTime('Title remaining time'),
-  chapterOrTrackElapsedTime('Chapter/Track elapsed time'),
-  chapterOrTrackRemainingTime('Chapter/Track remaining time');
+enum TimeInformation {
+  totalElapsedTime('Total elapsed time', 'E'),
+  totalRemainingTime('Total remaining time', 'R'),
+  titleElapsedTime('Title elapsed time', 'T'),
+  titleRemainingTime('Title remaining time', 'X'),
+  chapterOrTrackElapsedTime('Chapter/Track elapsed time', 'C'),
+  chapterOrTrackRemainingTime('Chapter/Track remaining time', 'K');
 
   final String displayName;
+  final String typeCode;
 
-  const PositionType(this.displayName);
+  const TimeInformation(this.displayName, this.typeCode);
 
-  factory PositionType.fromTypeCode(String typeCode) {
+  factory TimeInformation.fromTypeCode(String typeCode) {
     switch (typeCode) {
       case 'E':
-        return PositionType.totalElapsedTime;
+        return TimeInformation.totalElapsedTime;
       case 'R':
-        return PositionType.totalRemainingTime;
+        return TimeInformation.totalRemainingTime;
       case 'T':
-        return PositionType.titleElapsedTime;
+        return TimeInformation.titleElapsedTime;
       case 'X':
-        return PositionType.titleRemainingTime;
+        return TimeInformation.titleRemainingTime;
       case 'C':
-        return PositionType.chapterOrTrackElapsedTime;
+        return TimeInformation.chapterOrTrackElapsedTime;
       case 'K':
-        return PositionType.chapterOrTrackRemainingTime;
+        return TimeInformation.chapterOrTrackRemainingTime;
       default:
         throw 'Unable to parse position type: $typeCode';
     }
@@ -222,12 +223,66 @@ enum PositionType {
 class Position {
   int title;
   int chapter;
-  PositionType positionType;
+  TimeInformation timeInformation;
   String clock;
 
-  Position(this.title, this.chapter, this.positionType, this.clock);
+  Position(this.title, this.chapter, this.timeInformation, this.clock);
 }
 
+enum HdmiResolution {
+  auto('AUTO'),
+  src('SRC'),
+  uhdAuto('UDH_AUTO'),
+  udh24('UHD24'),
+  uhd50('UHD50'),
+  uhd60('UHD60'),
+  r1080pAuto('1080P_AUTO'),
+  r1080p24('1080P24'),
+  r1080p50('1080P50'),
+  r1080p60('1080P60'),
+  r1080i50('1080I50'),
+  r1080i60('1080I60'),
+  r720p50('720P50'),
+  r720p60('720P60'),
+  r576p('576P'),
+  r576i('576I'),
+  r480p('480P'),
+  r480i('480I');
+
+  final String typeCode;
+  const HdmiResolution(this.typeCode);
+}
+
+enum ZoomRatio {
+  aspectRatioCorrection('AR'),
+  fullScreen('FS'),
+  underScan('US'),
+  oneX('1'),
+  onePointTwoX('1.2'),
+  onePointThreeX('1.3'),
+  onePointFiveX('1.5'),
+  twoX('2'),
+  threeX('3'),
+  fourX('4'),
+  oneHalf('1/2'),
+  oneThird('1/3'),
+  oneQuarter('1/4');
+
+  final String typeCode;
+  const ZoomRatio(this.typeCode);
+}
+
+enum RepeatMode {
+  chapter('CH'),
+  titleOrTrack('TT'),
+  all('ALL'),
+  off('OFF'),
+  shuffle('SHf'),
+  random('RND'); 
+
+  final String typeCode;
+  const RepeatMode(this.typeCode);
+}
 Position _parseTimeCodeUpdate(String timeCode) {
   final parts = timeCode.split(' ');
   if (parts.length != 4) {
@@ -235,9 +290,9 @@ Position _parseTimeCodeUpdate(String timeCode) {
   }
   final title = int.parse(parts[0].trim());
   final chapter = int.parse(parts[1].trim());
-  final type = PositionType.fromTypeCode(parts[2].trim());
+  final timeInformation = TimeInformation.fromTypeCode(parts[2].trim());
   final clock = parts[3].trim();
-  return Position(title, chapter, type, clock);
+  return Position(title, chapter, timeInformation, clock);
 }
 
 class Device {
@@ -571,12 +626,32 @@ class Device {
     await _command('SVM', parameters: modeValue.toString());
   }
 
-  Future<void> setHdmiResolution() async {}
-  Future<void> setZoomRatio() async {}
-  Future<void> setVolume(int level) async {}
+  Future<void> setHdmiResolution(HdmiResolution hdmiResolution) async {
+    await _command('SHD', parameters: hdmiResolution.typeCode);
+  }
+
+  Future<void> setZoomRatio(ZoomRatio zoomRatio) async {
+    await _command('SZM', parameters: zoomRatio.typeCode);
+  }
+
+  Future<void> setVolume(int level) async {
+    int sanitizedLevel;
+    if (level < 0) {
+      sanitizedLevel = 0;
+    } else if (level > 100) {
+      sanitizedLevel = 100;
+    } else {
+      sanitizedLevel = level;
+    }
+    await _command('SVL', parameters: sanitizedLevel.toString());
+  }
+
   // This RPC seems to be redudant since there is mute().
   // Future<void> setMute() async => await _command('SVL', parameters: 'MUTE');
-  Future<void> setRepeatMode() async {}
+  Future<void> setRepeatMode(RepeatMode repeatMode) async {
+    await _command('SRP', parameters: repeatMode.typeCode);
+  }
+
   Future<void> searchTo(String position) async {}
   Future<void> directPlay() async => await _command('DPL');
 
@@ -586,7 +661,11 @@ class Device {
   Future<void> setSubtitleShift(int shift) async {}
   // 0 to 5.
   Future<void> setOsdPosition(int position) async {}
-  Future<void> setTimeInformationDisplay() async {}
+  Future<void> setTimeInformationDisplay(
+      TimeInformation timeInformation) async {
+    await _command('STC', parameters: timeInformation.typeCode);
+  }
+
   Future<void> setHdrSetting() async {}
   Future<void> setInputSource() async {}
   Future<void> setScreenSaver() async {}
