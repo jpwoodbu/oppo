@@ -201,22 +201,12 @@ enum TimeInformation {
   const TimeInformation(this.displayName, this.typeCode);
 
   factory TimeInformation.fromTypeCode(String typeCode) {
-    switch (typeCode) {
-      case 'E':
-        return TimeInformation.totalElapsedTime;
-      case 'R':
-        return TimeInformation.totalRemainingTime;
-      case 'T':
-        return TimeInformation.titleElapsedTime;
-      case 'X':
-        return TimeInformation.titleRemainingTime;
-      case 'C':
-        return TimeInformation.chapterOrTrackElapsedTime;
-      case 'K':
-        return TimeInformation.chapterOrTrackRemainingTime;
-      default:
-        throw 'Unable to parse position type: $typeCode';
+    for (final t in TimeInformation.values) {
+      if (t.typeCode == typeCode) {
+        return t;
+      }
     }
+    throw 'Unable to parse position type: $typeCode';
   }
 }
 
@@ -278,11 +268,12 @@ enum RepeatMode {
   all('ALL'),
   off('OFF'),
   shuffle('SHf'),
-  random('RND'); 
+  random('RND');
 
   final String typeCode;
   const RepeatMode(this.typeCode);
 }
+
 Position _parseTimeCodeUpdate(String timeCode) {
   final parts = timeCode.split(' ');
   if (parts.length != 4) {
