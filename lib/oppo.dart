@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -272,6 +273,83 @@ enum RepeatMode {
 
   final String typeCode;
   const RepeatMode(this.typeCode);
+}
+
+enum HdrSetting {
+  auto('Auto'),
+  on('On'),
+  off('Off');
+
+  final String typeCode;
+  const HdrSetting(this.typeCode);
+}
+
+enum InputSource {
+  blurayPlayer('0'),
+  hdmi('1'),
+  arc('2'),
+  // 3-5 only available on UDP-205.
+  optical('3'),
+  coax('4'),
+  usb('5');
+
+  final String typeCode;
+  const InputSource(this.typeCode);
+}
+
+enum ScreenSaverSetting {
+  on('ON'),
+  off('OFF'),
+  save('SAVE');
+
+  final String typeCode;
+  const ScreenSaverSetting(this.typeCode);
+}
+
+enum App {
+  disc('DIS'),
+  music('MUS'),
+  photo('PHO'),
+  movie('MOV'),
+  network('NET'),
+  setup('SET');
+
+  final String typeCode;
+  const App(this.typeCode);
+}
+
+enum SacdPriority {
+  multiChannel('M'),
+  stereo('S'),
+  cdMode('C');
+
+  final String typeCode;
+  const SacdPriority(this.typeCode);
+}
+
+enum SacdOutputMode {
+  dsd('D'),
+  pcm('P'),
+  auto('A');
+
+  final String typeCode;
+  const SacdOutputMode(this.typeCode);
+}
+
+enum PlaybackSpeed {
+  s32xSlow('1/32'),
+  s16xSlow('1/16'),
+  s8xSlow('1/8'),
+  s4xSlow('1/4'),
+  s2xSlow('1/2'),
+  s1('1'),
+  s2('2'),
+  s3('3'),
+  s4('4'),
+  s5('5');
+
+  final String typeCode;
+  const PlaybackSpeed(this.typeCode);
 }
 
 Position _parseTimeCodeUpdate(String timeCode) {
@@ -626,14 +704,8 @@ class Device {
   }
 
   Future<void> setVolume(int level) async {
-    int sanitizedLevel;
-    if (level < 0) {
-      sanitizedLevel = 0;
-    } else if (level > 100) {
-      sanitizedLevel = 100;
-    } else {
-      sanitizedLevel = level;
-    }
+    int sanitizedLevel = max(level, 0);
+    sanitizedLevel = min(level, 100);
     await _command('SVL', parameters: sanitizedLevel.toString());
   }
 
@@ -643,29 +715,62 @@ class Device {
     await _command('SRP', parameters: repeatMode.typeCode);
   }
 
+  // TODO - implement.
   Future<void> searchTo(String position) async {}
   Future<void> directPlay() async => await _command('DPL');
 
   /// Clear command buffers.
   Future<void> reset() async => await _command('RST');
-  // -10 to 10
-  Future<void> setSubtitleShift(int shift) async {}
-  // 0 to 5.
-  Future<void> setOsdPosition(int position) async {}
+
+  Future<void> setSubtitleShift(int shift) async {
+    int sanitizedShift = max(shift, -10);
+    sanitizedShift = min(shift, 10);
+    await _command('SSH', parameters: sanitizedShift.toString());
+  }
+
+  Future<void> setOsdPosition(int position) async {
+    int sanitizedPosition = max(position, 0);
+    sanitizedPosition = min(position, 5);
+    await _command('SOP', parameters: sanitizedPosition.toString());
+  }
+
   Future<void> setTimeInformationDisplay(
       TimeInformation timeInformation) async {
     await _command('STC', parameters: timeInformation.typeCode);
   }
 
-  Future<void> setHdrSetting() async {}
-  Future<void> setInputSource() async {}
-  Future<void> setScreenSaver() async {}
-  // APP
-  Future<void> runApp() async {}
-  Future<void> setSacdPriority() async {}
-  Future<void> setSacdOutputMode() async {}
-  Future<void> setForwardPlaybackSpeed() async {}
-  Future<void> setReversePlaybackSpeed() async {}
+  Future<void> setHdrSetting(HdrSetting setting) async {
+    await _command('SHR', parameters: setting.typeCode);
+  }
+
+  Future<void> setInputSource(InputSource inputSource) async {
+    await _command('SIS', parameters: inputSource.typeCode);
+  }
+
+  Future<void> setScreenSaver(ScreenSaverSetting setting) async {
+    await _command('SSA', parameters: setting.typeCode);
+  }
+
+  Future<void> runApp(App app) async {
+    await _command('APP', parameters: app.typeCode);
+  }
+
+  Future<void> setSacdPriority(SacdPriority priority) async {
+    await _command('SSD', parameters: priority.typeCode);
+  }
+
+  Future<void> setSacdOutputMode(SacdOutputMode mode) async {
+    await _command('SDP', parameters: mode.typeCode);
+  }
+
+  Future<void> setForwardPlaybackSpeed(PlaybackSpeed speed) async {
+    await _command('FWD', parameters: speed.typeCode);
+  }
+
+  Future<void> setReversePlaybackSpeed(PlaybackSpeed speed) async {
+    await _command('REV', parameters: speed.typeCode);
+  }
+
   Future<void> queryDirectoryItem(int index) async {}
 
   Future<void> queryVerboseMode() async => await _command('QVM');
