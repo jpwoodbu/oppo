@@ -121,7 +121,23 @@ OppoBroadcast _parseBroadcast(Datagram datagram) {
   return OppoBroadcast(address, port, name);
 }
 
-enum VerboseMode { off, major, detailed }
+enum VerboseMode {
+  off('0'),
+  major('2'),
+  detailed('3');
+
+  final String typeCode;
+  const VerboseMode(this.typeCode);
+
+  factory VerboseMode.fromTypeCode(String typeCode) {
+    for (final v in VerboseMode.values) {
+      if (v.typeCode == typeCode) {
+        return v;
+      }
+    }
+    throw 'Unable to parse verbose mode: $typeCode';
+  }
+}
 
 enum PlaybackStatus {
   noDisc,
@@ -516,22 +532,10 @@ class Device {
   }
 
   void _parseVerboseMode(String parameters) {
-    switch (parameters) {
-      case '0':
-        verboseMode = VerboseMode.off;
-        break;
-      case '1':
-        _log.warning('Got verbose mode 1 which is not supposed to be used.');
-        break;
-      case '2':
-        verboseMode = VerboseMode.major;
-        break;
-      case '3':
-        verboseMode = VerboseMode.detailed;
-        break;
-      default:
-        _log.warning('Unexpected verbose mode: $parameters');
-        break;
+    try {
+      verboseMode = VerboseMode.fromTypeCode(parameters);
+    } catch (e) {
+      _log.severe('Unexpected verbose mode: $parameters');
     }
   }
 
@@ -680,19 +684,7 @@ class Device {
   Future<void> noOp() async => await _command('NOP');
 
   Future<void> setVerboseMode(VerboseMode mode) async {
-    int modeValue;
-    switch (mode) {
-      case VerboseMode.off:
-        modeValue = 0;
-        break;
-      case VerboseMode.major:
-        modeValue = 2;
-        break;
-      case VerboseMode.detailed:
-        modeValue = 3;
-        break;
-    }
-    await _command('SVM', parameters: modeValue.toString());
+    await _command('SVM', parameters: mode.typeCode);
   }
 
   Future<void> setHdmiResolution(HdmiResolution hdmiResolution) async {
@@ -711,12 +703,35 @@ class Device {
 
   // This RPC seems to be redudant since there is mute().
   // Future<void> setMute() async => await _command('SVL', parameters: 'MUTE');
+
   Future<void> setRepeatMode(RepeatMode repeatMode) async {
     await _command('SRP', parameters: repeatMode.typeCode);
   }
 
-  // TODO - implement.
-  Future<void> searchTo(String position) async {}
+  Future<void> searchTo(String position) async {
+    await _command('SRH', parameters: position);
+  }
+
+  Future<void> searchToTitle(int title) async {
+    await searchTo('T$title');
+  }
+
+  Future<void> searchToChapter(int chapter) async {
+    await searchTo('C$chapter');
+  }
+
+  // TODO - In the API docs, their position example is 0:12:13. As such, it's
+  // unclear which, if any, fields require zero padding.
+  Future<void> searchToChapterTime(Duration position) async {
+    await searchTo(
+        'C ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
+  }
+
+  Future<void> searchToTitleTime(Duration position) async {
+    await searchTo(
+      'T ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
+  }
+
   Future<void> directPlay() async => await _command('DPL');
 
   /// Clear command buffers.
@@ -771,6 +786,7 @@ class Device {
     await _command('REV', parameters: speed.typeCode);
   }
 
+  // TODO - implement.
   Future<void> queryDirectoryItem(int index) async {}
 
   Future<void> queryVerboseMode() async => await _command('QVM');
