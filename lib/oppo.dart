@@ -729,7 +729,7 @@ class Device {
 
   Future<void> searchToTitleTime(Duration position) async {
     await searchTo(
-      'T ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
+        'T ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
   }
 
   Future<void> directPlay() async => await _command('DPL');
@@ -786,8 +786,10 @@ class Device {
     await _command('REV', parameters: speed.typeCode);
   }
 
-  // TODO - implement.
-  Future<void> queryDirectoryItem(int index) async {}
+  Future<void> queryDirectoryItem(int index) async {
+    if (index < 1) throw 'index must be a positive int.';
+    await _command('QDR', parameters: index.toString());
+  }
 
   Future<void> queryVerboseMode() async => await _command('QVM');
   Future<void> queryPowerStatus() async => await _command('QPW');
