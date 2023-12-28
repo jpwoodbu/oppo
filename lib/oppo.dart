@@ -140,39 +140,51 @@ enum VerboseMode {
 }
 
 enum PlaybackStatus {
-  noDisc,
-  loadingDisc,
-  openTray,
-  closingTray,
-  playbackStarted,
-  playbackPaused,
-  playbackStopped,
-  forwardFrameByFrame,
-  reverseFrameByFrame,
-  fastForward1,
-  fastForward2,
-  fastForward3,
-  fastForward4,
-  fastForward5,
-  fastReverse1,
-  fastReverse2,
-  fastReverse3,
-  fastReverse4,
-  fastReverse5,
-  slowForwardHalf,
-  slowForwardQuarter,
-  slowForwardEighth,
-  slowForwardSixteenth,
-  slowForwardThirtySecond,
-  fastForwardHalf,
-  fastForwardQuarter,
-  fastForwardEighth,
-  fastForwardSixteenth,
-  fastForwardThirtySecond,
-  homeMenu,
-  mediaCenter,
-  screenSaver,
-  discMenu,
+  noDisc('DISC'),
+  loadingDisc('LOAD'),
+  openTray('OPEN'),
+  closingTray('CLOS'),
+  playbackStarted('PLAY'),
+  playbackPaused('PAUS'),
+  playbackStopped('STOP'),
+  forwardFrameByFrame('STPF'),
+  reverseFrameByFrame('STPR'),
+  fastForward1('FFW1'),
+  fastForward2('FFW2'),
+  fastForward3('FFW3'),
+  fastForward4('FFW4'),
+  fastForward5('FFW5'),
+  fastReverse1('FFV1'),
+  fastReverse2('FFV2'),
+  fastReverse3('FFV3'),
+  fastReverse4('FFV4'),
+  fastReverse5('FFV5'),
+  slowForwardHalf('SFW1'),
+  slowForwardQuarter('SFW2'),
+  slowForwardEighth('SFW3'),
+  slowForwardSixteenth('SFW4'),
+  slowForwardThirtySecond('SFW5'),
+  fastForwardHalf('SRV1'),
+  fastForwardQuarter('SRV2'),
+  fastForwardEighth('SRV3'),
+  fastForwardSixteenth('SRV4'),
+  fastForwardThirtySecond('SRV5'),
+  homeMenu('HOME'),
+  mediaCenter('MCTR'),
+  screenSaver('SCSV'),
+  discMenu('MENU');
+
+  final String typeCode;
+  const PlaybackStatus(this.typeCode);
+
+  factory PlaybackStatus.fromTypeCode(String typeCode) {
+    for (final p in PlaybackStatus.values) {
+      if (p.typeCode == typeCode) {
+        return p;
+      }
+    }
+    throw 'Unknown typecode for playback status: $typeCode';
+  }
 }
 
 enum AspectRatio {
@@ -368,6 +380,31 @@ enum PlaybackSpeed {
   const PlaybackSpeed(this.typeCode);
 }
 
+enum DiscType {
+  uhdBlueRay('UHBD'),
+  blueRay('BDMV'),
+  dvdVideo('DVDV'),
+  dvdAudio('DVDA'),
+  sacd('SACD'),
+  cd('CDDA'),
+  data('DATA'),
+  videoCD('VCD2'),  // VCD 2.0
+  svcd('SVCD'),
+  unknown('UNKW');
+
+  final String typeCode;
+  const DiscType(this.typeCode);
+
+  factory DiscType.fromTypeCode(String typeCode) {
+    for (final d in DiscType.values) {
+      if (d.typeCode == typeCode) {
+        return d;
+      }
+    }
+    throw 'Unknown disc type: $typeCode';
+  }
+}
+
 Position _parseTimeCodeUpdate(String timeCode) {
   final parts = timeCode.split(' ');
   if (parts.length != 4) {
@@ -392,6 +429,10 @@ class Device {
   String? firmwareVersion;
   Position? position;
   bool threeDimensional = false;
+  PlaybackStatus? playbackStatus;
+  int? volume;
+  bool? muted;
+  DiscType? discType;
 
   Device(this.name, this.address, this.port);
 
@@ -490,17 +531,39 @@ class Device {
 
   void _parseUpdate(String commandCode, String parameters) {
     switch (commandCode) {
-      // TODO - implement.
       case 'UPW':
+        if (parameters == '1') {
+          powered = true;
+        } else if (parameters == '0') {
+          powered = false;
+        } else {
+          _log.severe('Invalid UPW parameter: $parameters');
+        }
         break;
-      // TODO - implement.
       case 'UPL':
+        try {
+          playbackStatus = PlaybackStatus.fromTypeCode(parameters);
+        } catch (e) {
+          _log.severe(e);
+        }
         break;
-      // TODO - implement.
       case 'UVL':
+        if (parameters == 'MUT') {
+          muted = true;
+          break;
+        } 
+        try {
+          volume = int.parse(parameters);
+        } catch (e) {
+          _log.severe('Unable to parse volume value: $e');
+        }
         break;
-      // TODO - implement.
       case 'UDT':
+        try {
+          discType = DiscType.fromTypeCode(parameters);
+        } catch (e) {
+          _log.severe(e);
+        }
         break;
       // TODO - implement.
       case 'UAT':
