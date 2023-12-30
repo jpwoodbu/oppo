@@ -263,7 +263,6 @@ class _HomePageState extends State<HomePage> {
 }
 
 Future<void> _fetchAll(oppo.Device device) async {
-  await device.setVerboseMode(oppo.VerboseMode.detailed);
   await device.queryPowerStatus();
 }
 
