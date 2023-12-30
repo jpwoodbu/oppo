@@ -388,7 +388,7 @@ enum DiscType {
   sacd('SACD'),
   cd('CDDA'),
   data('DATA'),
-  videoCD('VCD2'),  // VCD 2.0
+  videoCD('VCD2'), // VCD 2.0
   svcd('SVCD'),
   unknown('UNKW');
 
@@ -551,7 +551,14 @@ class Device {
         if (parameters == 'MUT') {
           muted = true;
           break;
-        } 
+        } else if (parameters == 'UMT') {
+          // 'UMT' is not a documented parameter for UVL, but it's been seen in
+          // the wild, in particular when the unit is powered off. It is assumed
+          // it means unmuted. Which seems like a strange state to enter when
+          // powered off.
+          muted = false;
+          break;
+        }
         try {
           volume = int.parse(parameters);
         } catch (e) {
@@ -652,7 +659,15 @@ class Device {
   }
 
   Future<void> powerToggle() async => await _command('POW');
-  Future<void> powerOn() async => await _command('PON');
+
+  Future<void> powerOn() async {
+    await _command('PON');
+    // Setting the verbose mode doesn't seem to work when the unit it powered
+    // off and we need to set verbose mode to >=2 for the API to be compatible
+    // with this library.
+    await setVerboseMode(VerboseMode.detailed);
+  }
+
   Future<void> powerOff() async => await _command('POF');
   Future<void> trayToggle() async => await _command('EJT');
   Future<void> dim() async => await _command('DIM');
