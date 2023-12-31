@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'device_changes.dart';
 import 'oppo.dart' as oppo;
 
+final _log = Logger('main');
+
 void main() {
   Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;
   Logger.root.onRecord.listen((record) {
@@ -180,16 +182,9 @@ class _ConnectState extends State<Connect> {
             return const Scaffold(
                 body: Center(child: Text('Error connecting to device.')));
           }
-          return ChangeNotifierProvider(
-            create: (_) {
-              final deviceChanges = DeviceChanges(widget.device);
-              // TODO - move this to a future builder for HomePage. Right now
-              // the UI is janky, where it shows the player is off for a bit
-              // even if it isn't.
-              _fetchAll(widget.device);
-              return deviceChanges;
-            },
-            child: const HomePage(),
+          return ChangeNotifierProvider<DeviceChanges>(
+            create: (_) => DeviceChanges(widget.device),
+            child: HomePage(widget.device),
           );
         } else {
           return const Scaffold(body: Center(child: Text('Connecting...')));
@@ -200,7 +195,8 @@ class _ConnectState extends State<Connect> {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  late final oppo.Device device;
+  HomePage(this.device, {super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -211,9 +207,32 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final future = _engage(widget.device);
     return Consumer<DeviceChanges>(
       builder: (context, deviceChanges, _) =>
-          _build(context, deviceChanges.device),
+          _futureBuilder(context, future, deviceChanges.device),
+    );
+  }
+
+  Widget _futureBuilder(
+      BuildContext context, Future future, oppo.Device device) {
+    return FutureBuilder<void>(
+      future: future,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasError) {
+            return const Scaffold(
+                body: Center(
+                    child: Text('Error while waiting on device to power up.')));
+          }
+          return _build(context, device);
+        } else {
+          return const Scaffold(
+              body: Center(
+            child: Text('Powering on...'),
+          ));
+        }
+      },
     );
   }
 
@@ -262,8 +281,23 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-Future<void> _fetchAll(oppo.Device device) async {
-  await device.queryPowerStatus();
+// TODO - generalize this and move it into the oppo module.
+Future<void> _waitForPowerOnState(oppo.Device device, DateTime until) async {
+  if (!(device.powered ?? false)) {
+    if (DateTime.now().isBefore(until)) {
+      _log.fine('Waiting on power on state. Will try again in 500ms.');
+      await Future.delayed(Duration(milliseconds: 500),
+          () => _waitForPowerOnState(device, until));
+    } else {
+      throw 'Timed out waiting on power on state.';
+    }
+  }
+}
+
+Future<void> _engage(oppo.Device device) async {
+  await device.powerOn();
+  await _waitForPowerOnState(device, DateTime.now().add(Duration(seconds: 5)));
+  await device.setVerboseMode(oppo.VerboseMode.detailed);
 }
 
 Widget _notPoweredOn(BuildContext context, oppo.Device device) {

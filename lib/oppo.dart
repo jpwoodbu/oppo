@@ -656,15 +656,7 @@ class Device {
   }
 
   Future<void> powerToggle() async => await _command('POW');
-
-  Future<void> powerOn() async {
-    await _command('PON');
-    // Setting the verbose mode doesn't seem to work when the unit it powered
-    // off and we need to set verbose mode to >=2 for the API to be compatible
-    // with this library.
-    await setVerboseMode(VerboseMode.detailed);
-  }
-
+  Future<void> powerOn() async => await _command('PON');
   Future<void> powerOff() async => await _command('POF');
   Future<void> trayToggle() async => await _command('EJT');
   Future<void> dim() async => await _command('DIM');
