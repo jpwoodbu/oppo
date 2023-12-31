@@ -296,7 +296,8 @@ Future<void> _waitForPowerOnState(oppo.Device device, DateTime until) async {
 
 Future<void> _engage(oppo.Device device) async {
   await device.powerOn();
-  await _waitForPowerOnState(device, DateTime.now().add(Duration(seconds: 5)));
+  await device.queryPowerStatus();
+  // await _waitForPowerOnState(device, DateTime.now().add(Duration(seconds: 5)));
   await device.setVerboseMode(oppo.VerboseMode.detailed);
 }
 

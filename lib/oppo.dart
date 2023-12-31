@@ -417,12 +417,40 @@ Position _parseTimeCodeUpdate(String timeCode) {
   return Position(title, chapter, timeInformation, clock);
 }
 
+enum ResultCode {
+  ok('OK'),
+  error('ER');
+
+  final String typeCode;
+  const ResultCode(this.typeCode);
+
+  factory ResultCode.fromTypeCode(String typeCode) {
+    for (final r in ResultCode.values) {
+      if (r.typeCode == typeCode) {
+        return r;
+      }
+    }
+    throw 'Unknown response code: $typeCode';
+  }
+}
+
+class Response {
+  final ResultCode responseCode;
+  final String commandCode;
+  final String parameters;
+
+  const Response(this.responseCode, this.commandCode, this.parameters);
+}
+
 class Device {
   final String name;
   final InternetAddress address;
   final int port;
   DateTime? _pendingResponseTimestamp;
   String? _pendingResponseCommandCode;
+  // Use a broadcast stream so functions and start and stop listening.
+  final StreamController<Response> _responses =
+      StreamController<Response>.broadcast();
   Socket? _socket;
   VerboseMode? verboseMode;
   bool? powered;
@@ -482,11 +510,7 @@ class Device {
       throw 'Unable to parse response. The "@" prefix is missing: $response';
     }
     final parts = response.split(' ');
-    // TODO - This parsing logic only works if verbose mode is set to >=1. The
-    // default verbose mode speaks a backwards-compatible protocol that's less
-    // descriptive. Consider setting the verbose mode to 2 on connect(). Verbose
-    // mode 1 is, oddly, not defined.
-    String resultCode;
+    ResultCode resultCode;
     String commandCode;
     String parameters;
     // Updates do not include a resultCode since they are not responses to
@@ -506,29 +530,31 @@ class Device {
         _log.warning('Parsing a verbose mode <=1 response...');
         if (_pendingResponseCommandCode == null) {
           throw 'Got a verbose mode <=1 response but '
-          'there was no pending response command: $response';
+              'there was no pending response command: $response';
         } else {
           commandCode = _pendingResponseCommandCode!;
-          resultCode = part1;
+          resultCode = ResultCode.fromTypeCode(part1);
           parameters = part2;
         }
       } else {
         commandCode = part1;
-        resultCode = part2;
+        resultCode = ResultCode.fromTypeCode(part2);
         parameters = parts.sublist(2).join(' ').trim();
       }
+      _responses.add(Response(resultCode, commandCode, parameters));
       _parseResponse(commandCode, resultCode, parameters);
     }
   }
 
+  // TODO - maybe delete this function and handle parsing in query functions.
   void _parseResponse(
-      String commandCode, String resultCode, String parameters) {
-    final message = [commandCode, resultCode, parameters].join(' ');
+      String commandCode, ResultCode resultCode, String parameters) {
     _pendingResponseTimestamp = null;
     _pendingResponseCommandCode = null;
-    if (resultCode == 'ER') {
-      _log.severe('Got an error response: $message');
-    } else if (resultCode != 'OK') {
+    if (resultCode == ResultCode.error) {
+      _log.severe('Got an error with command code $commandCode '
+          'with parameters: $parameters');
+    } else {
       _log.severe(
           'Unable to parse response. Unexpected result code: $resultCode');
     }
@@ -538,7 +564,7 @@ class Device {
         _parseVerboseMode(parameters);
         break;
       case 'QPW' || 'PON' || 'POF' || 'POW':
-        powered = parameters == 'ON' ? true : false;
+        // powered = parameters == 'ON' ? true : false;
         break;
       case 'QVR':
         firmwareVersion = parameters;
@@ -882,7 +908,16 @@ class Device {
   }
 
   Future<void> queryVerboseMode() async => await _command('QVM');
-  Future<void> queryPowerStatus() async => await _command('QPW');
+  Future<void> queryPowerStatus() async {
+    await _command('QPW');
+    await for (final r in _responses.stream.timeout(Duration(seconds: 10))) {
+      if (r.commandCode == 'QPW') {
+        powered = r.parameters == 'ON' ? true : false;
+        break;
+      }
+    }
+  }
+
   Future<void> queryFirmwareVersion() async => await _command('QVR');
   Future<void> queryVolume() async => await _command('QVL');
   Future<void> queryResolution() async => await _command('QHD');
