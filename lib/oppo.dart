@@ -422,6 +422,7 @@ class Device {
   final InternetAddress address;
   final int port;
   DateTime? _pendingResponseTimestamp;
+  String? _pendingResponseCommandCode;
   Socket? _socket;
   VerboseMode? verboseMode;
   bool? powered;
@@ -495,9 +496,27 @@ class Device {
       parameters = parts.sublist(1).join(' ').trim();
       _parseUpdate(commandCode, parameters);
     } else {
-      commandCode = parts[0].trim().substring(1);
-      resultCode = parts[1].trim();
-      parameters = parts.sublist(2).join(' ').trim();
+      final part1 = parts[0].trim().substring(1);
+      // part2 might be empty if it's being used for parameters.
+      String part2 = '';
+      if (parts.length > 1) part2 = parts[1].trim();
+      // If part1 is a result code, the unit is using verbose mode <=1 and we
+      // need to infer the command code from our last command.
+      if (part1 == 'OK' || part1 == 'ER') {
+        _log.warning('Parsing a verbose mode <=1 response...');
+        if (_pendingResponseCommandCode == null) {
+          throw 'Got a verbose mode <=1 response but '
+          'there was no pending response command: $response';
+        } else {
+          commandCode = _pendingResponseCommandCode!;
+          resultCode = part1;
+          parameters = part2;
+        }
+      } else {
+        commandCode = part1;
+        resultCode = part2;
+        parameters = parts.sublist(2).join(' ').trim();
+      }
       _parseResponse(commandCode, resultCode, parameters);
     }
   }
@@ -506,12 +525,14 @@ class Device {
       String commandCode, String resultCode, String parameters) {
     final message = [commandCode, resultCode, parameters].join(' ');
     _pendingResponseTimestamp = null;
+    _pendingResponseCommandCode = null;
     if (resultCode == 'ER') {
       _log.severe('Got an error response: $message');
     } else if (resultCode != 'OK') {
       _log.severe(
-          'Unable to parse response. Unexpected result code in: $message');
+          'Unable to parse response. Unexpected result code: $resultCode');
     }
+    _log.info('Handling response for command code: $commandCode');
     switch (commandCode) {
       case 'QVM' || 'SVM':
         _parseVerboseMode(parameters);
@@ -636,6 +657,7 @@ class Device {
         _log.severe(
             'Giving up on getting a response for the previous command.');
         _pendingResponseTimestamp = null;
+        _pendingResponseCommandCode = null;
         return _command(code, parameters: parameters);
       }
       _log.fine('Waiting on a response to the previous command. '
@@ -650,6 +672,7 @@ class Device {
       _log.info('Sending command: $c');
       socket.write(c);
       _pendingResponseTimestamp = DateTime.now();
+      _pendingResponseCommandCode = code;
     } else {
       _log.severe('Socket is not open. Unable to send command code: $code');
     }
