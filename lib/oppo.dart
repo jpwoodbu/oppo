@@ -421,8 +421,7 @@ class Device {
   final String name;
   final InternetAddress address;
   final int port;
-  // TODO - Why do I get a warning if I make this var private?
-  bool pendingResponse = false;
+  DateTime? _pendingResponseTimestamp;
   Socket? _socket;
   VerboseMode? verboseMode;
   bool? powered;
@@ -506,7 +505,7 @@ class Device {
   void _parseResponse(
       String commandCode, String resultCode, String parameters) {
     final message = [commandCode, resultCode, parameters].join(' ');
-    pendingResponse = false;
+    _pendingResponseTimestamp = null;
     if (resultCode == 'ER') {
       _log.severe('Got an error response: $message');
     } else if (resultCode != 'OK') {
@@ -630,21 +629,19 @@ class Device {
     return '#$code$parameters\r';
   }
 
-  Future<void> _command(String code,
-      {String parameters = '', int remainingDelays = 20}) async {
-    if (pendingResponse) {
-      if (remainingDelays < 1) {
+  Future<void> _command(String code, {String parameters = ''}) async {
+    if (_pendingResponseTimestamp != null) {
+      final waiting = DateTime.now().difference(_pendingResponseTimestamp!);
+      if (waiting > Duration(seconds: 10)) {
         _log.severe(
             'Giving up on getting a response for the previous command.');
-        pendingResponse = false;
+        _pendingResponseTimestamp = null;
         return _command(code, parameters: parameters);
       }
       _log.fine('Waiting on a response to the previous command. '
-          'Will try again in 500ms.');
-      await Future.delayed(
-          const Duration(milliseconds: 500),
-          () => _command(code,
-              parameters: parameters, remainingDelays: remainingDelays - 1));
+          'Have been waiting $waiting. Will try again in 500ms.');
+      await Future.delayed(const Duration(milliseconds: 500),
+          () => _command(code, parameters: parameters));
       return;
     }
     final socket = _socket;
@@ -652,7 +649,7 @@ class Device {
     if (socket != null) {
       _log.info('Sending command: $c');
       socket.write(c);
-      pendingResponse = true;
+      _pendingResponseTimestamp = DateTime.now();
     } else {
       _log.severe('Socket is not open. Unable to send command code: $code');
     }
