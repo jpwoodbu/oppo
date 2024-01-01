@@ -547,6 +547,7 @@ class Device {
   }
 
   // TODO - maybe delete this function and handle parsing in query functions.
+  // I'm a bit tempted to keep this for nonquery responses.
   void _parseResponse(
       String commandCode, ResultCode resultCode, String parameters) {
     _pendingResponseTimestamp = null;
@@ -906,6 +907,10 @@ class Device {
   }
 
   Future<void> queryVerboseMode() async => await _command('QVM');
+  
+  // TODO - I see need a function to complete a Future once a particular state
+  // has changed, with a timeout. Maybe take the condition as a closure? That
+  // does make the function completely generic.
   Future<void> queryPowerStatus() async {
     await _command('QPW');
     await for (final r in _responses.stream.timeout(Duration(seconds: 10))) {
