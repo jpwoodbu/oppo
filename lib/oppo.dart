@@ -554,9 +554,7 @@ class Device {
     if (resultCode == ResultCode.error) {
       _log.severe('Got an error with command code $commandCode '
           'with parameters: $parameters');
-    } else {
-      _log.severe(
-          'Unable to parse response. Unexpected result code: $resultCode');
+      return;
     }
     _log.info('Handling response for command code: $commandCode');
     switch (commandCode) {
