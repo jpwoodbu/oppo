@@ -178,12 +178,11 @@ enum PlaybackStatus {
   const PlaybackStatus(this.typeCode);
 
   factory PlaybackStatus.fromTypeCode(String typeCode) {
-    for (final p in PlaybackStatus.values) {
-      if (p.typeCode == typeCode) {
-        return p;
-      }
+    try {
+      return PlaybackStatus.values.firstWhere((p) => p.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typecode for playback status: $typeCode';
     }
-    throw 'Unknown typecode for playback status: $typeCode';
   }
 }
 
@@ -907,7 +906,7 @@ class Device {
   }
 
   Future<void> queryVerboseMode() async => await _command('QVM');
-  
+
   // TODO - I see need a function to complete a Future once a particular state
   // has changed, with a timeout. Maybe take the condition as a closure? That
   // does make the function completely generic.
