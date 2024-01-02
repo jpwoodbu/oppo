@@ -130,12 +130,11 @@ enum VerboseMode {
   const VerboseMode(this.typeCode);
 
   factory VerboseMode.fromTypeCode(String typeCode) {
-    for (final v in VerboseMode.values) {
-      if (v.typeCode == typeCode) {
-        return v;
-      }
+    try {
+      return VerboseMode.values.firstWhere((p) => p.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for verbose mode: $typeCode';
     }
-    throw 'Unable to parse verbose mode: $typeCode';
   }
 }
 
@@ -181,7 +180,7 @@ enum PlaybackStatus {
     try {
       return PlaybackStatus.values.firstWhere((p) => p.typeCode == typeCode);
     } on StateError {
-      throw 'Unknown typecode for playback status: $typeCode';
+      throw 'Unknown typeCode for playback status: $typeCode';
     }
   }
 }
@@ -229,12 +228,11 @@ enum TimeInformation {
   const TimeInformation(this.displayName, this.typeCode);
 
   factory TimeInformation.fromTypeCode(String typeCode) {
-    for (final t in TimeInformation.values) {
-      if (t.typeCode == typeCode) {
-        return t;
-      }
+    try {
+      return TimeInformation.values.firstWhere((p) => p.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for time information: $typeCode';
     }
-    throw 'Unable to parse position type: $typeCode';
   }
 }
 
@@ -395,12 +393,11 @@ enum DiscType {
   const DiscType(this.typeCode);
 
   factory DiscType.fromTypeCode(String typeCode) {
-    for (final d in DiscType.values) {
-      if (d.typeCode == typeCode) {
-        return d;
-      }
+    try {
+      return DiscType.values.firstWhere((p) => p.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for disc type: $typeCode';
     }
-    throw 'Unknown disc type: $typeCode';
   }
 }
 
@@ -424,12 +421,11 @@ enum ResultCode {
   const ResultCode(this.typeCode);
 
   factory ResultCode.fromTypeCode(String typeCode) {
-    for (final r in ResultCode.values) {
-      if (r.typeCode == typeCode) {
-        return r;
-      }
+    try {
+      return ResultCode.values.firstWhere((p) => p.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for result code: $typeCode';
     }
-    throw 'Unknown response code: $typeCode';
   }
 }
 
