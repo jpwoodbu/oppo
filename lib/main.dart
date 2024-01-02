@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import 'device_changes.dart';
 import 'oppo.dart' as oppo;
+import 'playground.dart';
 
 final _log = Logger('main');
 
@@ -242,11 +243,15 @@ class _HomePageState extends State<HomePage> {
         body: device.powered ?? false
             ? IndexedStack(
                 index: currentPageIndex,
+                // TODO - maybe these children should be full widget classes
+                // instead of functions. That may give them some optimizations
+                // like only being rebuilt lazily.
                 children: [
                   _buttons(context, device),
                   _numberPad(context, device),
                   _otherControls(context, device),
                   _fileViewer(context, device),
+                  Playground(),
                 ],
               )
             : _notPoweredOn(context, device),
@@ -268,6 +273,10 @@ class _HomePageState extends State<HomePage> {
                   NavigationDestination(
                     icon: Icon(Icons.folder),
                     label: 'Files',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.play_arrow),
+                    label: 'Playground',
                   ),
                 ],
                 selectedIndex: currentPageIndex,
