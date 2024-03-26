@@ -443,7 +443,7 @@ class Device {
   final int port;
   DateTime? _pendingResponseTimestamp;
   String? _pendingResponseCommandCode;
-  // Use a broadcast stream so functions and start and stop listening.
+  // Use a broadcast stream so functions can start and stop listening.
   final StreamController<Response> _responses =
       StreamController<Response>.broadcast();
   Socket? _socket;
