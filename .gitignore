@@ -43,4 +43,6 @@ app.*.map.json
 /android/app/release
 
 # Flutter Version Management places symlinks to the Flutter SDK here.
-.fvm/flutter_sdk
+
+# FVM Version Cache
+.fvm/
