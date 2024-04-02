@@ -6,12 +6,13 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 
 const int _broadcastPort = 7624;
+const Duration _responseTimeout = Duration(seconds: 10);
 
 final _log = Logger('oppo');
 
 void main() async {
   Set<OppoBroadcast> devices = {};
-  Logger.root.level = Level.ALL;
+  Logger.root.level = Level.INFO;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
@@ -34,8 +35,11 @@ void main() async {
     var info = devices.first;
     final device = Device(info.name, info.address, info.port);
     await device.connect();
-    device.startParser();
-    await device.setVerboseMode(VerboseMode.detailed);
+    await device.startListener();
+    await device.powerOn();
+    // await device.queryPowerStatus();
+    await device.queryVerboseMode();
+    await device.setVerboseMode(VerboseMode.major);
   }
 }
 
@@ -430,19 +434,35 @@ enum ResultCode {
 }
 
 class Response {
-  final ResultCode responseCode;
-  final String commandCode;
-  final String parameters;
+  // These parameters are all optional only because the compiler is unhappy when
+  // trying to assign them inside an `await for` block where there's a timeout
+  // as is done with _rpc(). It thinks there's a chance that the function will
+  // return a null value even when it should throw an exception. So we have to
+  // initialize a Response object early in that function before having values
+  // for these parameters.
+  final ResultCode? resultCode;
+  final String? commandCode;
+  final String? parameters;
 
-  const Response(this.responseCode, this.commandCode, this.parameters);
+  const Response({this.resultCode, this.commandCode, this.parameters});
 }
 
 class Device {
   final String name;
   final InternetAddress address;
   final int port;
-  DateTime? _pendingResponseTimestamp;
-  String? _pendingResponseCommandCode;
+
+  /// The timestamp when the last command was sent. Used for deciding if we've
+  /// waited long enough for a response to the last command.
+  DateTime? _lastCommandTimestamp;
+
+  /// The command code sent in the last command. Used for confirming a response
+  /// is for the command last sent.
+  String? _lastCommandCode;
+
+  /// A stream of responses from the device which other components to listen to.
+  /// This is handy for call and response flows where you want to block until
+  /// the response has been received.
   // Use a broadcast stream so functions can start and stop listening.
   final StreamController<Response> _responses =
       StreamController<Response>.broadcast();
@@ -459,6 +479,10 @@ class Device {
 
   Device(this.name, this.address, this.port);
 
+  /// Estasblishes a socket to the Oppo player.
+  ///
+  /// If a connection has already been established, this method does nothing but
+  /// log a warning.
   Future<void> connect() async {
     if (_socket != null) {
       _log.warning('connect() called on already connected Device.');
@@ -493,11 +517,15 @@ class Device {
   /// Flutter apps will probably want to implement a function like this inside a
   /// Provider/Consumer system. But for testing this package, it's handy to have
   /// this function.
-  Future<void> startParser() async {
-    _log.info('Starting parser');
-    await for (final packet in stream()) {
+  // TODO - I don't know why this function needs to be async. But if it's not,
+  // then it seems we might send a command before we start listening for
+  // responses.
+  Future<void> startListener() async {
+    // TODO - Is there any reason to track the StreamSubscription object
+    // returned by the listen() call so we can call cancel() on it later?
+    stream().listen((packet) {
       parseMessage(packet);
-    }
+    });
   }
 
   void parseMessage(String response) {
@@ -522,12 +550,12 @@ class Device {
       // If part1 is a result code, the unit is using verbose mode <=1 and we
       // need to infer the command code from our last command.
       if (part1 == 'OK' || part1 == 'ER') {
-        _log.warning('Parsing a verbose mode <=1 response...');
-        if (_pendingResponseCommandCode == null) {
+        _log.warning('Parsing a verbose mode less than "major" response...');
+        if (_lastCommandCode == null) {
           throw 'Got a verbose mode <=1 response but '
               'there was no pending response command: $response';
         } else {
-          commandCode = _pendingResponseCommandCode!;
+          commandCode = _lastCommandCode!;
           resultCode = ResultCode.fromTypeCode(part1);
           parameters = part2;
         }
@@ -536,7 +564,10 @@ class Device {
         resultCode = ResultCode.fromTypeCode(part2);
         parameters = parts.sublist(2).join(' ').trim();
       }
-      _responses.add(Response(resultCode, commandCode, parameters));
+      _responses.add(Response(
+          resultCode: resultCode,
+          commandCode: commandCode,
+          parameters: parameters));
       _parseResponse(commandCode, resultCode, parameters);
     }
   }
@@ -545,14 +576,14 @@ class Device {
   // I'm a bit tempted to keep this for nonquery responses.
   void _parseResponse(
       String commandCode, ResultCode resultCode, String parameters) {
-    _pendingResponseTimestamp = null;
-    _pendingResponseCommandCode = null;
+    _lastCommandTimestamp = null;
+    _lastCommandCode = null;
     if (resultCode == ResultCode.error) {
       _log.severe('Got an error with command code $commandCode '
           'with parameters: $parameters');
       return;
     }
-    _log.info('Handling response for command code: $commandCode');
+    _log.finer('Handling response for command code: $commandCode');
     switch (commandCode) {
       case 'QVM' || 'SVM':
         _parseVerboseMode(parameters);
@@ -644,6 +675,7 @@ class Device {
   void _parseVerboseMode(String parameters) {
     try {
       verboseMode = VerboseMode.fromTypeCode(parameters);
+      _log.fine('Verbose mode is: ${verboseMode.toString()}');
     } catch (e) {
       _log.severe('Unexpected verbose mode: $parameters');
     }
@@ -671,13 +703,13 @@ class Device {
   }
 
   Future<void> _command(String code, {String parameters = ''}) async {
-    if (_pendingResponseTimestamp != null) {
-      final waiting = DateTime.now().difference(_pendingResponseTimestamp!);
+    if (_lastCommandTimestamp != null) {
+      final waiting = DateTime.now().difference(_lastCommandTimestamp!);
       if (waiting > Duration(seconds: 10)) {
         _log.severe(
             'Giving up on getting a response for the previous command.');
-        _pendingResponseTimestamp = null;
-        _pendingResponseCommandCode = null;
+        _lastCommandTimestamp = null;
+        _lastCommandCode = null;
         return _command(code, parameters: parameters);
       }
       _log.fine('Waiting on a response to the previous command. '
@@ -691,16 +723,16 @@ class Device {
     if (socket != null) {
       _log.info('Sending command: $c');
       socket.write(c);
-      _pendingResponseTimestamp = DateTime.now();
-      _pendingResponseCommandCode = code;
+      _lastCommandTimestamp = DateTime.now();
+      _lastCommandCode = code;
     } else {
       _log.severe('Socket is not open. Unable to send command code: $code');
     }
   }
 
   Future<void> powerToggle() async => await _command('POW');
-  Future<void> powerOn() async => await _command('PON');
-  Future<void> powerOff() async => await _command('POF');
+  Future<void> powerOn() async => await _rpc('PON');
+  Future<void> powerOff() async => await _rpc('POF');
   Future<void> trayToggle() async => await _command('EJT');
   Future<void> dim() async => await _command('DIM');
   Future<void> pureAudio() async => await _command('PUR');
@@ -794,7 +826,7 @@ class Device {
   Future<void> noOp() async => await _command('NOP');
 
   Future<void> setVerboseMode(VerboseMode mode) async {
-    await _command('SVM', parameters: mode.typeCode);
+    await _rpc('SVM', parameters: mode.typeCode);
   }
 
   Future<void> setHdmiResolution(HdmiResolution hdmiResolution) async {
@@ -896,24 +928,37 @@ class Device {
     await _command('REV', parameters: speed.typeCode);
   }
 
+  Future<Response> _rpc(String code, {String parameters = ''}) async {
+    Response response = Response();
+    // Because with verboseMode.detailed, we might get unsoliticed responses, we
+    // need to check all responses in a loop until we get a response to our last
+    // command, or we timeout.
+    await _command(code, parameters: parameters);
+    await for (final r in _responses.stream.timeout(_responseTimeout)) {
+      if (r.commandCode == code) {
+        response = r;
+        break;
+      }
+    }
+    return response;
+  }
+
   Future<void> queryDirectoryItem(int index) async {
     if (index < 1) throw 'index must be a positive int.';
     await _command('QDR', parameters: index.toString());
   }
 
-  Future<void> queryVerboseMode() async => await _command('QVM');
+  Future<void> queryVerboseMode() async => await _rpc('QVM');
 
-  // TODO - I see need a function to complete a Future once a particular state
-  // has changed, with a timeout. Maybe take the condition as a closure? That
-  // does make the function completely generic.
-  Future<void> queryPowerStatus() async {
-    await _command('QPW');
-    await for (final r in _responses.stream.timeout(Duration(seconds: 10))) {
-      if (r.commandCode == 'QPW') {
-        powered = r.parameters == 'ON' ? true : false;
-        break;
-      }
-    }
+  Future<bool> queryPowerStatus() async {
+    final r = await _rpc('QPW');
+    // TODO - _parseResponse can also set the instance var's state. Pick one.
+    bool p = r.parameters == 'ON' ? true : false;
+    // Instance variable [powered] is bool? not bool, which is what this method
+    // returns. That's why there's both a [p] var and a [powered] var referenced
+    // here.
+    powered = p;
+    return p;
   }
 
   Future<void> queryFirmwareVersion() async => await _command('QVR');
