@@ -36,10 +36,32 @@ void main() async {
     final device = Device(info.name, info.address, info.port);
     await device.connect();
     await device.startListener();
-    await device.powerOn();
+    await device.powerOff();
     // await device.queryPowerStatus();
-    await device.queryVerboseMode();
-    await device.setVerboseMode(VerboseMode.major);
+    // await device.queryVerboseMode();
+    // await device.setVerboseMode(VerboseMode.major);
+    // await engage(device);
+  }
+}
+
+Future<void> engage(Device device) async {
+  if (!await device.queryPowerStatus()) {
+    await device.powerOn();
+    await _waitForPowerOn(device, Duration(seconds: 1), 10);
+  }
+  await device.setVerboseMode(VerboseMode.detailed);
+}
+
+Future<void> _waitForPowerOn(
+    Device device, Duration delay, int attemptsRemaining) async {
+  if (await device.queryPowerStatus()) {
+    return;
+  } else if (attemptsRemaining > 0) {
+    attemptsRemaining--;
+    await Future.delayed(
+        delay, () => _waitForPowerOn(device, delay, attemptsRemaining));
+  } else {
+    throw TimeoutException('Timed out waiting for device to power on.');
   }
 }
 
