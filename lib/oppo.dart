@@ -36,14 +36,15 @@ void main() async {
     final device = Device(info.name, info.address, info.port);
     await device.connect();
     await device.startListener();
-    await device.powerOff();
+    // await device.powerOff();
     // await device.queryPowerStatus();
     // await device.queryVerboseMode();
-    // await device.setVerboseMode(VerboseMode.major);
+    await device.setVerboseMode(VerboseMode.off);
     // await engage(device);
   }
 }
 
+// TODO - Maybe move this into the Device class.
 Future<void> engage(Device device) async {
   if (!await device.queryPowerStatus()) {
     await device.powerOn();
@@ -52,6 +53,7 @@ Future<void> engage(Device device) async {
   await device.setVerboseMode(VerboseMode.detailed);
 }
 
+// TODO - Maybe move this into the Device class.
 Future<void> _waitForPowerOn(
     Device device, Duration delay, int attemptsRemaining) async {
   if (await device.queryPowerStatus()) {

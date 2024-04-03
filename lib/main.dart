@@ -204,14 +204,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // It's important that the "engage" Future is stateful so we don't try to
+  // run it on every widget rebuild or hot reload.
+  late Future<void> _engage;
   int currentPageIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _engage = oppo.engage(widget.device);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final future = _engage(widget.device);
     return Consumer<DeviceChanges>(
       builder: (context, deviceChanges, _) =>
-          _futureBuilder(context, future, deviceChanges.device),
+          _futureBuilder(context, _engage, deviceChanges.device),
     );
   }
 
@@ -230,7 +238,7 @@ class _HomePageState extends State<HomePage> {
         } else {
           return const Scaffold(
               body: Center(
-            child: Text('Powering on...'),
+            child: Text('Powering on and setting up communication...'),
           ));
         }
       },
@@ -290,26 +298,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// TODO - generalize this and move it into the oppo module.
-Future<void> _waitForPowerOnState(oppo.Device device, DateTime until) async {
-  if (!(device.powered ?? false)) {
-    if (DateTime.now().isBefore(until)) {
-      _log.fine('Waiting on power on state. Will try again in 500ms.');
-      await Future.delayed(Duration(milliseconds: 500),
-          () => _waitForPowerOnState(device, until));
-    } else {
-      throw 'Timed out waiting on power on state.';
-    }
-  }
-}
-
-Future<void> _engage(oppo.Device device) async {
-  await device.powerOn();
-  await device.queryPowerStatus();
-  // await _waitForPowerOnState(device, DateTime.now().add(Duration(seconds: 5)));
-  await device.setVerboseMode(oppo.VerboseMode.detailed);
-}
-
 Widget _notPoweredOn(BuildContext context, oppo.Device device) {
   return Padding(
     padding: const EdgeInsets.all(15.0),
@@ -317,9 +305,13 @@ Widget _notPoweredOn(BuildContext context, oppo.Device device) {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Power on to start using the remote.'),
+          const Text('The player must be powered on to use this remote.'),
+          const SizedBox(height: 10.0),
+          const Text('Click below to power it on.'),
           const SizedBox(height: 10.0),
           IconButton(
+            // TODO - turn this into a stateful widget show a progress indicator
+            // can be displayed after the power button is clicked.
             onPressed: () => addHaptic(device.powerOn),
             icon: const Icon(
               Icons.power_settings_new,

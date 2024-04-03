@@ -12,7 +12,7 @@ class DeviceChanges with ChangeNotifier {
   DeviceChanges(this.device) {
     _stream = device.stream();
     _handleMessages();
-    _log.info('Handling messages.');
+    _log.info('Handling messages with ChangeNotifier.');
   }
 
   Future<void> _handleMessages() async {
