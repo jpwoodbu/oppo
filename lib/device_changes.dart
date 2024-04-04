@@ -7,18 +7,13 @@ final _log = Logger('DeviceChanges');
 
 class DeviceChanges with ChangeNotifier {
   final Device device;
-  late Stream<String> _stream;
 
   DeviceChanges(this.device) {
-    _stream = device.stream();
-    _handleMessages();
-    _log.info('Handling messages with ChangeNotifier.');
-  }
-
-  Future<void> _handleMessages() async {
-    await for (final String message in _stream) {
+    _log.fine('Creating ChangeNotifier.');
+    device.stream().listen((message) {
       device.parseMessage(message);
       notifyListeners();
-    }
+    });
+    _log.info('Handling messages with ChangeNotifier.');
   }
 }

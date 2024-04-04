@@ -500,11 +500,11 @@ class Device {
   }
 
   /// Set up the player for communication.
-  /// 
+  ///
   /// This method should only be called after [startListener] or some equivalent
   /// method is called.
   Future<void> engage() async {
-    if (!(await queryPowerStatus() ?? false)) {
+    if (!await queryPowerStatus()) {
       await powerOn();
       await _waitForPowerOn(Duration(seconds: 1), 10);
     }
@@ -512,7 +512,7 @@ class Device {
   }
 
   Future<void> _waitForPowerOn(Duration delay, int attemptsRemaining) async {
-    if (await queryPowerStatus() ?? false) {
+    if (await queryPowerStatus()) {
       return;
     } else if (attemptsRemaining > 0) {
       attemptsRemaining--;
@@ -553,10 +553,22 @@ class Device {
     });
   }
 
-  void parseMessage(String response) {
-    if (!response.startsWith('@')) {
-      throw 'Unable to parse response. The "@" prefix is missing: $response';
+  void parseMessage(String message) {
+    if (!message.startsWith('@')) {
+      throw ('Unable to parse response message. '
+          'The "@" prefix is missing: $message');
     }
+    // We can sometimes get multiple responses in a single message from the
+    // stream. Especially when a response to a query comes back around the same
+    // time as an update for something like the current playback position.
+    final responses = message.split('@');
+    _log.fine('Responses: $responses');
+    // TODO - The leading '@' still needs to eb in the response string. Or
+    // change _parseResponse to not require it.
+    responses.forEach(_parseResponse);
+  }
+
+  void _parseResponse(String response) {
     final parts = response.split(' ');
     ResultCode resultCode;
     String commandCode;
@@ -593,33 +605,12 @@ class Device {
           resultCode: resultCode,
           commandCode: commandCode,
           parameters: parameters));
-      _parseResponse(commandCode, resultCode, parameters);
-    }
-  }
-
-  void _parseResponse(
-      String commandCode, ResultCode resultCode, String parameters) {
-    _lastCommandTimestamp = null;
-    _lastCommandCode = null;
-    if (resultCode == ResultCode.error) {
-      _log.severe('Got an error with command code $commandCode '
-          'with parameters: $parameters');
-      return;
-    }
-    _log.finer('Handling response for command code: $commandCode');
-    switch (commandCode) {
-      case 'QVM' || 'SVM':
-        _parseVerboseMode(parameters);
-        break;
-      case 'QPW' || 'PON' || 'POF' || 'POW':
-        powered = parameters == 'ON' ? true : false;
-        break;
-      case 'QVR':
-        firmwareVersion = parameters;
-        break;
-      default:
-        _log.warning('[parseResponse] Unsupported command code: $commandCode');
-        break;
+      _lastCommandTimestamp = null;
+      _lastCommandCode = null;
+      if (resultCode == ResultCode.error) {
+        _log.severe('Got an error with command code $commandCode '
+            'with parameters: $parameters');
+      }
     }
   }
 
@@ -695,12 +686,14 @@ class Device {
     }
   }
 
-  void _parseVerboseMode(String parameters) {
+  VerboseMode _parseVerboseMode(String parameters) {
     try {
-      verboseMode = VerboseMode.fromTypeCode(parameters);
+      var v = VerboseMode.fromTypeCode(parameters);
+      verboseMode = v;
       _log.fine('Verbose mode is: ${verboseMode.toString()}');
+      return v;
     } catch (e) {
-      _log.severe('Unexpected verbose mode: $parameters');
+      throw 'Unexpected verbose mode: $e';
     }
   }
 
@@ -952,11 +945,11 @@ class Device {
   }
 
   /// Wrapper to simulate procedure call symantecs for a command.
-  /// 
+  ///
   /// This method blocks until a response is received for the command or until a
   /// preset timeout is reached, in which case an exception is thrown.
   Future<Response> _rpc(String code, {String parameters = ''}) async {
-    Response response = Response(); 
+    Response response = Response();
     // Because with verboseMode.detailed, we might get unsoliticed responses, we
     // need to check all responses in a loop until we get a response to our last
     // command, or we timeout.
@@ -980,14 +973,25 @@ class Device {
     await _command('QDR', parameters: index.toString());
   }
 
-  Future<void> queryVerboseMode() async => await _rpc('QVM');
-
-  Future<bool?> queryPowerStatus() async {
-    await _rpc('QPW');
-    return powered;
+  Future<VerboseMode> queryVerboseMode() async {
+    final r = await _rpc('QVM');
+    return _parseVerboseMode(r.parameters!);
   }
-  
-  Future<void> queryFirmwareVersion() async => await _command('QVR');
+
+  Future<bool> queryPowerStatus() async {
+    final r = await _rpc('QPW');
+    bool p = r.parameters! == 'ON' ? true : false;
+    powered = p;
+    return p;
+  }
+
+  Future<String> queryFirmwareVersion() async {
+    final r = await _rpc('QVR');
+    String f = r.parameters!;
+    firmwareVersion = f;
+    return f;
+  }
+
   Future<void> queryVolume() async => await _command('QVL');
   Future<void> queryResolution() async => await _command('QHD');
   Future<void> queryPlaybackStatus() async => await _command('QPL');

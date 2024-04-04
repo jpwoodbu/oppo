@@ -185,6 +185,9 @@ class _ConnectState extends State<Connect> {
           }
           return ChangeNotifierProvider<DeviceChanges>(
             create: (_) => DeviceChanges(widget.device),
+            // The child Widget depends on [DeviceChanges] being fully set up
+            // ahead of time.
+            lazy: false,
             child: HomePage(widget.device),
           );
         } else {
@@ -212,6 +215,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _log.fine('Creating engage future.');
     _engage = widget.device.engage();
   }
 
