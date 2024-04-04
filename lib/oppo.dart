@@ -39,31 +39,8 @@ void main() async {
     // await device.powerOff();
     // await device.queryPowerStatus();
     // await device.queryVerboseMode();
-    await device.setVerboseMode(VerboseMode.off);
-    // await engage(device);
-  }
-}
-
-// TODO - Maybe move this into the Device class.
-Future<void> engage(Device device) async {
-  if (!await device.queryPowerStatus()) {
-    await device.powerOn();
-    await _waitForPowerOn(device, Duration(seconds: 1), 10);
-  }
-  await device.setVerboseMode(VerboseMode.detailed);
-}
-
-// TODO - Maybe move this into the Device class.
-Future<void> _waitForPowerOn(
-    Device device, Duration delay, int attemptsRemaining) async {
-  if (await device.queryPowerStatus()) {
-    return;
-  } else if (attemptsRemaining > 0) {
-    attemptsRemaining--;
-    await Future.delayed(
-        delay, () => _waitForPowerOn(device, delay, attemptsRemaining));
-  } else {
-    throw TimeoutException('Timed out waiting for device to power on.');
+    // await device.setVerboseMode(VerboseMode.major);
+    await device.engage();
   }
 }
 
@@ -522,6 +499,30 @@ class Device {
     }
   }
 
+  /// Set up the player for communication.
+  /// 
+  /// This method should only be called after [startListener] or some equivalent
+  /// method is called.
+  Future<void> engage() async {
+    if (!(await queryPowerStatus() ?? false)) {
+      await powerOn();
+      await _waitForPowerOn(Duration(seconds: 1), 10);
+    }
+    await setVerboseMode(VerboseMode.detailed);
+  }
+
+  Future<void> _waitForPowerOn(Duration delay, int attemptsRemaining) async {
+    if (await queryPowerStatus() ?? false) {
+      return;
+    } else if (attemptsRemaining > 0) {
+      attemptsRemaining--;
+      await Future.delayed(
+          delay, () => _waitForPowerOn(delay, attemptsRemaining));
+    } else {
+      throw TimeoutException('Timed out waiting for device to power on.');
+    }
+  }
+
   Stream<String> stream() async* {
     if (_socket == null) connect();
     final socket = _socket;
@@ -596,8 +597,6 @@ class Device {
     }
   }
 
-  // TODO - maybe delete this function and handle parsing in query functions.
-  // I'm a bit tempted to keep this for nonquery responses.
   void _parseResponse(
       String commandCode, ResultCode resultCode, String parameters) {
     _lastCommandTimestamp = null;
@@ -613,13 +612,13 @@ class Device {
         _parseVerboseMode(parameters);
         break;
       case 'QPW' || 'PON' || 'POF' || 'POW':
-        // powered = parameters == 'ON' ? true : false;
+        powered = parameters == 'ON' ? true : false;
         break;
       case 'QVR':
         firmwareVersion = parameters;
         break;
       default:
-        _log.warning('[R] Unsupported command code: $commandCode');
+        _log.warning('[parseResponse] Unsupported command code: $commandCode');
         break;
     }
   }
@@ -952,17 +951,26 @@ class Device {
     await _command('REV', parameters: speed.typeCode);
   }
 
+  /// Wrapper to simulate procedure call symantecs for a command.
+  /// 
+  /// This method blocks until a response is received for the command or until a
+  /// preset timeout is reached, in which case an exception is thrown.
   Future<Response> _rpc(String code, {String parameters = ''}) async {
-    Response response = Response();
+    Response response = Response(); 
     // Because with verboseMode.detailed, we might get unsoliticed responses, we
     // need to check all responses in a loop until we get a response to our last
     // command, or we timeout.
+    // TODO - Is this a race condition? Should I use the listen() method instead
+    // of the for loop.
     await _command(code, parameters: parameters);
     await for (final r in _responses.stream.timeout(_responseTimeout)) {
       if (r.commandCode == code) {
         response = r;
         break;
       }
+    }
+    if (response.resultCode == ResultCode.error) {
+      throw '$code call returned an error result code.';
     }
     return response;
   }
@@ -974,17 +982,11 @@ class Device {
 
   Future<void> queryVerboseMode() async => await _rpc('QVM');
 
-  Future<bool> queryPowerStatus() async {
-    final r = await _rpc('QPW');
-    // TODO - _parseResponse can also set the instance var's state. Pick one.
-    bool p = r.parameters == 'ON' ? true : false;
-    // Instance variable [powered] is bool? not bool, which is what this method
-    // returns. That's why there's both a [p] var and a [powered] var referenced
-    // here.
-    powered = p;
-    return p;
+  Future<bool?> queryPowerStatus() async {
+    await _rpc('QPW');
+    return powered;
   }
-
+  
   Future<void> queryFirmwareVersion() async => await _command('QVR');
   Future<void> queryVolume() async => await _command('QVL');
   Future<void> queryResolution() async => await _command('QHD');

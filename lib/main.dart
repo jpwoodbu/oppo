@@ -212,7 +212,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _engage = oppo.engage(widget.device);
+    _engage = widget.device.engage();
   }
 
   @override
