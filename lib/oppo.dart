@@ -136,7 +136,8 @@ enum VerboseMode {
 
   factory VerboseMode.fromTypeCode(String typeCode) {
     try {
-      return VerboseMode.values.firstWhere((p) => p.typeCode == typeCode);
+      return VerboseMode.values
+          .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for verbose mode: $typeCode';
     }
@@ -183,7 +184,8 @@ enum PlaybackStatus {
 
   factory PlaybackStatus.fromTypeCode(String typeCode) {
     try {
-      return PlaybackStatus.values.firstWhere((p) => p.typeCode == typeCode);
+      return PlaybackStatus.values
+          .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for playback status: $typeCode';
     }
@@ -234,7 +236,8 @@ enum TimeInformation {
 
   factory TimeInformation.fromTypeCode(String typeCode) {
     try {
-      return TimeInformation.values.firstWhere((p) => p.typeCode == typeCode);
+      return TimeInformation.values
+          .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for time information: $typeCode';
     }
@@ -248,6 +251,37 @@ class Position {
   String clock;
 
   Position(this.title, this.chapter, this.timeInformation, this.clock);
+}
+
+enum DirectoryItemType {
+  usb('U'),
+  opticalDisc('O'),
+  // TODO - 0 is also an example of a network search?!
+  upperLevel('0'),
+  file('F'),
+  directory('D'),
+  dlnaServer('L'),
+  smbServer('S'),
+  nfsServer('N');
+
+  final String typeCode;
+  const DirectoryItemType(this.typeCode);
+
+  factory DirectoryItemType.fromTypeCode(String typeCode) {
+    try {
+      return DirectoryItemType.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for directory item type: $typeCode';
+    }
+  }
+}
+
+class DirectoryItem {
+  DirectoryItemType type;
+  String name;
+
+  DirectoryItem(this.type, this.name);
 }
 
 enum HdmiResolution {
@@ -272,6 +306,15 @@ enum HdmiResolution {
 
   final String typeCode;
   const HdmiResolution(this.typeCode);
+
+  factory HdmiResolution.fromTypeCode(String typeCode) {
+    try {
+      return HdmiResolution.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for HDMI resolution: $typeCode';
+    }
+  }
 }
 
 enum ZoomRatio {
@@ -291,6 +334,15 @@ enum ZoomRatio {
 
   final String typeCode;
   const ZoomRatio(this.typeCode);
+
+  factory ZoomRatio.fromTypeCode(String typeCode) {
+    try {
+      return ZoomRatio.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for zoom ratio: $typeCode';
+    }
+  }
 }
 
 enum RepeatMode {
@@ -303,6 +355,15 @@ enum RepeatMode {
 
   final String typeCode;
   const RepeatMode(this.typeCode);
+
+  factory RepeatMode.fromTypeCode(String typeCode) {
+    try {
+      return RepeatMode.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for repeat mode: $typeCode';
+    }
+  }
 }
 
 enum HdrSetting {
@@ -312,6 +373,15 @@ enum HdrSetting {
 
   final String typeCode;
   const HdrSetting(this.typeCode);
+
+  factory HdrSetting.fromTypeCode(String typeCode) {
+    try {
+      return HdrSetting.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for HDR setting: $typeCode';
+    }
+  }
 }
 
 enum InputSource {
@@ -325,6 +395,15 @@ enum InputSource {
 
   final String typeCode;
   const InputSource(this.typeCode);
+
+  factory InputSource.fromTypeCode(String typeCode) {
+    try {
+      return InputSource.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for input source: $typeCode';
+    }
+  }
 }
 
 enum ScreenSaverSetting {
@@ -334,6 +413,15 @@ enum ScreenSaverSetting {
 
   final String typeCode;
   const ScreenSaverSetting(this.typeCode);
+
+  factory ScreenSaverSetting.fromTypeCode(String typeCode) {
+    try {
+      return ScreenSaverSetting.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for screen saver setting: $typeCode';
+    }
+  }
 }
 
 enum App {
@@ -346,6 +434,14 @@ enum App {
 
   final String typeCode;
   const App(this.typeCode);
+
+  factory App.fromTypeCode(String typeCode) {
+    try {
+      return App.values.firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for App: $typeCode';
+    }
+  }
 }
 
 enum SacdPriority {
@@ -355,6 +451,15 @@ enum SacdPriority {
 
   final String typeCode;
   const SacdPriority(this.typeCode);
+
+  factory SacdPriority.fromTypeCode(String typeCode) {
+    try {
+      return SacdPriority.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for SACD priority: $typeCode';
+    }
+  }
 }
 
 enum SacdOutputMode {
@@ -364,6 +469,15 @@ enum SacdOutputMode {
 
   final String typeCode;
   const SacdOutputMode(this.typeCode);
+
+  factory SacdOutputMode.fromTypeCode(String typeCode) {
+    try {
+      return SacdOutputMode.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for SACD output mode: $typeCode';
+    }
+  }
 }
 
 enum PlaybackSpeed {
@@ -380,6 +494,15 @@ enum PlaybackSpeed {
 
   final String typeCode;
   const PlaybackSpeed(this.typeCode);
+
+  factory PlaybackSpeed.fromTypeCode(String typeCode) {
+    try {
+      return PlaybackSpeed.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for playback speed: $typeCode';
+    }
+  }
 }
 
 enum DiscType {
@@ -399,7 +522,8 @@ enum DiscType {
 
   factory DiscType.fromTypeCode(String typeCode) {
     try {
-      return DiscType.values.firstWhere((p) => p.typeCode == typeCode);
+      return DiscType.values
+          .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for disc type: $typeCode';
     }
@@ -427,7 +551,8 @@ enum ResultCode {
 
   factory ResultCode.fromTypeCode(String typeCode) {
     try {
-      return ResultCode.values.firstWhere((p) => p.typeCode == typeCode);
+      return ResultCode.values
+          .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for result code: $typeCode';
     }
@@ -973,9 +1098,16 @@ class Device {
     return response;
   }
 
-  Future<void> queryDirectoryItem(int index) async {
+  Future<DirectoryItem> queryDirectoryItem(int index) async {
     if (index < 1) throw 'index must be a positive int.';
-    await _command('QDR', parameters: index.toString());
+    final r = await _rpc('QDR', parameters: index.toString());
+    final parts = r.parameters!.split(' ');
+    if (parts.length < 2) {
+      throw 'Could not parse directory item: ${r.parameters}';
+    }
+    final type = DirectoryItemType.fromTypeCode(parts[0].trim());
+    final name = parts.sublist(1).join(' ');
+    return DirectoryItem(type, name);
   }
 
   Future<VerboseMode> queryVerboseMode() async {
@@ -1025,6 +1157,15 @@ class Device {
   Future<void> queryTrackName() async => await _command('QTN');
   Future<void> queryTrackAlbum() async => await _command('QTA');
   Future<void> queryTrackPerformer() async => await _command('QTP');
-  Future<void> queryDirectorySize() async => await _command('QDS');
+
+  Future<int> queryDirectorySize() async {
+    final r = await _rpc('QDS');
+    try {
+      return int.parse(r.parameters!);
+    } on FormatException {
+      throw FormatException('${r.parameters} was not a valid directory size.');
+    }
+  }
+
   Future<void> queryAspectRatio() async => await _command('QAR');
 }
