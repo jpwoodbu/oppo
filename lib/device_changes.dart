@@ -9,11 +9,10 @@ class DeviceChanges with ChangeNotifier {
   final Device device;
 
   DeviceChanges(this.device) {
-    _log.fine('Creating ChangeNotifier.');
     device.stream().listen((message) {
       device.parseMessage(message);
       notifyListeners();
     });
-    _log.info('Handling messages with ChangeNotifier.');
+    _log.fine('ChangeNotifier started.');
   }
 }

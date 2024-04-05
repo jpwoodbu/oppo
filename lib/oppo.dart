@@ -12,7 +12,7 @@ final _log = Logger('oppo');
 
 void main() async {
   Set<OppoBroadcast> devices = {};
-  Logger.root.level = Level.INFO;
+  Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
@@ -527,10 +527,9 @@ class Device {
     if (_socket == null) connect();
     final socket = _socket;
     if (socket != null) {
-      _log.info('Listening for inbound packets.');
       await for (final data in socket) {
         final decoded = ascii.decode(data);
-        _log.info('Listener received: $decoded');
+        _log.finer('Socket received: $decoded');
         yield decoded;
       }
       _log.fine('Listener has stopped.');
@@ -558,17 +557,23 @@ class Device {
       throw ('Unable to parse response message. '
           'The "@" prefix is missing: $message');
     }
-    // We can sometimes get multiple responses in a single message from the
-    // stream. Especially when a response to a query comes back around the same
-    // time as an update for something like the current playback position.
-    final responses = message.split('@');
-    _log.fine('Responses: $responses');
-    // TODO - The leading '@' still needs to eb in the response string. Or
-    // change _parseResponse to not require it.
+    final responses = _splitMessage(message);
     responses.forEach(_parseResponse);
   }
 
+  /// Splits a message off the stream into one or more responses.
+  ///
+  /// We can sometimes get multiple responses in a single message from the
+  /// stream. Especially when a response to a query comes back around the same
+  /// time as an update for something like the current playback position.
+  Iterable<String> _splitMessage(String message) {
+    // Each response begins with '@'. We split the message on '@' but keep the
+    // leading '@' in each saved response since _parseResponse expects it.
+    return message.substring(1, message.length).split('@').map((e) => '@$e');
+  }
+
   void _parseResponse(String response) {
+    _log.info('Response: $response');
     final parts = response.split(' ');
     ResultCode resultCode;
     String commandCode;

@@ -215,7 +215,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _log.fine('Creating engage future.');
     _engage = widget.device.engage();
   }
 
