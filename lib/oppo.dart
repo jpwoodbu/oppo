@@ -12,7 +12,7 @@ final _log = Logger('oppo');
 
 void main() async {
   Set<OppoBroadcast> devices = {};
-  Logger.root.level = Level.ALL;
+  Logger.root.level = Level.INFO;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
@@ -36,11 +36,17 @@ void main() async {
     final device = Device(info.name, info.address, info.port);
     await device.connect();
     await device.startListener();
-    // await device.powerOff();
-    // await device.queryPowerStatus();
-    // await device.queryVerboseMode();
-    // await device.setVerboseMode(VerboseMode.major);
     await device.engage();
+    int ds = await device.queryDirectorySize();
+    for (int i=1; i<=ds; i++) {
+      try {
+        final di = await device.queryDirectoryItem(i);
+        print('type: ${di.type.name}, name: $di');
+      } catch (e) {
+        print(e);
+        // ignore errors and try the next query.
+      }
+    }
   }
 }
 
@@ -177,7 +183,8 @@ enum PlaybackStatus {
   homeMenu('HOME'),
   mediaCenter('MCTR'),
   screenSaver('SCSV'),
-  discMenu('MENU');
+  discMenu('MENU'),
+  dlna('DLNA'); // undocumented
 
   final String typeCode;
   const PlaybackStatus(this.typeCode);
@@ -282,6 +289,9 @@ class DirectoryItem {
   String name;
 
   DirectoryItem(this.type, this.name);
+
+  @override
+  String toString() => name;
 }
 
 enum HdmiResolution {
@@ -757,6 +767,9 @@ class Device {
         break;
       case 'UPL':
         try {
+          // TODO - Maybe trigger quering the track/chapter state when the
+          // playbackStatus changes. The time code info doesn't include what,
+          // for example, track we're on.
           playbackStatus = PlaybackStatus.fromTypeCode(parameters);
         } catch (e) {
           _log.severe(e);
@@ -1101,12 +1114,18 @@ class Device {
   Future<DirectoryItem> queryDirectoryItem(int index) async {
     if (index < 1) throw 'index must be a positive int.';
     final r = await _rpc('QDR', parameters: index.toString());
-    final parts = r.parameters!.split(' ');
-    if (parts.length < 2) {
-      throw 'Could not parse directory item: ${r.parameters}';
+    final parameters = r.parameters!;
+    DirectoryItemType type;
+    String name;
+    try {
+      type = DirectoryItemType.fromTypeCode(parameters[0]);
+      name = parameters.substring(1).trim();
+    } catch (_) {
+      // If no type parameter is provided, it seems we should assume the type is
+      // file.
+      type = DirectoryItemType.file;
+      name = parameters.trim();
     }
-    final type = DirectoryItemType.fromTypeCode(parts[0].trim());
-    final name = parts.sublist(1).join(' ');
     return DirectoryItem(type, name);
   }
 
