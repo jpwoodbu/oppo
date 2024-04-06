@@ -258,8 +258,8 @@ class _HomePageState extends State<HomePage> {
                 // like only being rebuilt lazily.
                 children: [
                   _buttons(context, device),
-                  _numberPad(context, device),
-                  _otherControls(context, device),
+                  NumberPad(device),
+                  OtherControls(device),
                 ],
               )
             : _notPoweredOn(context, device),
@@ -558,8 +558,13 @@ Widget _positionControls(BuildContext context, oppo.Device device) {
   );
 }
 
-Widget _numberPad(BuildContext context, oppo.Device device) {
-  Widget number(Function onPressed, String label) {
+class NumberButton extends StatelessWidget {
+  final Function onPressed;
+  final String label;
+  const NumberButton({super.key, required this.onPressed, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
     final padding = EdgeInsets.all(8.0);
     return Padding(
       padding: padding,
@@ -572,46 +577,59 @@ Widget _numberPad(BuildContext context, oppo.Device device) {
       ),
     );
   }
-
-  return Center(
-    child: Table(
-      defaultColumnWidth: IntrinsicColumnWidth(),
-      children: [
-        TableRow(
-          children: [
-            number(device.number1, '1'),
-            number(device.number2, '2'),
-            number(device.number2, '3'),
-          ],
-        ),
-        TableRow(
-          children: [
-            number(device.number4, '4'),
-            number(device.number5, '5'),
-            number(device.number6, '6'),
-          ],
-        ),
-        TableRow(
-          children: [
-            number(device.number7, '7'),
-            number(device.number8, '8'),
-            number(device.number9, '9'),
-          ],
-        ),
-        TableRow(
-          children: [
-            SizedBox(),
-            number(device.number0, '0'),
-            SizedBox(),
-          ],
-        ),
-      ],
-    ),
-  );
 }
 
-Widget _otherControls(BuildContext context, oppo.Device device) {
-  Widget colorButton(Function onPressed, Color color) {
+class NumberPad extends StatelessWidget {
+  final oppo.Device device;
+  const NumberPad(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Table(
+        defaultColumnWidth: IntrinsicColumnWidth(),
+        children: [
+          TableRow(
+            children: [
+              NumberButton(onPressed: device.number1, label: '1'),
+              NumberButton(onPressed: device.number2, label: '2'),
+              NumberButton(onPressed: device.number2, label: '3'),
+            ],
+          ),
+          TableRow(
+            children: [
+              NumberButton(onPressed: device.number4, label: '4'),
+              NumberButton(onPressed: device.number5, label: '5'),
+              NumberButton(onPressed: device.number6, label: '6'),
+            ],
+          ),
+          TableRow(
+            children: [
+              NumberButton(onPressed: device.number7, label: '7'),
+              NumberButton(onPressed: device.number8, label: '8'),
+              NumberButton(onPressed: device.number9, label: '9'),
+            ],
+          ),
+          TableRow(
+            children: [
+              SizedBox(),
+              NumberButton(onPressed: device.number0, label: '0'),
+              SizedBox(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ColorButton extends StatelessWidget {
+  final Function onPressed;
+  final Color color;
+  const ColorButton({super.key, required this.onPressed, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
     return FilledButton(
       onPressed: () => addHaptic(onPressed),
       style: ButtonStyle(
@@ -620,7 +638,14 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
       child: SizedBox(height: 30.0, width: 60.0),
     );
   }
+}
 
+class OtherControls extends StatelessWidget {
+  final oppo.Device device;
+  const OtherControls(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.all(15.0),
     child: ListView(
@@ -668,10 +693,10 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
         Wrap(
           alignment: WrapAlignment.spaceEvenly,
           children: [
-            colorButton(device.red, Colors.red),
-            colorButton(device.green, Colors.green),
-            colorButton(device.blue, Colors.blue),
-            colorButton(device.yellow, Colors.yellow),
+            ColorButton(onPressed: device.red, color: Colors.red),
+            ColorButton(onPressed: device.green, color: Colors.green),
+            ColorButton(onPressed: device.blue, color: Colors.blue),
+            ColorButton(onPressed: device.yellow, color: Colors.yellow),
           ],
         ),
         Wrap(
@@ -742,4 +767,5 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
       ],
     ),
   );
+  }
 }
