@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 
 import 'device_changes.dart';
 import 'oppo.dart' as oppo;
-import 'playground.dart';
 
 final _log = Logger('main');
 
@@ -261,8 +260,6 @@ class _HomePageState extends State<HomePage> {
                   _buttons(context, device),
                   _numberPad(context, device),
                   _otherControls(context, device),
-                  FileViewer(device),
-                  Playground(),
                 ],
               )
             : _notPoweredOn(context, device),
@@ -280,14 +277,6 @@ class _HomePageState extends State<HomePage> {
                   NavigationDestination(
                     icon: Icon(Icons.miscellaneous_services),
                     label: 'Other',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.folder),
-                    label: 'Files',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.play_arrow),
-                    label: 'Playground',
                   ),
                 ],
                 selectedIndex: currentPageIndex,
@@ -500,14 +489,6 @@ Widget _arrows(BuildContext context, oppo.Device device) {
   );
 
   return table;
-  /*
-  return Expanded(
-    child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints boxConstraints) {
-      return table;
-    }),
-  );
-  */
 }
 
 Widget _playControls(BuildContext context, oppo.Device device) {
@@ -761,36 +742,4 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
       ],
     ),
   );
-}
-
-class FileViewer extends StatefulWidget {
-  final oppo.Device device;
-  const FileViewer(this.device, {super.key});
-
-  @override
-  State<FileViewer> createState() => _FileViewerState();
-}
-
-class _FileViewerState extends State<FileViewer> {
-  Iterable<oppo.DirectoryItem> items = [];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: ElevatedButton(
-          onPressed: () async {
-            final i = await widget.device.directoryItems();
-            setState(() {
-              items = i;
-            });
-          },
-          child: const Text('Refresh'),
-        ),
-      ),
-      body: ListView(
-        children: items.map((e) => Text(e.name)).toList(),
-      ),
-    );
-  }
 }
