@@ -261,7 +261,7 @@ class _HomePageState extends State<HomePage> {
                   _buttons(context, device),
                   _numberPad(context, device),
                   _otherControls(context, device),
-                  _fileViewer(context, device),
+                  FileViewer(device),
                   Playground(),
                 ],
               )
@@ -763,6 +763,34 @@ Widget _otherControls(BuildContext context, oppo.Device device) {
   );
 }
 
-Widget _fileViewer(BuildContext context, oppo.Device device) {
-  return Placeholder();
+class FileViewer extends StatefulWidget {
+  final oppo.Device device;
+  const FileViewer(this.device, {super.key});
+
+  @override
+  State<FileViewer> createState() => _FileViewerState();
+}
+
+class _FileViewerState extends State<FileViewer> {
+  Iterable<oppo.DirectoryItem> items = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: ElevatedButton(
+          onPressed: () async {
+            final i = await widget.device.directoryItems();
+            setState(() {
+              items = i;
+            });
+          },
+          child: const Text('Refresh'),
+        ),
+      ),
+      body: ListView(
+        children: items.map((e) => Text(e.name)).toList(),
+      ),
+    );
+  }
 }

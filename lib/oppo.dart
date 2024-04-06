@@ -1187,4 +1187,18 @@ class Device {
   }
 
   Future<void> queryAspectRatio() async => await _command('QAR');
+
+  Future<List<DirectoryItem>> directoryItems() async {
+    List<DirectoryItem> items = [];
+    final ds = await queryDirectorySize();
+    for (int i=1; i<=ds; i++) {
+      try {
+        items.add(await queryDirectoryItem(i));
+      } catch (_) {
+        // Ignore errors and try the next query. The API is known to be broken
+        // on SMB share items.
+      }
+    }
+    return items;
+  }
 }
