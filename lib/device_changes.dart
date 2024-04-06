@@ -9,8 +9,8 @@ class DeviceChanges with ChangeNotifier {
   final Device device;
 
   DeviceChanges(this.device) {
-    device.stream().listen((message) {
-      device.parseMessage(message);
+    device.stream().listen((event) {
+      device.parseEvent(event);
       notifyListeners();
     });
     _log.fine('ChangeNotifier started.');

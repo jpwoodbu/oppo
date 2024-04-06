@@ -37,16 +37,6 @@ void main() async {
     await device.connect();
     await device.startListener();
     await device.engage();
-    int ds = await device.queryDirectorySize();
-    for (int i=1; i<=ds; i++) {
-      try {
-        final di = await device.queryDirectoryItem(i);
-        print('type: ${di.type.name}, name: $di');
-      } catch (e) {
-        print(e);
-        // ignore errors and try the next query.
-      }
-    }
   }
 }
 
@@ -540,18 +530,6 @@ enum DiscType {
   }
 }
 
-Position _parseTimeCodeUpdate(String timeCode) {
-  final parts = timeCode.split(' ');
-  if (parts.length != 4) {
-    throw 'Could not parse time code: $timeCode';
-  }
-  final title = int.parse(parts[0].trim());
-  final chapter = int.parse(parts[1].trim());
-  final timeInformation = TimeInformation.fromTypeCode(parts[2].trim());
-  final clock = parts[3].trim();
-  return Position(title, chapter, timeInformation, clock);
-}
-
 enum ResultCode {
   ok('OK'),
   error('ER');
@@ -634,6 +612,16 @@ class Device {
     }
   }
 
+  Future<void> close() async {
+    final socket = _socket;
+    if (socket != null) {
+      await socket.flush();
+      await socket.close();
+      _socket = null;
+      _log.info('Closed connection.');
+    }
+  }
+
   /// Set up the player for communication.
   ///
   /// This method should only be called after [startListener] or some equivalent
@@ -682,40 +670,40 @@ class Device {
   Future<void> startListener() async {
     // TODO - Is there any reason to track the StreamSubscription object
     // returned by the listen() call so we can call cancel() on it later?
-    stream().listen((packet) {
-      parseMessage(packet);
+    stream().listen((event) {
+      parseEvent(event);
     });
   }
 
-  void parseMessage(String message) {
-    if (!message.startsWith('@')) {
-      throw ('Unable to parse response message. '
-          'The "@" prefix is missing: $message');
+  void parseEvent(String event) {
+    if (!event.startsWith('@')) {
+      throw ('Unable to parse stream event. '
+          'The "@" prefix is missing: $event');
     }
-    final responses = _splitMessage(message);
-    responses.forEach(_parseResponse);
+    final messages = _splitEvent(event);
+    messages.forEach(_parseMessage);
   }
 
-  /// Splits a message off the stream into one or more responses.
+  /// Splits a event off the stream into one or more messages.
   ///
-  /// We can sometimes get multiple responses in a single message from the
-  /// stream. Especially when a response to a query comes back around the same
-  /// time as an update for something like the current playback position.
-  Iterable<String> _splitMessage(String message) {
-    // Each response begins with '@'. We split the message on '@' but keep the
-    // leading '@' in each saved response since _parseResponse expects it.
-    return message.substring(1, message.length).split('@').map((e) => '@$e');
+  /// We can sometimes get multiple messages in a single event from the stream.
+  /// Especially when a response to a query comes back around the same time as
+  /// an update for something like the current playback position.
+  Iterable<String> _splitEvent(String event) {
+    // Each message begins with '@'. We split the event on '@' but keep the
+    // leading '@' in each saved message since _parseMessage expects it.
+    return event.substring(1, event.length).split('@').map((e) => '@$e');
   }
 
-  void _parseResponse(String response) {
-    _log.info('Response: $response');
-    final parts = response.split(' ');
+  void _parseMessage(String message) {
+    _log.info('Received: $message');
+    final parts = message.split(' ');
     ResultCode resultCode;
     String commandCode;
     String parameters;
     // Updates do not include a resultCode since they are not responses to
     // commands or queries.
-    if (response.startsWith('@U')) {
+    if (message.startsWith('@U')) {
       commandCode = parts[0].trim().substring(1);
       parameters = parts.sublist(1).join(' ').trim();
       _parseUpdate(commandCode, parameters);
@@ -729,8 +717,8 @@ class Device {
       if (part1 == 'OK' || part1 == 'ER') {
         _log.warning('Parsing a verbose mode less than "major" response...');
         if (_lastCommandCode == null) {
-          throw 'Got a verbose mode <=1 response but '
-              'there was no pending response command: $response';
+          throw 'Got a verbose mode <=1 message but '
+              'there was no pending response command: $message';
         } else {
           commandCode = _lastCommandCode!;
           resultCode = ResultCode.fromTypeCode(part1);
@@ -815,7 +803,6 @@ class Device {
       // TODO - implement.
       case 'UAR':
         break;
-
       // verboseMode.detailed messages below.
       case 'UTC':
         position = _parseTimeCodeUpdate(parameters);
@@ -826,27 +813,6 @@ class Device {
       default:
         _log.severe('[U] Unsupported command code: $commandCode');
         break;
-    }
-  }
-
-  VerboseMode _parseVerboseMode(String parameters) {
-    try {
-      var v = VerboseMode.fromTypeCode(parameters);
-      verboseMode = v;
-      _log.fine('Verbose mode is: ${verboseMode.toString()}');
-      return v;
-    } catch (e) {
-      throw 'Unexpected verbose mode: $e';
-    }
-  }
-
-  Future<void> close() async {
-    final socket = _socket;
-    if (socket != null) {
-      await socket.flush();
-      await socket.close();
-      _socket = null;
-      _log.info('Closed connection.');
     }
   }
 
@@ -886,6 +852,41 @@ class Device {
       _lastCommandCode = code;
     } else {
       _log.severe('Socket is not open. Unable to send command code: $code');
+    }
+  }
+
+  /// Wrapper to simulate procedure call symantecs for a command.
+  ///
+  /// This method blocks until a response is received for the command or until a
+  /// preset timeout is reached, in which case an exception is thrown.
+  Future<Response> _rpc(String code, {String parameters = ''}) async {
+    Response response = Response();
+    // Because with verboseMode.detailed, we might get unsoliticed responses, we
+    // need to check all responses in a loop until we get a response to our last
+    // command, or we timeout.
+    // TODO - Is this a race condition? Should I use the listen() method instead
+    // of the for loop.
+    await _command(code, parameters: parameters);
+    await for (final r in _responses.stream.timeout(_responseTimeout)) {
+      if (r.commandCode == code) {
+        response = r;
+        break;
+      }
+    }
+    if (response.resultCode == ResultCode.error) {
+      throw '$code call returned an error result code.';
+    }
+    return response;
+  }
+
+  VerboseMode _parseVerboseMode(String parameters) {
+    try {
+      var v = VerboseMode.fromTypeCode(parameters);
+      verboseMode = v;
+      _log.fine('Verbose mode is: ${verboseMode.toString()}');
+      return v;
+    } catch (e) {
+      throw 'Unexpected verbose mode: $e';
     }
   }
 
@@ -1087,48 +1088,6 @@ class Device {
     await _command('REV', parameters: speed.typeCode);
   }
 
-  /// Wrapper to simulate procedure call symantecs for a command.
-  ///
-  /// This method blocks until a response is received for the command or until a
-  /// preset timeout is reached, in which case an exception is thrown.
-  Future<Response> _rpc(String code, {String parameters = ''}) async {
-    Response response = Response();
-    // Because with verboseMode.detailed, we might get unsoliticed responses, we
-    // need to check all responses in a loop until we get a response to our last
-    // command, or we timeout.
-    // TODO - Is this a race condition? Should I use the listen() method instead
-    // of the for loop.
-    await _command(code, parameters: parameters);
-    await for (final r in _responses.stream.timeout(_responseTimeout)) {
-      if (r.commandCode == code) {
-        response = r;
-        break;
-      }
-    }
-    if (response.resultCode == ResultCode.error) {
-      throw '$code call returned an error result code.';
-    }
-    return response;
-  }
-
-  Future<DirectoryItem> queryDirectoryItem(int index) async {
-    if (index < 1) throw 'index must be a positive int.';
-    final r = await _rpc('QDR', parameters: index.toString());
-    final parameters = r.parameters!;
-    DirectoryItemType type;
-    String name;
-    try {
-      type = DirectoryItemType.fromTypeCode(parameters[0]);
-      name = parameters.substring(1).trim();
-    } catch (_) {
-      // If no type parameter is provided, it seems we should assume the type is
-      // file.
-      type = DirectoryItemType.file;
-      name = parameters.trim();
-    }
-    return DirectoryItem(type, name);
-  }
-
   Future<VerboseMode> queryVerboseMode() async {
     final r = await _rpc('QVM');
     return _parseVerboseMode(r.parameters!);
@@ -1176,6 +1135,7 @@ class Device {
   Future<void> queryTrackName() async => await _command('QTN');
   Future<void> queryTrackAlbum() async => await _command('QTA');
   Future<void> queryTrackPerformer() async => await _command('QTP');
+  Future<void> queryAspectRatio() async => await _command('QAR');
 
   Future<int> queryDirectorySize() async {
     final r = await _rpc('QDS');
@@ -1186,12 +1146,36 @@ class Device {
     }
   }
 
-  Future<void> queryAspectRatio() async => await _command('QAR');
+  Future<DirectoryItem> queryDirectoryItem(int index) async {
+    if (index < 1) throw 'index must be a positive int.';
+    final r = await _rpc('QDR', parameters: index.toString());
+    final parameters = r.parameters!;
+    DirectoryItemType type;
+    String name;
+    try {
+      type = DirectoryItemType.fromTypeCode(parameters[0]);
+      name = parameters.substring(1).trim();
+    } catch (_) {
+      // If no type parameter is provided, it seems we should assume the type is
+      // file.
+      type = DirectoryItemType.file;
+      name = parameters.trim();
+    }
+    return DirectoryItem(type, name);
+  }
 
+  /// Fetch of list of directory items for the current context.
+  ///
+  /// The current context is, for example, the directory being viewed on the
+  /// OSD, perhaps from a USB drive or network share.
+  ///
+  /// WARNING: This bit of the API is partly broken and has limited usefulness.
+  /// There's no API method to select a directory item aside from manipulating
+  /// the cursor position.
   Future<List<DirectoryItem>> directoryItems() async {
     List<DirectoryItem> items = [];
     final ds = await queryDirectorySize();
-    for (int i=1; i<=ds; i++) {
+    for (int i = 1; i <= ds; i++) {
       try {
         items.add(await queryDirectoryItem(i));
       } catch (_) {
@@ -1201,4 +1185,16 @@ class Device {
     }
     return items;
   }
+}
+
+Position _parseTimeCodeUpdate(String timeCode) {
+  final parts = timeCode.split(' ');
+  if (parts.length != 4) {
+    throw 'Could not parse time code: $timeCode';
+  }
+  final title = int.parse(parts[0].trim());
+  final chapter = int.parse(parts[1].trim());
+  final timeInformation = TimeInformation.fromTypeCode(parts[2].trim());
+  final clock = parts[3].trim();
+  return Position(title, chapter, timeInformation, clock);
 }
