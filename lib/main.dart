@@ -259,16 +259,8 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          title: const Text('Oppo Remote'),
           actions: [
-            IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => PageControls(device),
-                );
-              },
-              icon: Icon(Icons.swap_vert),
-            ),
             IconButton(
               onPressed: () {
                 showDialog(
@@ -285,7 +277,7 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                child: Text('Oppo remote'),
+                child: Text('Oppo Remote'),
               ),
               ListTile(
                 leading: Icon(Icons.power_settings_new),
@@ -854,8 +846,20 @@ class BottomGrid extends StatelessWidget {
                   icon: Icon(Icons.aspect_ratio), label: 'Resolution'),
             ),
           ),
-          TableCellPadded(child: SizedBox()),
-          TableCellPadded(child: SizedBox()),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.pageDown),
+              child:
+                  IconVertical(icon: Icon(Icons.arrow_downward), label: 'Page'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.pageUp),
+              child:
+                  IconVertical(icon: Icon(Icons.arrow_upward), label: 'Page'),
+            ),
+          ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.hdrMenu),
@@ -864,30 +868,6 @@ class BottomGrid extends StatelessWidget {
           ),
         ]),
       ],
-    );
-  }
-}
-
-class PageControls extends StatelessWidget {
-  final oppo.Device device;
-  const PageControls(this.device, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-              onPressed: () => addHaptic(device.pageUp),
-              icon: Icon(Icons.arrow_upward)),
-          const Text('Page'),
-          IconButton(
-              onPressed: () => addHaptic(device.pageDown),
-              icon: Icon(Icons.arrow_downward)),
-        ],
-      ),
     );
   }
 }
