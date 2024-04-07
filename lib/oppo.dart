@@ -927,7 +927,7 @@ class Device {
   Future<void> arrowRight() async => await _command('NRT');
   Future<void> arrowDown() async => await _command('NDN');
   Future<void> enter() async => await _command('SEL');
-  Future<void> setUp() async => await _command('SET');
+  Future<void> setup() async => await _command('SET');
   Future<void> returnToPrevious() async => await _command('RET');
   Future<void> red() async => await _command('RED');
   Future<void> green() async => await _command('GRN');
