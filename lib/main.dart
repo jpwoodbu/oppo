@@ -250,46 +250,52 @@ class _HomePageState extends State<HomePage> {
   Widget _build(BuildContext context, oppo.Device device) {
     return SafeArea(
       child: Scaffold(
-        // TODO - I don't thnk I can keep this as a FAB since it's likely to
-        // cover up one of the playback controls.
-        floatingActionButton: device.powered ?? false
-            ? FloatingActionButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => NumberPad(device),
-                  );
-                },
-                child: Icon(Icons.dialpad),
-              )
-            : null,
-        body: device.powered ?? false
-            ? IndexedStack(
-                index: currentPageIndex,
-                children: [
-                  Buttons(device),
-                  OtherControls(device),
-                ],
-              )
-            : NotPoweredOn(device),
-        bottomNavigationBar: device.powered ?? false
-            ? NavigationBar(
-                destinations: [
-                  NavigationDestination(
-                    icon: Icon(Icons.home),
-                    label: 'Home',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.miscellaneous_services),
-                    label: 'Other',
-                  ),
-                ],
-                selectedIndex: currentPageIndex,
-                onDestinationSelected: (int index) {
-                  setState(() => currentPageIndex = index);
-                },
-              )
-            : null,
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => PageControls(device),
+                );
+              },
+              icon: Icon(Icons.swap_vert),
+            ),
+            IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => NumberPad(device),
+                );
+              },
+              icon: Icon(Icons.dialpad),
+            ),
+          ],
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(child: Text('Drawer header')),
+              ListTile(
+                leading: Icon(Icons.power_settings_new),
+                title: const Text('Power off'),
+                onTap: () => addHaptic(device.powerOff),
+              ),
+              ListTile(
+                leading: Icon(Icons.route),
+                title: const Text('Input'),
+                onTap: () => addHaptic(device.inputMenu),
+              ),
+              ListTile(
+                leading: Icon(Icons.eject),
+                title: const Text('Tray open/close'),
+                onTap: () => addHaptic(device.trayToggle),
+              ),
+            ],
+          ),
+        ),
+        body: device.powered ?? false ? Buttons(device) : NotPoweredOn(device),
       ),
     );
   }
@@ -336,12 +342,11 @@ class Buttons extends StatelessWidget {
       padding: const EdgeInsets.all(15.0),
       child: ListView(
         children: [
-          NameRow(device),
-          Position(device),
           HomeRow(device),
           Arrows(device),
           PlayControls(device),
           PositionControls(device),
+          BottomGrid(device),
         ],
       ),
     );
@@ -358,7 +363,7 @@ class Position extends StatelessWidget {
     if (p == null) return Text('No position data.');
     return Text('Title: ${p.title}\nChapter: ${p.chapter}\n'
         '${p.timeInformation.displayName}: ${p.clock}');
-    }
+  }
 }
 
 class NameRow extends StatelessWidget {
@@ -442,7 +447,7 @@ class Arrows extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const iconSize = 100.0;
-    final table = Table(
+    return Table(
       defaultColumnWidth: const IntrinsicColumnWidth(),
       children: <TableRow>[
         TableRow(
@@ -451,7 +456,7 @@ class Arrows extends StatelessWidget {
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.topMenu),
-                child: const Text('Top'),
+                child: IconVertical(icon: Icon(Icons.navigation), label: 'Top'),
               ),
             ),
             IconButton(
@@ -465,7 +470,7 @@ class Arrows extends StatelessWidget {
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.popupMenu),
-                child: const Text('Pop-up'),
+                child: IconVertical(icon: Icon(Icons.article), label: 'Pop-up'),
               ),
             ),
           ],
@@ -501,7 +506,8 @@ class Arrows extends StatelessWidget {
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.option),
-                child: const Text('Option'),
+                child:
+                    IconVertical(icon: Icon(Icons.emergency), label: 'Option'),
               ),
             ),
             IconButton(
@@ -513,20 +519,17 @@ class Arrows extends StatelessWidget {
                 )),
             TableCell(
               verticalAlignment: TableCellVerticalAlignment.middle,
-              child: IconButton(
+              child: ElevatedButton(
                   onPressed: () => addHaptic(device.returnToPrevious),
-                  icon: Icon(
-                    Icons.arrow_back,
-                    size: iconSize / 3,
-                    semanticLabel: 'return to previous',
+                  child: IconVertical(
+                    icon: Icon(Icons.arrow_back),
+                    label: 'Return',
                   )),
             ),
           ],
         ),
       ],
     );
-
-    return table;
   }
 }
 
@@ -686,135 +689,171 @@ class ColorButton extends StatelessWidget {
       style: ButtonStyle(
         backgroundColor: MaterialStateProperty.all(color),
       ),
-      child: SizedBox(height: 30.0, width: 60.0),
+      child: SizedBox(height: 30.0, width: 12.0),
     );
   }
 }
 
-class OtherControls extends StatelessWidget {
-  final oppo.Device device;
-  const OtherControls(this.device, {super.key});
+class IconVertical extends StatelessWidget {
+  final String label;
+  final Icon icon;
+  const IconVertical({super.key, required this.label, required this.icon});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: ListView(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.labelSmall),
+        icon,
+      ],
+    );
+  }
+}
+
+class BottomGrid extends StatelessWidget {
+  final oppo.Device device;
+  const BottomGrid(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Table(
+      children: <TableRow>[
+        TableRow(children: [
+          TableCell(
+              child: ColorButton(onPressed: () => addHaptic(device.red), color: Colors.red)),
+          TableCell(
+              child: ColorButton(onPressed: () => addHaptic(device.green), color: Colors.green)),
+          TableCell(
+              child: ColorButton(onPressed: () => addHaptic(device.blue), color: Colors.blue)),
+          TableCell(
+              child:
+                  ColorButton(onPressed: () => addHaptic(device.yellow), color: Colors.yellow)),
+        ]),
+        TableRow(children: [
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.pureAudio),
+              child: IconVertical(
+                  icon: Icon(Icons.graphic_eq), label: 'Pure audio'),
+            ),
+          ),
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.volumeDown),
+              child:
+                  IconVertical(icon: Icon(Icons.volume_down), label: 'Vol -'),
+            ),
+          ),
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.volumeUp),
+              child: IconVertical(icon: Icon(Icons.volume_up), label: 'Vol +'),
+            ),
+          ),
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.mute),
+              child: IconVertical(icon: Icon(Icons.volume_mute), label: 'Mute'),
+            ),
+          ),
+        ]),
+        TableRow(
+          children: [
+            TableCell(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.audio),
+                child:
+                    IconVertical(icon: Icon(Icons.audiotrack), label: 'Audio'),
+              ),
+            ),
+            TableCell(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.subtitle),
+                child: IconVertical(
+                    icon: Icon(Icons.subtitles), label: 'Subtitle'),
+              ),
+            ),
+            TableCell(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.zoom),
+                child: IconVertical(icon: Icon(Icons.zoom_in), label: 'Zoom'),
+              ),
+            ),
+            TableCell(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.dim),
+                child:
+                    IconVertical(icon: Icon(Icons.light_mode), label: 'Dimmer'),
+              ),
+            ),
+          ],
+        ),
+        TableRow(children: [
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.setup),
+              child: IconVertical(icon: Icon(Icons.build), label: 'Setup'),
+            ),
+          ),
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.repeatAB),
+              child: IconVertical(icon: Icon(Icons.undo), label: 'AB Replay'),
+            ),
+          ),
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.repeat),
+              child: IconVertical(icon: Icon(Icons.repeat), label: 'Repeat'),
+            ),
+          ),
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.pictureAdjustmentMenu),
+              child: IconVertical(icon: Icon(Icons.apps), label: 'Pic'),
+            ),
+          ),
+        ]),
+        TableRow(children: [
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.outputResolutionCycle),
+              child: IconVertical(
+                  icon: Icon(Icons.aspect_ratio), label: 'Resolution'),
+            ),
+          ),
+          TableCell(child: SizedBox()),
+          TableCell(child: SizedBox()),
+          TableCell(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.hdrMenu),
+              child: IconVertical(icon: Icon(Icons.hdr_strong), label: 'HDR'),
+            ),
+          ),
+        ]),
+      ],
+    );
+  }
+}
+
+class PageControls extends StatelessWidget {
+  final oppo.Device device;
+  const PageControls(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: device.inputMenu,
-                icon: Icon(Icons.route),
-                label: Text('Input'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.trayToggle,
-                icon: Icon(Icons.eject),
-                label: Text('Open'),
-              ),
-            ],
-          ),
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: device.pureAudio,
-                icon: Icon(Icons.graphic_eq),
-                label: Text('Pure audio'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.volumeDown,
-                icon: Icon(Icons.volume_down),
-                label: Text('Volume -'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.volumeUp,
-                icon: Icon(Icons.volume_up),
-                label: Text('Volume +'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.mute,
-                icon: Icon(Icons.volume_mute),
-                label: Text('Mute'),
-              ),
-            ],
-          ),
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            children: [
-              ColorButton(onPressed: device.red, color: Colors.red),
-              ColorButton(onPressed: device.green, color: Colors.green),
-              ColorButton(onPressed: device.blue, color: Colors.blue),
-              ColorButton(onPressed: device.yellow, color: Colors.yellow),
-            ],
-          ),
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: device.audio,
-                icon: Icon(Icons.audiotrack),
-                label: Text('Audio'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.subtitle,
-                icon: Icon(Icons.subtitles),
-                label: Text('Subtitle'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.zoom,
-                icon: Icon(Icons.zoom_in),
-                label: Text('Zoom'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.dim,
-                icon: Icon(Icons.light_mode),
-                label: Text('Dimmer'),
-              ),
-            ],
-          ),
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: device.setUp,
-                icon: Icon(Icons.settings),
-                label: Text('Setup'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.repeatAB,
-                icon: Icon(Icons.undo),
-                label: Text('AB Replay'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.repeat,
-                icon: Icon(Icons.repeat),
-                label: Text('Repeat'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.pictureAdjustmentMenu,
-                icon: Icon(Icons.apps),
-                label: Text('Pic'),
-              ),
-            ],
-          ),
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: device.outputResolutionCycle,
-                icon: Icon(Icons.aspect_ratio),
-                label: Text('Resolution'),
-              ),
-              ElevatedButton.icon(
-                onPressed: device.hdrMenu,
-                icon: Icon(Icons.hdr_strong),
-                label: Text('HDR'),
-              ),
-            ],
-          ),
+          IconButton(
+              onPressed: () => addHaptic(device.pageUp), icon: Icon(Icons.arrow_upward)),
+          const Text('Page'),
+          IconButton(
+              onPressed: () => addHaptic(device.pageDown),
+              icon: Icon(Icons.arrow_downward)),
         ],
       ),
     );
