@@ -266,11 +266,8 @@ class _HomePageState extends State<HomePage> {
         body: device.powered ?? false
             ? IndexedStack(
                 index: currentPageIndex,
-                // TODO - maybe these children should be full widget classes
-                // instead of functions. That may give them some optimizations
-                // like only being rebuilt lazily.
                 children: [
-                  _buttons(context, device),
+                  Buttons(device),
                   OtherControls(device),
                 ],
               )
@@ -329,245 +326,287 @@ class NotPoweredOn extends StatelessWidget {
   }
 }
 
-Widget _buttons(BuildContext context, oppo.Device device) {
-  return Padding(
-    padding: const EdgeInsets.all(15.0),
-    child: ListView(
+class Buttons extends StatelessWidget {
+  final oppo.Device device;
+  const Buttons(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: ListView(
+        children: [
+          NameRow(device),
+          Position(device),
+          HomeRow(device),
+          Arrows(device),
+          PlayControls(device),
+          PositionControls(device),
+        ],
+      ),
+    );
+  }
+}
+
+class Position extends StatelessWidget {
+  final oppo.Device device;
+  const Position(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = device.position;
+    if (p == null) return Text('No position data.');
+    return Text('Title: ${p.title}\nChapter: ${p.chapter}\n'
+        '${p.timeInformation.displayName}: ${p.clock}');
+    }
+}
+
+class NameRow extends StatelessWidget {
+  final oppo.Device device;
+  const NameRow(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _nameRow(context, device),
-        _position(context, device),
-        _homeRow(context, device),
-        _arrows(context, device),
-        _playControls(context, device),
-        _positionControls(context, device),
+        Text(
+          device.name,
+        ),
+        IconButton(
+          // This widget is only displayed when the power is on so we explicitly
+          // call the power off function here.
+          onPressed: () => addHaptic(device.powerOff),
+          icon: const Icon(
+            Icons.power_settings_new,
+            color: Colors.blue,
+            semanticLabel: 'Toggle power',
+          ),
+        )
       ],
-    ),
-  );
+    );
+  }
 }
 
-Widget _position(BuildContext context, oppo.Device device) {
-  final p = device.position;
-  if (p == null) return Text('No position data.');
-  return Text('Title: ${p.title}\nChapter: ${p.chapter}\n'
-      '${p.timeInformation.displayName}: ${p.clock}');
-}
+class HomeRow extends StatelessWidget {
+  final oppo.Device device;
+  const HomeRow(this.device, {super.key});
 
-Widget _nameRow(BuildContext context, oppo.Device device) {
-  return Row(
-    mainAxisSize: MainAxisSize.max,
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        device.name,
-      ),
-      IconButton(
-        // This widget is only displayed when the power is on so we explicitly
-        // call the power off function here.
-        onPressed: () => addHaptic(device.powerOff),
-        icon: const Icon(
-          Icons.power_settings_new,
-          color: Colors.blue,
-          semanticLabel: 'Toggle power',
-        ),
-      )
-    ],
-  );
-}
-
-Widget _homeRow(BuildContext context, oppo.Device device) {
-  return Wrap(
-    alignment: WrapAlignment.spaceBetween,
-    crossAxisAlignment: WrapCrossAlignment.center,
-    children: [
-      IconButton(
-        onPressed: () => addHaptic(device.home),
-        icon: const Icon(
-          Icons.home,
-          semanticLabel: 'home',
-        ),
-      ),
-      ElevatedButton.icon(
-        onPressed: () => addHaptic(device.goto),
-        icon: Icon(Icons.arrow_downward),
-        label: Text('Goto'),
-      ),
-      ElevatedButton.icon(
-        onPressed: () => addHaptic(device.clear),
-        icon: Icon(Icons.clear),
-        label: Text('Clear'),
-      ),
-      IconButton(
-        onPressed: () => addHaptic(device.osd),
-        icon: const Icon(
-          Icons.info,
-          semanticLabel: 'info',
-        ),
-      ),
-      IconButton(
-        onPressed: () => addHaptic(device.infoDetailed),
-        icon: const Icon(
-          Icons.query_stats,
-          semanticLabel: 'detailed info',
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _arrows(BuildContext context, oppo.Device device) {
-  const iconSize = 100.0;
-  final table = Table(
-    defaultColumnWidth: const IntrinsicColumnWidth(),
-    children: <TableRow>[
-      TableRow(
-        children: [
-          TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.topMenu),
-              child: const Text('Top'),
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        IconButton(
+          onPressed: () => addHaptic(device.home),
+          icon: const Icon(
+            Icons.home,
+            semanticLabel: 'home',
           ),
-          IconButton(
-              onPressed: () => addHaptic(device.arrowUp),
-              icon: Icon(
-                Icons.keyboard_arrow_up,
-                size: iconSize,
-                semanticLabel: 'up',
-              )),
-          TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.popupMenu),
-              child: const Text('Pop-up'),
-            ),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => addHaptic(device.goto),
+          icon: Icon(Icons.arrow_downward),
+          label: Text('Goto'),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => addHaptic(device.clear),
+          icon: Icon(Icons.clear),
+          label: Text('Clear'),
+        ),
+        IconButton(
+          onPressed: () => addHaptic(device.osd),
+          icon: const Icon(
+            Icons.info,
+            semanticLabel: 'info',
           ),
-        ],
-      ),
-      TableRow(
-        children: [
-          IconButton(
-              onPressed: () => addHaptic(device.arrowLeft),
-              icon: Icon(
-                Icons.keyboard_arrow_left,
-                size: iconSize,
-                semanticLabel: 'left',
-              )),
-          IconButton(
-              onPressed: () => addHaptic(device.enter),
-              icon: Icon(
-                Icons.circle_outlined,
-                size: iconSize,
-                semanticLabel: 'enter',
-              )),
-          IconButton(
-              onPressed: () => addHaptic(device.arrowRight),
-              icon: Icon(
-                Icons.keyboard_arrow_right,
-                size: iconSize,
-                semanticLabel: 'right',
-              )),
-        ],
-      ),
-      TableRow(
-        children: [
-          TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.option),
-              child: const Text('Option'),
-            ),
+        ),
+        IconButton(
+          onPressed: () => addHaptic(device.infoDetailed),
+          icon: const Icon(
+            Icons.query_stats,
+            semanticLabel: 'detailed info',
           ),
-          IconButton(
-              onPressed: () => addHaptic(device.arrowDown),
-              icon: Icon(
-                Icons.keyboard_arrow_down,
-                size: iconSize,
-                semanticLabel: 'down',
-              )),
-          TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: IconButton(
-                onPressed: () => addHaptic(device.returnToPrevious),
+        ),
+      ],
+    );
+  }
+}
+
+class Arrows extends StatelessWidget {
+  final oppo.Device device;
+  const Arrows(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const iconSize = 100.0;
+    final table = Table(
+      defaultColumnWidth: const IntrinsicColumnWidth(),
+      children: <TableRow>[
+        TableRow(
+          children: [
+            TableCell(
+              verticalAlignment: TableCellVerticalAlignment.middle,
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.topMenu),
+                child: const Text('Top'),
+              ),
+            ),
+            IconButton(
+                onPressed: () => addHaptic(device.arrowUp),
                 icon: Icon(
-                  Icons.arrow_back,
-                  size: iconSize / 3,
-                  semanticLabel: 'return to previous',
+                  Icons.keyboard_arrow_up,
+                  size: iconSize,
+                  semanticLabel: 'up',
                 )),
-          ),
-        ],
-      ),
-    ],
-  );
+            TableCell(
+              verticalAlignment: TableCellVerticalAlignment.middle,
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.popupMenu),
+                child: const Text('Pop-up'),
+              ),
+            ),
+          ],
+        ),
+        TableRow(
+          children: [
+            IconButton(
+                onPressed: () => addHaptic(device.arrowLeft),
+                icon: Icon(
+                  Icons.keyboard_arrow_left,
+                  size: iconSize,
+                  semanticLabel: 'left',
+                )),
+            IconButton(
+                onPressed: () => addHaptic(device.enter),
+                icon: Icon(
+                  Icons.circle_outlined,
+                  size: iconSize,
+                  semanticLabel: 'enter',
+                )),
+            IconButton(
+                onPressed: () => addHaptic(device.arrowRight),
+                icon: Icon(
+                  Icons.keyboard_arrow_right,
+                  size: iconSize,
+                  semanticLabel: 'right',
+                )),
+          ],
+        ),
+        TableRow(
+          children: [
+            TableCell(
+              verticalAlignment: TableCellVerticalAlignment.middle,
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.option),
+                child: const Text('Option'),
+              ),
+            ),
+            IconButton(
+                onPressed: () => addHaptic(device.arrowDown),
+                icon: Icon(
+                  Icons.keyboard_arrow_down,
+                  size: iconSize,
+                  semanticLabel: 'down',
+                )),
+            TableCell(
+              verticalAlignment: TableCellVerticalAlignment.middle,
+              child: IconButton(
+                  onPressed: () => addHaptic(device.returnToPrevious),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    size: iconSize / 3,
+                    semanticLabel: 'return to previous',
+                  )),
+            ),
+          ],
+        ),
+      ],
+    );
 
-  return table;
+    return table;
+  }
 }
 
-Widget _playControls(BuildContext context, oppo.Device device) {
-  const iconSize = 85.0;
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      IconButton(
-          onPressed: () => addHaptic(device.stop),
-          icon: Icon(
-            Icons.stop_circle,
-            size: iconSize,
-            semanticLabel: 'stop',
-          )),
-      IconButton(
-          onPressed: () => addHaptic(device.play),
-          icon: Icon(
-            Icons.play_arrow,
-            size: iconSize,
-            semanticLabel: 'play',
-          )),
-      IconButton(
-          onPressed: () => addHaptic(device.pause),
-          icon: Icon(
-            Icons.pause,
-            size: iconSize,
-            semanticLabel: 'pause',
-          )),
-    ],
-  );
+class PlayControls extends StatelessWidget {
+  final oppo.Device device;
+  const PlayControls(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const iconSize = 85.0;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+            onPressed: () => addHaptic(device.stop),
+            icon: Icon(
+              Icons.stop_circle,
+              size: iconSize,
+              semanticLabel: 'stop',
+            )),
+        IconButton(
+            onPressed: () => addHaptic(device.play),
+            icon: Icon(
+              Icons.play_arrow,
+              size: iconSize,
+              semanticLabel: 'play',
+            )),
+        IconButton(
+            onPressed: () => addHaptic(device.pause),
+            icon: Icon(
+              Icons.pause,
+              size: iconSize,
+              semanticLabel: 'pause',
+            )),
+      ],
+    );
+  }
 }
 
-Widget _positionControls(BuildContext context, oppo.Device device) {
-  const iconSize = 65.0;
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      IconButton(
-          onPressed: () => addHaptic(device.previous),
-          icon: Icon(
-            Icons.skip_previous,
-            size: iconSize,
-            semanticLabel: 'previous',
-          )),
-      IconButton(
-          onPressed: () => addHaptic(device.reverse),
-          icon: Icon(
-            Icons.fast_rewind,
-            size: iconSize,
-            semanticLabel: 'scan reverse',
-          )),
-      IconButton(
-          onPressed: () => addHaptic(device.forward),
-          icon: Icon(
-            Icons.fast_forward,
-            size: iconSize,
-            semanticLabel: 'scan forward',
-          )),
-      IconButton(
-          onPressed: () => addHaptic(device.next),
-          icon: Icon(
-            Icons.skip_next,
-            size: iconSize,
-            semanticLabel: 'next',
-          )),
-    ],
-  );
+class PositionControls extends StatelessWidget {
+  final oppo.Device device;
+  const PositionControls(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const iconSize = 65.0;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+            onPressed: () => addHaptic(device.previous),
+            icon: Icon(
+              Icons.skip_previous,
+              size: iconSize,
+              semanticLabel: 'previous',
+            )),
+        IconButton(
+            onPressed: () => addHaptic(device.reverse),
+            icon: Icon(
+              Icons.fast_rewind,
+              size: iconSize,
+              semanticLabel: 'scan reverse',
+            )),
+        IconButton(
+            onPressed: () => addHaptic(device.forward),
+            icon: Icon(
+              Icons.fast_forward,
+              size: iconSize,
+              semanticLabel: 'scan forward',
+            )),
+        IconButton(
+            onPressed: () => addHaptic(device.next),
+            icon: Icon(
+              Icons.skip_next,
+              size: iconSize,
+              semanticLabel: 'next',
+            )),
+      ],
+    );
+  }
 }
 
 class NumberButton extends StatelessWidget {
