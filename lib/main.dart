@@ -37,6 +37,14 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.dark,
         colorSchemeSeed: Colors.blue,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 20.0),
+          ),
+        ),
       ),
       home: const Discovery(),
     );
@@ -276,7 +284,9 @@ class _HomePageState extends State<HomePage> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              DrawerHeader(child: Text('Drawer header')),
+              DrawerHeader(
+                child: Text('Oppo remote'),
+              ),
               ListTile(
                 leading: Icon(Icons.power_settings_new),
                 title: const Text('Power off'),
@@ -411,12 +421,12 @@ class HomeRow extends StatelessWidget {
             semanticLabel: 'home',
           ),
         ),
-        ElevatedButton.icon(
+        TextButton.icon(
           onPressed: () => addHaptic(device.goto),
-          icon: Icon(Icons.arrow_downward),
-          label: Text('Goto'),
+          icon: const Icon(Icons.arrow_downward),
+          label: const Text('Goto'),
         ),
-        ElevatedButton.icon(
+        TextButton.icon(
           onPressed: () => addHaptic(device.clear),
           icon: Icon(Icons.clear),
           label: Text('Clear'),
@@ -687,9 +697,11 @@ class ColorButton extends StatelessWidget {
     return FilledButton(
       onPressed: () => addHaptic(onPressed),
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(color),
-      ),
-      child: SizedBox(height: 30.0, width: 12.0),
+          backgroundColor: MaterialStateProperty.all(color),
+          // TODO - refactor this out to common code with Material app theme.
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4.0)))),
+      child: SizedBox(),
     );
   }
 }
@@ -704,10 +716,24 @@ class IconVertical extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, style: Theme.of(context).textTheme.labelSmall),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
         icon,
       ],
     );
+  }
+}
+
+class TableCellPadded extends StatelessWidget {
+  final Widget child;
+  const TableCellPadded({super.key, required this.child});
+
+  // TODO - make this a module const.
+  final double padding = 4.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return TableCell(
+        child: Padding(padding: EdgeInsets.all(padding), child: child));
   }
 }
 
@@ -720,38 +746,43 @@ class BottomGrid extends StatelessWidget {
     return Table(
       children: <TableRow>[
         TableRow(children: [
-          TableCell(
-              child: ColorButton(onPressed: () => addHaptic(device.red), color: Colors.red)),
-          TableCell(
-              child: ColorButton(onPressed: () => addHaptic(device.green), color: Colors.green)),
-          TableCell(
-              child: ColorButton(onPressed: () => addHaptic(device.blue), color: Colors.blue)),
-          TableCell(
-              child:
-                  ColorButton(onPressed: () => addHaptic(device.yellow), color: Colors.yellow)),
+          TableCellPadded(
+              child: ColorButton(
+                  onPressed: () => addHaptic(device.red), color: Colors.red)),
+          TableCellPadded(
+              child: ColorButton(
+                  onPressed: () => addHaptic(device.green),
+                  color: Colors.green)),
+          TableCellPadded(
+              child: ColorButton(
+                  onPressed: () => addHaptic(device.blue), color: Colors.blue)),
+          TableCellPadded(
+              child: ColorButton(
+                  onPressed: () => addHaptic(device.yellow),
+                  color: Colors.yellow)),
         ]),
         TableRow(children: [
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.pureAudio),
               child: IconVertical(
                   icon: Icon(Icons.graphic_eq), label: 'Pure audio'),
             ),
           ),
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.volumeDown),
               child:
                   IconVertical(icon: Icon(Icons.volume_down), label: 'Vol -'),
             ),
           ),
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.volumeUp),
               child: IconVertical(icon: Icon(Icons.volume_up), label: 'Vol +'),
             ),
           ),
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.mute),
               child: IconVertical(icon: Icon(Icons.volume_mute), label: 'Mute'),
@@ -760,27 +791,27 @@ class BottomGrid extends StatelessWidget {
         ]),
         TableRow(
           children: [
-            TableCell(
+            TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.audio),
                 child:
                     IconVertical(icon: Icon(Icons.audiotrack), label: 'Audio'),
               ),
             ),
-            TableCell(
+            TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.subtitle),
                 child: IconVertical(
                     icon: Icon(Icons.subtitles), label: 'Subtitle'),
               ),
             ),
-            TableCell(
+            TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.zoom),
                 child: IconVertical(icon: Icon(Icons.zoom_in), label: 'Zoom'),
               ),
             ),
-            TableCell(
+            TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.dim),
                 child:
@@ -790,25 +821,25 @@ class BottomGrid extends StatelessWidget {
           ],
         ),
         TableRow(children: [
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.setup),
               child: IconVertical(icon: Icon(Icons.build), label: 'Setup'),
             ),
           ),
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.repeatAB),
               child: IconVertical(icon: Icon(Icons.undo), label: 'AB Replay'),
             ),
           ),
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.repeat),
               child: IconVertical(icon: Icon(Icons.repeat), label: 'Repeat'),
             ),
           ),
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.pictureAdjustmentMenu),
               child: IconVertical(icon: Icon(Icons.apps), label: 'Pic'),
@@ -816,16 +847,16 @@ class BottomGrid extends StatelessWidget {
           ),
         ]),
         TableRow(children: [
-          TableCell(
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.outputResolutionCycle),
               child: IconVertical(
                   icon: Icon(Icons.aspect_ratio), label: 'Resolution'),
             ),
           ),
-          TableCell(child: SizedBox()),
-          TableCell(child: SizedBox()),
-          TableCell(
+          TableCellPadded(child: SizedBox()),
+          TableCellPadded(child: SizedBox()),
+          TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.hdrMenu),
               child: IconVertical(icon: Icon(Icons.hdr_strong), label: 'HDR'),
@@ -849,7 +880,8 @@ class PageControls extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-              onPressed: () => addHaptic(device.pageUp), icon: Icon(Icons.arrow_upward)),
+              onPressed: () => addHaptic(device.pageUp),
+              icon: Icon(Icons.arrow_upward)),
           const Text('Page'),
           IconButton(
               onPressed: () => addHaptic(device.pageDown),
