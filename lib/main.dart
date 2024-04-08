@@ -316,6 +316,11 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Tray open/close'),
                 onTap: () => addHaptic(device.trayToggle),
               ),
+              ListTile(
+                leading: Icon(Icons.info),
+                title: const Text('Licenses'),
+                onTap: () => showLicensePage(context: context),
+              ),
             ],
           ),
         ),
