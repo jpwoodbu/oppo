@@ -268,6 +268,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _build(BuildContext context, oppo.Device device) {
+    Image appIcon = const Image(
+      image: AssetImage('assets/hdpi_app_icon.png'),
+      width: 30.0,
+      height: 30.0,
+    );
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -293,7 +298,11 @@ class _HomePageState extends State<HomePage> {
                 child: DrawerHeader(
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('Oppo Remote'),
+                    child: Row(children: [
+                      appIcon,
+                      SizedBox(width: 8.0),
+                      Text('Oppo Remote'),
+                    ]),
                   ),
                 ),
               ),
@@ -326,7 +335,8 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 leading: Icon(Icons.info),
                 title: const Text('Licenses'),
-                onTap: () => showLicensePage(context: context),
+                onTap: () =>
+                    showLicensePage(context: context, applicationIcon: appIcon),
               ),
             ],
           ),
