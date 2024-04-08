@@ -259,7 +259,7 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Oppo Remote'),
+          title: Position(device),
           actions: [
             IconButton(
               onPressed: () {
@@ -362,9 +362,17 @@ class Position extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = device.position;
+    final style = Theme.of(context).textTheme.bodySmall;
+    final bool displayExtras = p?.timeInformation == oppo.TimeInformation.titleElapsedTime;
     if (p == null) return Text('No position data.');
-    return Text('Title: ${p.title}\nChapter: ${p.chapter}\n'
-        '${p.timeInformation.displayName}: ${p.clock}');
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        if (displayExtras) Text('T: ${p.title}', style: style),
+        if (displayExtras) Text('C: ${p.chapter}', style: style),
+        Text('${p.timeInformation.displayName}: ${p.clock}', style: style),
+      ],
+    );
   }
 }
 
@@ -617,7 +625,8 @@ class PositionControls extends StatelessWidget {
 class NumberPadButton extends StatelessWidget {
   final Function onPressed;
   final Widget child;
-  const NumberPadButton({super.key, required this.onPressed, required this.child});
+  const NumberPadButton(
+      {super.key, required this.onPressed, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -672,9 +681,7 @@ class NumberPad extends StatelessWidget {
                 ),
                 NumberPadButton(
                   onPressed: () => addHaptic(device.clear),
-                  child: IconVertical(
-                    icon: Icon(Icons.clear),
-                    label: 'Clear'),
+                  child: IconVertical(icon: Icon(Icons.clear), label: 'Clear'),
                 ),
                 SizedBox(),
               ],
@@ -711,7 +718,7 @@ class NumberPad extends StatelessWidget {
                 ),
                 NumberButton(onPressed: device.number0, label: '0'),
                 NumberPadButton(
-                  onPressed: device.returnToPrevious,
+                  onPressed: device.enter,
                   child: IconVertical(
                     icon: Icon(Icons.keyboard_return),
                     label: 'Enter',
