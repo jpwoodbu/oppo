@@ -9,10 +9,24 @@ class DeviceChanges with ChangeNotifier {
   final Device device;
 
   DeviceChanges(this.device) {
-    device.stream().listen((event) {
-      device.parseEvent(event);
-      notifyListeners();
-    });
-    _log.fine('ChangeNotifier started.');
+    startListener();
+  }
+
+  void startListener() {
+    device.stream().listen(
+      (event) {
+        device.parseEvent(event);
+        notifyListeners();
+      },
+      onDone: reconnect,
+    );
+    _log.info('Listener started.');
+  }
+
+  void reconnect() async {
+    _log.info('Reconnecting.');
+    await device.close();
+    await device.connect();
+    startListener();
   }
 }
