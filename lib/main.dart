@@ -179,11 +179,7 @@ class _ConnectState extends State<Connect> {
     super.initState();
     _listener = AppLifecycleListener(
       onRestart: () {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => Discovery()),
-          (Route<dynamic> route) => false,
-        );
+        _log.info('onRestart');
       },
     );
     _connect =
@@ -315,6 +311,17 @@ class _HomePageState extends State<HomePage> {
                 leading: Icon(Icons.eject),
                 title: const Text('Tray open/close'),
                 onTap: () => addHaptic(device.trayToggle),
+              ),
+              ListTile(
+                leading: Icon(Icons.redo),
+                title: const Text('Scan for players'),
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => Discovery()),
+                    (Route<dynamic> route) => false,
+                  );
+                },
               ),
               ListTile(
                 leading: Icon(Icons.info),
