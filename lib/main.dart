@@ -270,8 +270,6 @@ class _HomePageState extends State<HomePage> {
   Widget _build(BuildContext context, oppo.Device device) {
     Image appIcon = const Image(
       image: AssetImage('assets/hdpi_app_icon.png'),
-      width: 30.0,
-      height: 30.0,
     );
     return SafeArea(
       child: Scaffold(
