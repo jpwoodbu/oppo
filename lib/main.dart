@@ -276,8 +276,14 @@ class _HomePageState extends State<HomePage> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              DrawerHeader(
-                child: Text('Oppo Remote'),
+              SizedBox(
+                height: 75.0,
+                child: DrawerHeader(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Oppo Remote'),
+                  ),
+                ),
               ),
               ListTile(
                 leading: Icon(Icons.power_settings_new),
@@ -363,8 +369,11 @@ class Position extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = device.position;
     final style = Theme.of(context).textTheme.bodySmall;
-    final bool displayExtras = p?.timeInformation == oppo.TimeInformation.titleElapsedTime;
-    if (p == null) return Text('No position data.');
+    if (p == null) {
+      return SizedBox();
+    }
+    final bool displayExtras =
+        p.timeInformation == oppo.TimeInformation.titleElapsedTime;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -670,8 +679,8 @@ class NumberPad extends StatelessWidget {
           children: [
             TableRow(
               children: [
-                // Make a reusable version of this button since it's used in >1
-                // places.
+                // TODO - Make a reusable version of this button since it's used
+                // in >1 places.
                 NumberPadButton(
                   onPressed: () => addHaptic(device.goto),
                   child: IconVertical(
@@ -683,7 +692,10 @@ class NumberPad extends StatelessWidget {
                   onPressed: () => addHaptic(device.clear),
                   child: IconVertical(icon: Icon(Icons.clear), label: 'Clear'),
                 ),
-                SizedBox(),
+                IconButton(
+                    alignment: Alignment.topRight,
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.close)),
               ],
             ),
             TableRow(
