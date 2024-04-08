@@ -172,12 +172,28 @@ class _ConnectState extends State<Connect> {
   // It's important that the "connect" Future is stateful so we don't try to
   // reconnect on hot reload.
   late Future<void> _connect;
+  late final AppLifecycleListener _listener;
 
   @override
   void initState() {
     super.initState();
+    _listener = AppLifecycleListener(
+      onRestart: () {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Discovery()),
+          (Route<dynamic> route) => false,
+        );
+      },
+    );
     _connect =
         Future.delayed(const Duration(seconds: 1), widget.device.connect);
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    _listener.dispose();
   }
 
   @override
