@@ -26,7 +26,9 @@ class DeviceChanges with ChangeNotifier {
   void reconnect() async {
     _log.info('Reconnecting.');
     await device.close();
-    await device.connect();
+    // Don't attempt to reconnect more than once per second to avoid storming
+    // the network.
+    await Future.delayed(Duration(seconds: 1), device.connect);
     startListener();
   }
 }
