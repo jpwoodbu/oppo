@@ -426,34 +426,6 @@ class Position extends StatelessWidget {
   }
 }
 
-class NameRow extends StatelessWidget {
-  final oppo.Device device;
-  const NameRow(this.device, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          device.name,
-        ),
-        IconButton(
-          // This widget is only displayed when the power is on so we explicitly
-          // call the power off function here.
-          onPressed: () => addHaptic(device.powerOff),
-          icon: const Icon(
-            Icons.power_settings_new,
-            color: Colors.blue,
-            semanticLabel: 'Toggle power',
-          ),
-        )
-      ],
-    );
-  }
-}
-
 class HomeRow extends StatelessWidget {
   final oppo.Device device;
   const HomeRow(this.device, {super.key});
