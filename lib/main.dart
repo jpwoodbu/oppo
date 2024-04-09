@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'controls.dart';
 import 'device_changes.dart';
+import 'info.dart';
 import 'number_pad.dart';
 import 'oppo.dart' as oppo;
 import 'position.dart';
@@ -341,7 +342,10 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   leading: Icon(Icons.route),
                   title: const Text('Input'),
-                  onTap: () => addHaptic(device.inputMenu),
+                  onTap: () {
+                    Navigator.pop(context);
+                    addHaptic(device.inputMenu);
+                  },
                 ),
               if (device.powered ?? false)
                 ListTile(
@@ -361,7 +365,19 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.info),
+                leading: Icon(Icons.help),
+                title: const Text('Help'),
+                onTap: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Help())),
+              ),
+              ListTile(
+                leading: Icon(Icons.bug_report),
+                title: const Text('Known issues'),
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => KnownIssues())),
+              ),
+              ListTile(
+                leading: Icon(Icons.article),
                 title: const Text('Licenses'),
                 onTap: () =>
                     showLicensePage(context: context, applicationIcon: appIcon),
