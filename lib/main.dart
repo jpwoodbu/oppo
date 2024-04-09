@@ -123,7 +123,7 @@ class _DiscoveryState extends State<Discovery> {
     if (broadcasts.isEmpty) {
       return [
         const Text('No devices found so far...'),
-        ElevatedButton(
+        TextButton(
           onPressed: () => _connect(
               _discover,
               oppo.OppoBroadcast(
@@ -202,8 +202,26 @@ class _ConnectState extends State<Connect> {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return const Scaffold(
-                body: Center(child: Text('Error connecting to device.')));
+            return Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Error connecting to device.'),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Discovery()),
+                            (Route<dynamic> route) => false);
+                      },
+                      child: const Text('Scan for players'),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
           return ChangeNotifierProvider<DeviceChanges>(
             create: (_) => DeviceChanges(widget.device),
