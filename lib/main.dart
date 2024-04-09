@@ -279,15 +279,16 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: Position(device),
           actions: [
-            IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => NumberPad(device),
-                );
-              },
-              icon: Icon(Icons.dialpad),
-            ),
+            if (device.powered ?? false)
+              IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => NumberPad(device),
+                  );
+                },
+                icon: Icon(Icons.dialpad),
+              ),
           ],
         ),
         drawer: Drawer(
@@ -307,21 +308,29 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              ListTile(
-                leading: Icon(Icons.power_settings_new),
-                title: const Text('Power off'),
-                onTap: () => addHaptic(device.powerOff),
-              ),
-              ListTile(
-                leading: Icon(Icons.route),
-                title: const Text('Input'),
-                onTap: () => addHaptic(device.inputMenu),
-              ),
-              ListTile(
-                leading: Icon(Icons.eject),
-                title: const Text('Tray open/close'),
-                onTap: () => addHaptic(device.trayToggle),
-              ),
+              if (device.powered ?? false)
+                ListTile(
+                  leading: Icon(Icons.power_settings_new),
+                  title: const Text('Power off'),
+                  onTap: () {
+                    addHaptic(device.powerOff);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Waiting for power off signal...')));
+                  },
+                ),
+              if (device.powered ?? false)
+                ListTile(
+                  leading: Icon(Icons.route),
+                  title: const Text('Input'),
+                  onTap: () => addHaptic(device.inputMenu),
+                ),
+              if (device.powered ?? false)
+                ListTile(
+                  leading: Icon(Icons.eject),
+                  title: const Text('Tray open/close'),
+                  onTap: () => addHaptic(device.trayToggle),
+                ),
               ListTile(
                 leading: Icon(Icons.redo),
                 title: const Text('Scan for players'),
@@ -365,7 +374,11 @@ class NotPoweredOn extends StatelessWidget {
             IconButton(
               // TODO - turn this into a stateful widget show a progress indicator
               // can be displayed after the power button is clicked.
-              onPressed: () => addHaptic(device.powerOn),
+              onPressed: () {
+                addHaptic(device.powerOn);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Waiting for power on signal...')));
+              },
               icon: const Icon(
                 Icons.power_settings_new,
                 color: Colors.amber,
