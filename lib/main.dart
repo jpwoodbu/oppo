@@ -103,13 +103,18 @@ class _DiscoveryState extends State<Discovery> {
   Widget _page(BuildContext context, Set<oppo.OppoBroadcast> broadcasts) {
     return SafeArea(
       child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Center(
-            child: Column(
+        body: ListView(
+          padding: const EdgeInsets.all(25.0),
+          children: [
+            Text('Device selection',
+                style: Theme.of(context).textTheme.titleMedium),
+            SizedBox(height: 25.0),
+            LinearProgressIndicator(),
+            SizedBox(height: 25.0),
+            Column(
               children: _devices(context, broadcasts),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -119,7 +124,7 @@ class _DiscoveryState extends State<Discovery> {
       BuildContext context, Set<oppo.OppoBroadcast> broadcasts) {
     if (broadcasts.isEmpty) {
       return [
-        const Text('Scanning for Oppo UDP-20X players...'),
+        const Text('No devices found so far...'),
         ElevatedButton(
           onPressed: () => _connect(
               _discover,
