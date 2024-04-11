@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4.0),
+              borderRadius: BorderRadius.circular(borderRadius),
             ),
             padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 20.0),
           ),

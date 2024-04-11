@@ -42,8 +42,8 @@ class NumberPad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      // TODO - Centralize the border radius value.
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius)),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Table(

@@ -234,7 +234,7 @@ class ColorButton extends StatelessWidget {
           backgroundColor: MaterialStateProperty.all(color),
           // TODO - refactor this out to common code with Material app theme.
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4.0)))),
+              borderRadius: BorderRadius.circular(borderRadius)))),
       child: SizedBox(),
     );
   }
