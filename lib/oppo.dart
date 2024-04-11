@@ -1022,8 +1022,6 @@ class Device {
     await searchTo('C$chapter');
   }
 
-  // TODO - In the API docs, their position example is 0:12:13. As such, it's
-  // unclear which, if any, fields require zero padding.
   Future<void> searchToChapterTime(Duration position) async {
     await searchTo(
         'C ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
