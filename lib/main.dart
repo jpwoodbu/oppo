@@ -274,16 +274,33 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return const Scaffold(
-                body: Center(
-                    child: Text('Error while waiting on device to power up.')));
+            return Scaffold(
+              body: Center(
+                child: Column(
+                  children: [
+                    Text('Error while waiting on device to power up.'),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Discovery()),
+                            (Route<dynamic> route) => false);
+                      },
+                      child: const Text('Scan for players'),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
           return _build(context, device);
         } else {
           return const Scaffold(
-              body: Center(
-            child: Text('Powering on and setting up communication...'),
-          ));
+            body: Center(
+              child: Text('Powering on and setting up communication...'),
+            ),
+          );
         }
       },
     );
