@@ -354,7 +354,7 @@ class _HomePageState extends State<HomePage> {
                   onTap: () => addHaptic(device.trayToggle),
                 ),
               ListTile(
-                leading: Icon(Icons.redo),
+                leading: Icon(Icons.sensors),
                 title: const Text('Scan for players'),
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
