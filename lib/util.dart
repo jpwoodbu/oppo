@@ -8,10 +8,10 @@ dynamic addHaptic(Function function) {
   return function();
 }
 
-class IconVertical extends StatelessWidget {
+class VerticalIcon extends StatelessWidget {
   final String label;
   final Icon icon;
-  const IconVertical({super.key, required this.label, required this.icon});
+  const VerticalIcon({super.key, required this.label, required this.icon});
 
   @override
   Widget build(BuildContext context) {

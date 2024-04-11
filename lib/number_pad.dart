@@ -55,14 +55,14 @@ class NumberPad extends StatelessWidget {
                 // in >1 places.
                 NumberPadButton(
                   onPressed: () => addHaptic(device.goto),
-                  child: IconVertical(
+                  child: VerticalIcon(
                     icon: Icon(Icons.arrow_downward),
                     label: 'Goto',
                   ),
                 ),
                 NumberPadButton(
                   onPressed: () => addHaptic(device.clear),
-                  child: IconVertical(icon: Icon(Icons.clear), label: 'Clear'),
+                  child: VerticalIcon(icon: Icon(Icons.clear), label: 'Clear'),
                 ),
                 IconButton(
                     alignment: Alignment.topRight,
@@ -95,7 +95,7 @@ class NumberPad extends StatelessWidget {
               children: [
                 NumberPadButton(
                   onPressed: device.returnToPrevious,
-                  child: IconVertical(
+                  child: VerticalIcon(
                     icon: Icon(Icons.arrow_back),
                     label: 'Return',
                   ),
@@ -103,7 +103,7 @@ class NumberPad extends StatelessWidget {
                 NumberButton(onPressed: device.number0, label: '0'),
                 NumberPadButton(
                   onPressed: device.enter,
-                  child: IconVertical(
+                  child: VerticalIcon(
                     icon: Icon(Icons.keyboard_return),
                     label: 'Enter',
                   ),

@@ -65,7 +65,7 @@ class Arrows extends StatelessWidget {
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.topMenu),
-                child: IconVertical(icon: Icon(Icons.navigation), label: 'Top'),
+                child: VerticalIcon(icon: Icon(Icons.navigation), label: 'Top'),
               ),
             ),
             IconButton(
@@ -79,7 +79,7 @@ class Arrows extends StatelessWidget {
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.popupMenu),
-                child: IconVertical(icon: Icon(Icons.article), label: 'Pop-up'),
+                child: VerticalIcon(icon: Icon(Icons.article), label: 'Pop-up'),
               ),
             ),
           ],
@@ -116,7 +116,7 @@ class Arrows extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.option),
                 child:
-                    IconVertical(icon: Icon(Icons.emergency), label: 'Option'),
+                    VerticalIcon(icon: Icon(Icons.emergency), label: 'Option'),
               ),
             ),
             IconButton(
@@ -130,7 +130,7 @@ class Arrows extends StatelessWidget {
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: ElevatedButton(
                   onPressed: () => addHaptic(device.returnToPrevious),
-                  child: IconVertical(
+                  child: VerticalIcon(
                     icon: Icon(Icons.arrow_back),
                     label: 'Return',
                   )),
@@ -282,7 +282,7 @@ class BottomGrid extends StatelessWidget {
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.pureAudio),
-              child: IconVertical(
+              child: VerticalIcon(
                   icon: Icon(Icons.graphic_eq), label: 'Pure audio'),
             ),
           ),
@@ -290,19 +290,19 @@ class BottomGrid extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => addHaptic(device.volumeDown),
               child:
-                  IconVertical(icon: Icon(Icons.volume_down), label: 'Vol -'),
+                  VerticalIcon(icon: Icon(Icons.volume_down), label: 'Vol -'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.volumeUp),
-              child: IconVertical(icon: Icon(Icons.volume_up), label: 'Vol +'),
+              child: VerticalIcon(icon: Icon(Icons.volume_up), label: 'Vol +'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.mute),
-              child: IconVertical(icon: Icon(Icons.volume_mute), label: 'Mute'),
+              child: VerticalIcon(icon: Icon(Icons.volume_mute), label: 'Mute'),
             ),
           ),
         ]),
@@ -312,27 +312,27 @@ class BottomGrid extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.audio),
                 child:
-                    IconVertical(icon: Icon(Icons.audiotrack), label: 'Audio'),
+                    VerticalIcon(icon: Icon(Icons.audiotrack), label: 'Audio'),
               ),
             ),
             TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.subtitle),
-                child: IconVertical(
+                child: VerticalIcon(
                     icon: Icon(Icons.subtitles), label: 'Subtitle'),
               ),
             ),
             TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.zoom),
-                child: IconVertical(icon: Icon(Icons.zoom_in), label: 'Zoom'),
+                child: VerticalIcon(icon: Icon(Icons.zoom_in), label: 'Zoom'),
               ),
             ),
             TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.dim),
                 child:
-                    IconVertical(icon: Icon(Icons.light_mode), label: 'Dimmer'),
+                    VerticalIcon(icon: Icon(Icons.light_mode), label: 'Dimmer'),
               ),
             ),
           ],
@@ -341,25 +341,25 @@ class BottomGrid extends StatelessWidget {
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.setup),
-              child: IconVertical(icon: Icon(Icons.build), label: 'Setup'),
+              child: VerticalIcon(icon: Icon(Icons.build), label: 'Setup'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.repeatAB),
-              child: IconVertical(icon: Icon(Icons.undo), label: 'AB Replay'),
+              child: VerticalIcon(icon: Icon(Icons.undo), label: 'AB Replay'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.repeat),
-              child: IconVertical(icon: Icon(Icons.repeat), label: 'Repeat'),
+              child: VerticalIcon(icon: Icon(Icons.repeat), label: 'Repeat'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.pictureAdjustmentMenu),
-              child: IconVertical(icon: Icon(Icons.apps), label: 'Pic'),
+              child: VerticalIcon(icon: Icon(Icons.apps), label: 'Pic'),
             ),
           ),
         ]),
@@ -367,7 +367,7 @@ class BottomGrid extends StatelessWidget {
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.outputResolutionCycle),
-              child: IconVertical(
+              child: VerticalIcon(
                   icon: Icon(Icons.aspect_ratio), label: 'Resolution'),
             ),
           ),
@@ -375,20 +375,20 @@ class BottomGrid extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => addHaptic(device.pageDown),
               child:
-                  IconVertical(icon: Icon(Icons.arrow_downward), label: 'Page'),
+                  VerticalIcon(icon: Icon(Icons.arrow_downward), label: 'Page'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.pageUp),
               child:
-                  IconVertical(icon: Icon(Icons.arrow_upward), label: 'Page'),
+                  VerticalIcon(icon: Icon(Icons.arrow_upward), label: 'Page'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.hdrMenu),
-              child: IconVertical(icon: Icon(Icons.hdr_strong), label: 'HDR'),
+              child: VerticalIcon(icon: Icon(Icons.hdr_strong), label: 'HDR'),
             ),
           ),
         ]),
