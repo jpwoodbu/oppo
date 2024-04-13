@@ -19,6 +19,10 @@ class DeviceChanges with ChangeNotifier {
         notifyListeners();
       },
       onDone: reconnect,
+      onError: (e) {
+        _log.severe(e);
+        reconnect();
+      },
     );
     _log.info('Listener started.');
   }
