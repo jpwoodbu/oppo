@@ -128,7 +128,7 @@ class _DiscoveryState extends State<Discovery> {
           onPressed: () => _connect(
               _discover,
               oppo.OppoBroadcast(
-                  InternetAddress('192.168.86.149'), 23, 'Name unknown')),
+                  InternetAddress('192.168.86.59'), 23, 'Name unknown')),
           child: const Text('Just connect to mine.'),
         ),
       ];
@@ -225,7 +225,7 @@ class _ConnectState extends State<Connect> {
             );
           }
           return ChangeNotifierProvider<DeviceChanges>(
-            create: (_) => DeviceChanges(widget.device),
+            create: (_) => DeviceChanges(widget.device, context),
             // The child Widget depends on [DeviceChanges] being fully set up
             // ahead of time.
             lazy: false,
