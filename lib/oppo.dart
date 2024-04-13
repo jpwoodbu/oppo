@@ -648,6 +648,8 @@ class Device {
 
   // TODO - Perhaps do something like ascii.decoder.bind(_socket) when connecting
   // and make the socket public so this layer of indirection can be removed.
+  // Note that [connect] sets the encoding already, so why is this decode step
+  // needed?
   Stream<String> stream() async* {
     if (_socket == null) connect();
     final socket = _socket;

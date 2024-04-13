@@ -15,17 +15,17 @@ class DeviceChanges with ChangeNotifier {
 
   void startListener() {
     device.stream().listen(
-      (event) {
-        device.parseEvent(event);
-        notifyListeners();
-      },
-      onDone: () =>_snackBar('Socket done.'),
-      onError: (e) {
-        _snackBar('Socket error: $e\n', logLevel: Level.SEVERE);
-        _log.severe(e);
-        reconnect();
-      },
-    );
+          (event) {
+            device.parseEvent(event);
+            notifyListeners();
+          },
+          onDone: () => _snackBar('Socket done.'),
+          onError: (e) {
+            _snackBar('Socket error: $e\n', logLevel: Level.SEVERE);
+            _log.severe(e);
+            reconnect();
+          },
+        );
     _log.info('Listener started.');
   }
 
@@ -34,7 +34,12 @@ class DeviceChanges with ChangeNotifier {
     await device.close();
     // Don't attempt to reconnect more than once per second to avoid storming
     // the network.
-    await Future.delayed(Duration(seconds: 1), device.connect);
+    try {
+      await Future.delayed(Duration(seconds: 1), device.connect);
+    } catch (e) {
+      _snackBar('Reconnect error: $e\n', logLevel: Level.SEVERE);
+      _log.severe(e);
+    }
     _snackBar('Reconnected.');
     startListener();
   }
