@@ -19,15 +19,9 @@ class DeviceChanges with ChangeNotifier {
         device.parseEvent(event);
         notifyListeners();
       },
-      onDone: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Socket done.')),
-        );
-      },
+      onDone: () =>_snackBar('Socket done.'),
       onError: (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Socket error: $e\n')),
-        );
+        _snackBar('Socket error: $e\n', logLevel: Level.SEVERE);
         _log.severe(e);
         reconnect();
       },
@@ -36,24 +30,19 @@ class DeviceChanges with ChangeNotifier {
   }
 
   void reconnect() async {
-    _log.info('Reconnecting...');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Reconnecting...')),
-    );
+    _snackBar('Reconnecting...');
     await device.close();
     // Don't attempt to reconnect more than once per second to avoid storming
     // the network.
     await Future.delayed(Duration(seconds: 1), device.connect);
-    _showConnected();
+    _snackBar('Reconnected.');
     startListener();
   }
 
-  /// This function is pulled out so that [context] can be fetched from a scope
-  /// outside of an async gap. Putting this code in-line in [reconnect]
-  /// generates a warning.
-  void _showConnected() {
+  void _snackBar(String message, {logLevel = Level.INFO}) {
+    _log.log(logLevel, message);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Reconnected.')),
+      SnackBar(content: Text(message)),
     );
   }
 }
