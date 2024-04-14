@@ -625,6 +625,8 @@ class Device {
   int? currentSubtitleTrack;
   int? availableSubtitleTracks;
   String? subtitleLanguage; // ISO 3166 country codes
+  int? inputSourceNumber;
+  String? inputSourceName;
 
   Device(this.name, this.address, this.port);
 
@@ -848,8 +850,16 @@ class Device {
         availableSubtitleTracks = update.availableTracks;
         subtitleLanguage = update.language;
         break;
-      // TODO - implement.
       case 'UIS':
+        InputSourceUpdate update;
+        try {
+          update = _parseInputSourceUpdate(parameters);
+        } catch (e) {
+          _log.severe(e);
+          break;
+        }
+        inputSourceNumber = update.inputSourceNumber;
+        inputSourceName = update.inputSourceName;
         break;
       // TODO - implement.
       case 'U3D':
@@ -1291,7 +1301,7 @@ class SubtitleTypeUpdate {
   SubtitleTypeUpdate(this.currentTrack, this.availableTracks, this.language);
 }
 
-_parseSubtitleTypeUpdate(String parameters) {
+SubtitleTypeUpdate _parseSubtitleTypeUpdate(String parameters) {
   final parts = parameters.split(' ');
   if (parts.length != 2) {
     throw 'Could not parse subtitle type update: $parameters';
@@ -1310,4 +1320,26 @@ _parseSubtitleTypeUpdate(String parameters) {
   }
   final language = parts[1].trim();
   return SubtitleTypeUpdate(currentTrack, availableTracks, language);
+}
+
+class InputSourceUpdate {
+  final int inputSourceNumber;
+  final String inputSourceName;
+
+  InputSourceUpdate(this.inputSourceNumber, this.inputSourceName);
+}
+
+InputSourceUpdate _parseInputSourceUpdate(String parameters) {
+  final parts = parameters.split(' ');
+  if (parts.length != 2) {
+    throw 'Could not parse input source update: $parameters';
+  }
+  int inputSourceNumber;
+  try {
+    inputSourceNumber = int.parse(parts[0].trim());
+  } catch (e) {
+    throw 'Could not parse input source number from input source update: $parameters';
+  }
+  final inputSourceName = parts[1].trim();
+  return InputSourceUpdate(inputSourceNumber, inputSourceName);
 }

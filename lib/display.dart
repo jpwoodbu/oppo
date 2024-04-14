@@ -46,6 +46,9 @@ class Display extends StatelessWidget {
                 Text(device.discType.displayName)
               ],
             ),
+            // TODO - Probably should remove this. It doesn't get set unless the
+            // input source is changed, which is probably going to be rare.
+            Text('Input: ${device.inputSourceName ?? 'Unknown'}'),
           ],
         ),
         SizedBox(height: 8.0),
