@@ -326,6 +326,38 @@ enum HdmiResolution {
   }
 }
 
+enum VideoResolution {
+  r480i60('_480I60', '480i 60Hz'),
+  r480p60('_480P60', '480p 60Hz'),
+  r576i50('_576I50', '576i 50Hz'),
+  r576p50('_576P50', '576p 50Hz'),
+  r720p60('_720P60', '720p 60Hz'),
+  r720p50('_720P50', '720p 50Hz'),
+  r1080i60('1080I60', '1080i 60Hz'),
+  r1080i50('1080I50', '1080i 50Hz'),
+  r1080p60('1080P60', '1080p 60Hz'),
+  r1080p50('1080P50', '1080p 50Hz'),
+  r1080p24('1080P24', '1080p 24Hz'),
+  r1080p23('1080P23', '1080p 23.97Hz'),
+  rUhd60('_UHD60_', 'UHD 60Hz'),
+  rUhd24('_UHD24_', 'UHD 24Hz'),
+  rUhd50('_UHD50_', 'UHD 50Hz'),
+  rOther('_OTHER_', 'Other');
+
+  final String typeCode;
+  final String displayName;
+  const VideoResolution(this.typeCode, this.displayName);
+
+  factory VideoResolution.fromTypeCode(String typeCode) {
+    try {
+      return VideoResolution.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for Video resolution: $typeCode';
+    }
+  }
+}
+
 enum ZoomRatio {
   aspectRatioCorrection('AR'),
   fullScreen('FS'),
@@ -1451,38 +1483,6 @@ AspectRatioSetting _parseAspectRatioUpdate(String parameters) {
       );
     default:
       throw 'Could not parse aspect ratio status update: $parameters';
-  }
-}
-
-enum VideoResolution {
-  r480i60('_480I60', '480i 60Hz'),
-  r480p60('_480P60', '480p 60Hz'),
-  r576i50('_576I50', '576i 50Hz'),
-  r576p50('_576P50', '576p 50Hz'),
-  r720p60('_720P60', '720p 60Hz'),
-  r720p50('_720P50', '720p 50Hz'),
-  r1080i60('1080I60', '1080i 60Hz'),
-  r1080i50('1080I50', '1080i 50Hz'),
-  r1080p60('1080P60', '1080p 60Hz'),
-  r1080p50('1080P50', '1080p 50Hz'),
-  r1080p24('1080P24', '1080p 24Hz'),
-  r1080p23('1080P23', '1080p 23.97Hz'),
-  rUhd60('_UHD60_', 'UHD 60Hz'),
-  rUhd24('_UHD24_', 'UHD 24Hz'),
-  rUhd50('_UHD50_', 'UHD 50Hz'),
-  rOther('_OTHER_', 'Other');
-
-  final String typeCode;
-  final String displayName;
-  const VideoResolution(this.typeCode, this.displayName);
-
-  factory VideoResolution.fromTypeCode(String typeCode) {
-    try {
-      return VideoResolution.values
-          .firstWhere((element) => element.typeCode == typeCode);
-    } on StateError {
-      throw 'Unknown typeCode for Video resolution: $typeCode';
-    }
   }
 }
 
