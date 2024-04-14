@@ -422,8 +422,6 @@ class NotPoweredOn extends StatelessWidget {
             const Text('Turn on player to use remote.'),
             const SizedBox(height: 10.0),
             IconButton(
-              // TODO - turn this into a stateful widget show a progress indicator
-              // can be displayed after the power button is clicked.
               onPressed: () {
                 addHaptic(device.powerOn);
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

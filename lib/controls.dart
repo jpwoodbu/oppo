@@ -232,7 +232,6 @@ class ColorButton extends StatelessWidget {
       onPressed: () => addHaptic(onPressed),
       style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(color),
-          // TODO - refactor this out to common code with Material app theme.
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius)))),
       child: SizedBox(),
@@ -242,10 +241,8 @@ class ColorButton extends StatelessWidget {
 
 class TableCellPadded extends StatelessWidget {
   final Widget child;
-  const TableCellPadded({super.key, required this.child});
-
-  // TODO - make this a module const.
   final double padding = 4.0;
+  const TableCellPadded({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

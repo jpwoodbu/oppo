@@ -51,8 +51,6 @@ class NumberPad extends StatelessWidget {
           children: [
             TableRow(
               children: [
-                // TODO - Make a reusable version of this button since it's used
-                // in >1 places.
                 NumberPadButton(
                   onPressed: () => addHaptic(device.goto),
                   child: VerticalIcon(
