@@ -530,6 +530,32 @@ enum DiscType {
   }
 }
 
+enum AudioType {
+  dolbyDigital('DD', 'Dolby Digital'),
+  dolbyDigitalPlus('DP', 'DolbyDigitalPlus'),
+  dolbyTrueHD('DT', 'Dolby TrueHD'),
+  dts('TS', 'DTS'),
+  dtsHdHighResolution('TH', 'DTS-HD High Resolution'),
+  dtsHdMasterAudio('TM', 'DTS-HD Master Audio'),
+  lPcm('PC', 'LPCM'),
+  mpegAudio('MP', 'MPEG Audio'),
+  cd('CD', 'CD Audio'),
+  unknown('UN', 'Unknown');
+
+  final String typeCode;
+  final String displayName;
+  const AudioType(this.typeCode, this.displayName);
+
+  factory AudioType.fromTypeCode(String typeCode) {
+    try {
+      return AudioType.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for audio type: $typeCode';
+    }
+  }
+}
+
 enum ResultCode {
   ok('OK'),
   error('ER');
@@ -590,6 +616,11 @@ class Device {
   int? volume;
   bool? muted;
   DiscType? discType;
+  AudioType? audioType;
+  int? currentTrack;
+  int? availableTracks;
+  String? audioLanguage;
+  String? channels;
 
   Device(this.name, this.address, this.port);
 
@@ -790,8 +821,19 @@ class Device {
           _log.severe(e);
         }
         break;
-      // TODO - implement.
       case 'UAT':
+        AudioTypeUpdate update;
+        try {
+          update = _parseAudioTypeUpdate(parameters);
+        } catch (e) {
+          _log.severe(e);
+          break;
+        }
+        audioType = update.type;
+        currentTrack = update.currentTrack;
+        availableTracks = update.availableTracks;
+        audioLanguage = update.language;
+        channels = update.channels;
         break;
       // TODO - implement.
       case 'UST':
@@ -1197,4 +1239,40 @@ Position _parseTimeCodeUpdate(String timeCode) {
   final timeInformation = TimeInformation.fromTypeCode(parts[2].trim());
   final clock = parts[3].trim();
   return Position(title, chapter, timeInformation, clock);
+}
+
+class AudioTypeUpdate {
+  final AudioType type;
+  final int currentTrack;
+  final int availableTracks;
+  final String language;
+  final String channels;
+
+  AudioTypeUpdate(
+      this.type,
+      this.currentTrack,
+      this.availableTracks,
+      this.language,
+      this.channels);
+}
+
+AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
+  final parts = parameters.split(' ');
+  if (parts.length != 4) {
+    throw 'Could not parse audio type update: $parameters';
+  }
+  int currentTrack;
+  int availableTracks;
+  final type = AudioType.fromTypeCode(parts[0].trim());
+  try {
+    final trackInfo = parts[1].trim().split('/').map(int.parse).toList();
+    currentTrack = trackInfo[0];
+    availableTracks = trackInfo[1];
+  } catch (e) {
+    throw 'Could not parse track info from audio type update: $parameters';
+  }
+  final language = parts[2].trim();
+  final channels = parts[3].trim();
+  return AudioTypeUpdate(
+      type, currentTrack, availableTracks, language, channels);
 }
