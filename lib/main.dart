@@ -123,7 +123,7 @@ class _DiscoveryState extends State<Discovery> {
       BuildContext context, Set<oppo.OppoBroadcast> broadcasts) {
     if (broadcasts.isEmpty) {
       return [
-        const Text('No devices found so far...'),
+        const Text('Scanning for players...'),
         TextButton(
           onPressed: () => _connect(
               _discover,
@@ -240,7 +240,7 @@ class _ConnectState extends State<Connect> {
 }
 
 class HomePage extends StatefulWidget {
-  late final oppo.Device device;
+  final oppo.Device device;
   HomePage(this.device, {super.key});
 
   @override
@@ -251,7 +251,6 @@ class _HomePageState extends State<HomePage> {
   // It's important that the "engage" Future is stateful so we don't try to
   // run it on every widget rebuild or hot reload.
   late Future<void> _engage;
-  int currentPageIndex = 0;
 
   @override
   void initState() {
@@ -313,7 +312,7 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Position(device),
+          title: device.powered ?? false ? Position(device) : null,
           actions: [
             if (device.powered ?? false)
               IconButton(
