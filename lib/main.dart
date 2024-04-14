@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 import 'controls.dart';
+import 'display.dart';
 import 'device_changes.dart';
 import 'info.dart';
 import 'number_pad.dart';
@@ -450,6 +451,7 @@ class Buttons extends StatelessWidget {
       padding: const EdgeInsets.all(15.0),
       child: ListView(
         children: [
+          Display(device),
           HomeRow(device),
           Arrows(device),
           PlayControls(device),
