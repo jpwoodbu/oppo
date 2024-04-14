@@ -672,8 +672,6 @@ class Device {
   // then it seems we might send a command before we start listening for
   // responses.
   Future<void> startListener() async {
-    // TODO - Is there any reason to track the StreamSubscription object
-    // returned by the listen() call so we can call cancel() on it later?
     stream().listen((event) {
       parseEvent(event);
     });
