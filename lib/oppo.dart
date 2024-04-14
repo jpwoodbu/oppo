@@ -506,19 +506,20 @@ enum PlaybackSpeed {
 }
 
 enum DiscType {
-  uhdBlueRay('UHBD'),
-  blueRay('BDMV'),
-  dvdVideo('DVDV'),
-  dvdAudio('DVDA'),
-  sacd('SACD'),
-  cd('CDDA'),
-  data('DATA'),
-  videoCD('VCD2'), // VCD 2.0
-  svcd('SVCD'),
-  unknown('UNKW');
+  uhdBlueRay('UHBD', 'UHD Blu-ray'),
+  blueRay('BDMV', 'Blu-ray'),
+  dvdVideo('DVDV', 'DVD'),
+  dvdAudio('DVDA', 'DVD Audio'),
+  sacd('SACD', 'SACD'),
+  cd('CDDA', 'CD'),
+  data('DATA', 'Data'),
+  videoCD('VCD2', 'Video CD'), // VCD 2.0
+  svcd('SVCD', 'Super Video CD'),
+  unknown('UNKW', 'Unknown');
 
   final String typeCode;
-  const DiscType(this.typeCode);
+  final String displayName;
+  const DiscType(this.typeCode, this.displayName);
 
   factory DiscType.fromTypeCode(String typeCode) {
     try {
@@ -615,7 +616,7 @@ class Device {
   PlaybackStatus? playbackStatus;
   int? volume;
   bool? muted;
-  DiscType? discType;
+  DiscType discType = DiscType.unknown;
   AudioType? audioType;
   int? currentTrack;
   int? availableTracks;
@@ -788,9 +789,6 @@ class Device {
         break;
       case 'UPL':
         try {
-          // TODO - Maybe trigger quering the track/chapter state when the
-          // playbackStatus changes. The time code info doesn't include what,
-          // for example, track we're on.
           playbackStatus = PlaybackStatus.fromTypeCode(parameters);
         } catch (e) {
           _log.severe(e);

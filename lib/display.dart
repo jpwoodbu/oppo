@@ -12,20 +12,41 @@ class Display extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _playbackStatusIcon(context),
-            SizedBox(width: 8.0),
-            Text(device.audioType?.displayName ?? ''),
-            SizedBox(width: 8.0),
-            Text(device.channels ?? ''),
+            Row(
+              children: [
+                _playbackStatusIcon(context),
+                const SizedBox(width: 8.0),
+                Text(device.audioType?.displayName ?? ''),
+                const SizedBox(width: 8.0),
+                Text(device.channels ?? ''),
+              ],
+            ),
+            Text('Track: ${device.currentTrack}/${device.availableTracks}'),
+            Text('Language: ${device.audioLanguage}'),
           ],
         ),
-        Text('Track: ${device.currentTrack}/${device.availableTracks}'),
-        Text('Language: ${device.audioLanguage}'),
+        SizedBox(height: 8.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            device.muted ?? false
+                ? const Text('Muted')
+                : Text('Volume: ${device.volume}'),
+            device.threeDimensional ? const Text('3D') : const Text('2D'),
+            Row(
+              children: [
+                const Icon(Icons.album),
+                const SizedBox(width: 8.0),
+                Text(device.discType.displayName)
+              ],
+            )
+          ],
+        )
       ],
     );
   }
@@ -83,8 +104,7 @@ class Display extends StatelessWidget {
       case oppo.PlaybackStatus.dlna:
         return Icon(Icons.cast);
       default:
-        _log.warning('Unknown playback status: ${device.playbackStatus}');
-        return Icon(Icons.question_mark);
+        return Icon(null);
     }
   }
 }
