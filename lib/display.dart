@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'oppo.dart' as oppo;
 
-import 'package:logging/logging.dart';
-
-final _log = Logger('display');
-
 class Display extends StatelessWidget {
   final oppo.Device device;
   const Display(this.device, {super.key});

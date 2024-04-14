@@ -1228,6 +1228,7 @@ class Device {
     return f;
   }
 
+  // TODO - Turn these into RPC type functions.
   Future<void> queryVolume() async => await _command('QVL');
   Future<void> queryResolution() async => await _command('QHD');
   Future<void> queryPlaybackStatus() async => await _command('QPL');
