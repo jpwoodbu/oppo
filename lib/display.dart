@@ -38,7 +38,6 @@ class Display extends StatelessWidget {
             device.muted ?? false
                 ? const Text('Muted')
                 : Text('Volume: ${device.volume}'),
-            device.threeDimensional ? const Text('3D') : const Text('2D'),
             Row(
               children: [
                 const Icon(Icons.album),
@@ -49,6 +48,15 @@ class Display extends StatelessWidget {
             // TODO - Probably should remove this. It doesn't get set unless the
             // input source is changed, which is probably going to be rare.
             Text('Input: ${device.inputSourceName ?? 'Unknown'}'),
+          ],
+        ),
+        SizedBox(height: 8.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Content: ${device.contentResolution}'),
+            Text('Ouput: ${device.outputResolution}'),
+            device.threeDimensional ? const Text('3D') : const Text('2D'),
           ],
         ),
         SizedBox(height: 8.0),

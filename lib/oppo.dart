@@ -637,6 +637,8 @@ class Device {
   int? inputSourceNumber;
   String? inputSourceName;
   AspectRatioSetting? aspectRatioSetting;
+  VideoResolution? contentResolution;
+  VideoResolution? outputResolution;
 
   Device(this.name, this.address, this.port);
 
@@ -835,7 +837,7 @@ class Device {
         }
         break;
       case 'UAT':
-        AudioTypeUpdate update;
+        _AudioTypeUpdate update;
         try {
           update = _parseAudioTypeUpdate(parameters);
         } catch (e) {
@@ -849,7 +851,7 @@ class Device {
         channels = update.channels;
         break;
       case 'UST':
-        SubtitleTypeUpdate update;
+        _SubtitleTypeUpdate update;
         try {
           update = _parseSubtitleTypeUpdate(parameters);
         } catch (e) {
@@ -861,7 +863,7 @@ class Device {
         subtitleLanguage = update.language;
         break;
       case 'UIS':
-        InputSourceUpdate update;
+        _InputSourceUpdate update;
         try {
           update = _parseInputSourceUpdate(parameters);
         } catch (e) {
@@ -885,12 +887,19 @@ class Device {
           _log.severe(e);
         }
         break;
-      // verboseMode.detailed messages below.
       case 'UTC':
         position = _parseTimeCodeUpdate(parameters);
         break;
-      // TODO - implement.
       case 'UVO':
+        _VideoResolutionUpdate update;
+        try {
+          update = _parseVideoResolutionUpdate(parameters);
+        } catch (e) {
+          _log.severe(e);
+          break;
+        }
+        contentResolution = update.contentResolution;
+        outputResolution = update.outputResolution;
         break;
       default:
         _log.severe('[U] Unsupported command code: $commandCode');
@@ -1279,18 +1288,18 @@ Position _parseTimeCodeUpdate(String timeCode) {
   return Position(title, chapter, timeInformation, clock);
 }
 
-class AudioTypeUpdate {
+class _AudioTypeUpdate {
   final AudioType type;
   final int currentTrack;
   final int availableTracks;
   final String language;
   final String channels;
 
-  AudioTypeUpdate(this.type, this.currentTrack, this.availableTracks,
+  _AudioTypeUpdate(this.type, this.currentTrack, this.availableTracks,
       this.language, this.channels);
 }
 
-AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
+_AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
   final parts = parameters.split(' ');
   if (parts.length != 4) {
     throw 'Could not parse audio type update: $parameters';
@@ -1307,19 +1316,19 @@ AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
   }
   final language = parts[2].trim();
   final channels = parts[3].trim();
-  return AudioTypeUpdate(
+  return _AudioTypeUpdate(
       type, currentTrack, availableTracks, language, channels);
 }
 
-class SubtitleTypeUpdate {
+class _SubtitleTypeUpdate {
   final int currentTrack;
   final int availableTracks;
   final String language;
 
-  SubtitleTypeUpdate(this.currentTrack, this.availableTracks, this.language);
+  _SubtitleTypeUpdate(this.currentTrack, this.availableTracks, this.language);
 }
 
-SubtitleTypeUpdate _parseSubtitleTypeUpdate(String parameters) {
+_SubtitleTypeUpdate _parseSubtitleTypeUpdate(String parameters) {
   final parts = parameters.split(' ');
   if (parts.length != 2) {
     throw 'Could not parse subtitle type update: $parameters';
@@ -1337,17 +1346,17 @@ SubtitleTypeUpdate _parseSubtitleTypeUpdate(String parameters) {
     throw 'Could not parse track info from subtitle type update: $parameters';
   }
   final language = parts[1].trim();
-  return SubtitleTypeUpdate(currentTrack, availableTracks, language);
+  return _SubtitleTypeUpdate(currentTrack, availableTracks, language);
 }
 
-class InputSourceUpdate {
+class _InputSourceUpdate {
   final int inputSourceNumber;
   final String inputSourceName;
 
-  InputSourceUpdate(this.inputSourceNumber, this.inputSourceName);
+  _InputSourceUpdate(this.inputSourceNumber, this.inputSourceName);
 }
 
-InputSourceUpdate _parseInputSourceUpdate(String parameters) {
+_InputSourceUpdate _parseInputSourceUpdate(String parameters) {
   final parts = parameters.split(' ');
   if (parts.length != 2) {
     throw 'Could not parse input source update: $parameters';
@@ -1359,7 +1368,7 @@ InputSourceUpdate _parseInputSourceUpdate(String parameters) {
     throw 'Could not parse input source number from input source update: $parameters';
   }
   final inputSourceName = parts[1].trim();
-  return InputSourceUpdate(inputSourceNumber, inputSourceName);
+  return _InputSourceUpdate(inputSourceNumber, inputSourceName);
 }
 
 AspectRatioSetting _parseAspectRatioUpdate(String parameters) {
@@ -1443,4 +1452,53 @@ AspectRatioSetting _parseAspectRatioUpdate(String parameters) {
     default:
       throw 'Could not parse aspect ratio status update: $parameters';
   }
+}
+
+enum VideoResolution {
+  r480i60('_480I60', '480i 60Hz'),
+  r480p60('_480P60', '480p 60Hz'),
+  r576i50('_576I50', '576i 50Hz'),
+  r576p50('_576P50', '576p 50Hz'),
+  r720p60('_720P60', '720p 60Hz'),
+  r720p50('_720P50', '720p 50Hz'),
+  r1080i60('1080I60', '1080i 60Hz'),
+  r1080i50('1080I50', '1080i 50Hz'),
+  r1080p60('1080P60', '1080p 60Hz'),
+  r1080p50('1080P50', '1080p 50Hz'),
+  r1080p24('1080P24', '1080p 24Hz'),
+  r1080p23('1080P23', '1080p 23.97Hz'),
+  rUhd60('_UHD60_', 'UHD 60Hz'),
+  rUhd24('_UHD24_', 'UHD 24Hz'),
+  rUhd50('_UHD50_', 'UHD 50Hz'),
+  rOther('_OTHER_', 'Other');
+
+  final String typeCode;
+  final String displayName;
+  const VideoResolution(this.typeCode, this.displayName);
+
+  factory VideoResolution.fromTypeCode(String typeCode) {
+    try {
+      return VideoResolution.values
+          .firstWhere((element) => element.typeCode == typeCode);
+    } on StateError {
+      throw 'Unknown typeCode for Video resolution: $typeCode';
+    }
+  }
+}
+
+class _VideoResolutionUpdate {
+  final VideoResolution contentResolution;
+  final VideoResolution outputResolution;
+
+  _VideoResolutionUpdate(this.contentResolution, this.outputResolution);
+}
+
+_VideoResolutionUpdate _parseVideoResolutionUpdate(String parameters) {
+  final parts = parameters.split(' ');
+  if (parts.length != 2 || parts[0].trim().length != 7 || parts[1].trim().length != 7) {
+    throw 'Could not parse video resolution update: $parameters';
+  }
+  final contentResolution = VideoResolution.fromTypeCode(parts[0].trim());
+  final outputResolution = VideoResolution.fromTypeCode(parts[1].trim());
+  return _VideoResolutionUpdate(contentResolution, outputResolution);
 }
