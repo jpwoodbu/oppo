@@ -26,7 +26,8 @@ class Display extends StatelessWidget {
                 Text(device.channels ?? ''),
               ],
             ),
-            Text('Track: ${device.currentTrack}/${device.availableTracks}'),
+            Text(
+                'Audio Track: ${device.currentAudioTrack}/${device.availableAudioTracks}'),
             Text('Language: ${device.audioLanguage}'),
           ],
         ),
@@ -44,7 +45,16 @@ class Display extends StatelessWidget {
                 const SizedBox(width: 8.0),
                 Text(device.discType.displayName)
               ],
-            )
+            ),
+          ],
+        ),
+        SizedBox(height: 8.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+                'Subtitle Track: ${device.currentSubtitleTrack}/${device.availableSubtitleTracks}'),
+            Text('Language: ${device.audioLanguage}'),
           ],
         )
       ],

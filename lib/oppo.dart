@@ -618,10 +618,13 @@ class Device {
   bool? muted;
   DiscType discType = DiscType.unknown;
   AudioType? audioType;
-  int? currentTrack;
-  int? availableTracks;
-  String? audioLanguage;
+  int? currentAudioTrack;
+  int? availableAudioTracks;
+  String? audioLanguage; // ISO 3166 country codes
   String? channels;
+  int? currentSubtitleTrack;
+  int? availableSubtitleTracks;
+  String? subtitleLanguage; // ISO 3166 country codes
 
   Device(this.name, this.address, this.port);
 
@@ -828,13 +831,22 @@ class Device {
           break;
         }
         audioType = update.type;
-        currentTrack = update.currentTrack;
-        availableTracks = update.availableTracks;
+        currentAudioTrack = update.currentTrack;
+        availableAudioTracks = update.availableTracks;
         audioLanguage = update.language;
         channels = update.channels;
         break;
-      // TODO - implement.
       case 'UST':
+        SubtitleTypeUpdate update;
+        try {
+          update = _parseSubtitleTypeUpdate(parameters);
+        } catch (e) {
+          _log.severe(e);
+          break;
+        }
+        currentSubtitleTrack = update.currentTrack;
+        availableSubtitleTracks = update.availableTracks;
+        subtitleLanguage = update.language;
         break;
       // TODO - implement.
       case 'UIS':
@@ -1246,12 +1258,8 @@ class AudioTypeUpdate {
   final String language;
   final String channels;
 
-  AudioTypeUpdate(
-      this.type,
-      this.currentTrack,
-      this.availableTracks,
-      this.language,
-      this.channels);
+  AudioTypeUpdate(this.type, this.currentTrack, this.availableTracks,
+      this.language, this.channels);
 }
 
 AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
@@ -1259,9 +1267,9 @@ AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
   if (parts.length != 4) {
     throw 'Could not parse audio type update: $parameters';
   }
+  final type = AudioType.fromTypeCode(parts[0].trim());
   int currentTrack;
   int availableTracks;
-  final type = AudioType.fromTypeCode(parts[0].trim());
   try {
     final trackInfo = parts[1].trim().split('/').map(int.parse).toList();
     currentTrack = trackInfo[0];
@@ -1273,4 +1281,33 @@ AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
   final channels = parts[3].trim();
   return AudioTypeUpdate(
       type, currentTrack, availableTracks, language, channels);
+}
+
+class SubtitleTypeUpdate {
+  final int currentTrack;
+  final int availableTracks;
+  final String language;
+
+  SubtitleTypeUpdate(this.currentTrack, this.availableTracks, this.language);
+}
+
+_parseSubtitleTypeUpdate(String parameters) {
+  final parts = parameters.split(' ');
+  if (parts.length != 2) {
+    throw 'Could not parse subtitle type update: $parameters';
+  }
+  int currentTrack;
+  int availableTracks;
+  try {
+    // TODO - Maybe these fields might sometimes include 'xx'. The API docs say,
+    // "If subtitle is set to off, use 00/xx where xx is the number of available
+    // subtitle tracks. If no subtitle is available, use 00/00."
+    final trackInfo = parts[0].trim().split('/').map(int.parse).toList();
+    currentTrack = trackInfo[0];
+    availableTracks = trackInfo[1];
+  } catch (e) {
+    throw 'Could not parse track info from subtitle type update: $parameters';
+  }
+  final language = parts[1].trim();
+  return SubtitleTypeUpdate(currentTrack, availableTracks, language);
 }
