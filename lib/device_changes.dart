@@ -20,7 +20,6 @@ class DeviceChanges with ChangeNotifier {
         notifyListeners();
       },
       onError: (e) {
-        _snackBar('Socket error: $e\n', logLevel: Level.SEVERE);
         _log.severe(e);
         reconnect();
       },
