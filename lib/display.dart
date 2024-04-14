@@ -50,8 +50,8 @@ class Display extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Content: ${device.contentResolution}'),
-            Text('Ouput: ${device.outputResolution}'),
+            Text('Content: ${device.contentResolution?.displayName}'),
+            Text('Ouput: ${device.outputResolution?.displayName}'),
             device.threeDimensional ? const Text('3D') : const Text('2D'),
           ],
         ),
