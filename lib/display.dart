@@ -9,72 +9,36 @@ class Display extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _playbackStatusIcon(context),
+        Text(device.audioType?.displayName ?? 'audio type'),
+        Text(device.channels ?? 'channels'),
+        Text(
+            'Audio Track: ${device.currentAudioTrack}/${device.availableAudioTracks}'),
+        Text('Language: ${device.audioLanguage}'),
+        device.muted ?? false
+            ? const Text('Muted')
+            : Text('Volume: ${device.volume}'),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                _playbackStatusIcon(context),
-                const SizedBox(width: 8.0),
-                Text(device.audioType?.displayName ?? ''),
-                const SizedBox(width: 8.0),
-                Text(device.channels ?? ''),
-              ],
-            ),
-            Text(
-                'Audio Track: ${device.currentAudioTrack}/${device.availableAudioTracks}'),
-            Text('Language: ${device.audioLanguage}'),
+            const Icon(Icons.album),
+            const SizedBox(width: 8.0),
+            Text(device.discType.displayName)
           ],
         ),
-        SizedBox(height: 8.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            device.muted ?? false
-                ? const Text('Muted')
-                : Text('Volume: ${device.volume}'),
-            Row(
-              children: [
-                const Icon(Icons.album),
-                const SizedBox(width: 8.0),
-                Text(device.discType.displayName)
-              ],
-            ),
-            // TODO - Probably should remove this. It doesn't get set unless the
-            // input source is changed, which is probably going to be rare.
-            Text('Input: ${device.inputSourceName ?? 'Unknown'}'),
-          ],
-        ),
-        SizedBox(height: 8.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Content: ${device.contentResolution?.displayName}'),
-            Text('Ouput: ${device.outputResolution?.displayName}'),
-            device.threeDimensional ? const Text('3D') : const Text('2D'),
-          ],
-        ),
-        SizedBox(height: 8.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-                'Subtitle Track: ${device.currentSubtitleTrack}/${device.availableSubtitleTracks}'),
-            Text('Language: ${device.audioLanguage}'),
-          ],
-        ),
-        SizedBox(height: 8.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-                'Apect ratio: ${device.aspectRatioSetting?.ratio.displayName}'),
-            Text('Mode: ${device.aspectRatioSetting?.mode.displayName}'),
-            Text(
-                'Playback: ${device.aspectRatioSetting?.playback.displayName}'),
-          ],
-        )
+        // TODO - Probably should remove this. It doesn't get set unless the
+        // input source is changed, which is probably going to be rare.
+        Text('Input: ${device.inputSourceName ?? 'Unknown'}'),
+        Text('Content: ${device.contentResolution?.displayName}'),
+        Text('Ouput: ${device.outputResolution?.displayName}'),
+        device.threeDimensional ? const Text('3D') : const Text('2D'),
+        Text(
+            'Subtitle Track: ${device.currentSubtitleTrack}/${device.availableSubtitleTracks}'),
+        Text('Language: ${device.audioLanguage}'),
+        Text('Apect ratio: ${device.aspectRatioSetting?.ratio.displayName}'),
+        Text('Mode: ${device.aspectRatioSetting?.mode.displayName}'),
+        Text('Playback: ${device.aspectRatioSetting?.playback.displayName}'),
       ],
     );
   }
