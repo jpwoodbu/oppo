@@ -190,24 +190,33 @@ enum PlaybackStatus {
 }
 
 enum AspectRatio {
-  ratio16x9,
-  ratio21x9,
+  ratio16x9('16:9'),
+  ratio21x9('21:9');
+
+  final String displayName;
+  const AspectRatio(this.displayName);
 }
 
 enum AspectRatioMode {
-  wide,
-  wideAuto,
-  moveable,
-  fixed,
-  cropped,
+  wide('Wide'),
+  wideAuto('Wide Auto'),
+  moveable('Moveable'),
+  fixed('Fixed'),
+  cropped('Cropped');
+
+  final String displayName;
+  const AspectRatioMode(this.displayName);
 }
 
 enum AspectRatioPlayback {
-  wide,
-  ratio4x3,
-  fullScreen,
-  ratio16x9or4x3,
-  ratio21x9,
+  wide('Wide'),
+  ratio4x3('4:3'),
+  fullScreen('Fullscreen'),
+  ratio16x9or4x3('16:9 or 4:3'),
+  ratio21x9('21:9');
+
+  final String displayName;
+  const AspectRatioPlayback(this.displayName);
 }
 
 class AspectRatioSetting {
@@ -627,6 +636,7 @@ class Device {
   String? subtitleLanguage; // ISO 3166 country codes
   int? inputSourceNumber;
   String? inputSourceName;
+  AspectRatioSetting? aspectRatioSetting;
 
   Device(this.name, this.address, this.port);
 
@@ -861,11 +871,19 @@ class Device {
         inputSourceNumber = update.inputSourceNumber;
         inputSourceName = update.inputSourceName;
         break;
-      // TODO - implement.
       case 'U3D':
+        if (parameters.trim() == '3D') {
+          threeDimensional = true;
+        } else {
+          threeDimensional = false;
+        }
         break;
-      // TODO - implement.
       case 'UAR':
+        try {
+          aspectRatioSetting = _parseAspectRatioUpdate(parameters);
+        } catch (e) {
+          _log.severe(e);
+        }
         break;
       // verboseMode.detailed messages below.
       case 'UTC':
@@ -1342,4 +1360,87 @@ InputSourceUpdate _parseInputSourceUpdate(String parameters) {
   }
   final inputSourceName = parts[1].trim();
   return InputSourceUpdate(inputSourceNumber, inputSourceName);
+}
+
+AspectRatioSetting _parseAspectRatioUpdate(String parameters) {
+  final update = parameters.trim().toUpperCase();
+  if (update.length != 4) {
+    throw 'Could not parse aspect ratio status update: $parameters';
+  }
+  switch (update) {
+    case '16WW':
+      return AspectRatioSetting(
+        AspectRatio.ratio16x9,
+        AspectRatioMode.wide,
+        AspectRatioPlayback.wide,
+      );
+    case '16AW':
+      return AspectRatioSetting(
+        AspectRatio.ratio16x9,
+        AspectRatioMode.wideAuto,
+        AspectRatioPlayback.wide,
+      );
+    case '16A4':
+      return AspectRatioSetting(
+        AspectRatio.ratio16x9,
+        AspectRatioMode.wideAuto,
+        AspectRatioPlayback.ratio4x3,
+      );
+    case '21M0':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.moveable,
+        AspectRatioPlayback.fullScreen,
+      );
+    case '21M1':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.moveable,
+        AspectRatioPlayback.ratio16x9or4x3,
+      );
+    case '21M2':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.moveable,
+        AspectRatioPlayback.ratio21x9,
+      );
+    case '21F0':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.fixed,
+        AspectRatioPlayback.fullScreen,
+      );
+    case '21F1':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.fixed,
+        AspectRatioPlayback.ratio16x9or4x3,
+      );
+    case '21F2':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.fixed,
+        AspectRatioPlayback.ratio21x9,
+      );
+    case '21C0':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.cropped,
+        AspectRatioPlayback.fullScreen,
+      );
+    case '21C1':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.cropped,
+        AspectRatioPlayback.ratio16x9or4x3,
+      );
+    case '21C2':
+      return AspectRatioSetting(
+        AspectRatio.ratio21x9,
+        AspectRatioMode.cropped,
+        AspectRatioPlayback.ratio21x9,
+      );
+    default:
+      throw 'Could not parse aspect ratio status update: $parameters';
+  }
 }

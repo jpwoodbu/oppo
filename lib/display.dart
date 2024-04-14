@@ -59,6 +59,17 @@ class Display extends StatelessWidget {
                 'Subtitle Track: ${device.currentSubtitleTrack}/${device.availableSubtitleTracks}'),
             Text('Language: ${device.audioLanguage}'),
           ],
+        ),
+        SizedBox(height: 8.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+                'Apect ratio: ${device.aspectRatioSetting?.ratio.displayName}'),
+            Text('Mode: ${device.aspectRatioSetting?.mode.displayName}'),
+            Text(
+                'Playback: ${device.aspectRatioSetting?.playback.displayName}'),
+          ],
         )
       ],
     );
