@@ -8,59 +8,27 @@ class Display extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const alignment = MainAxisAlignment.spaceBetween;
-    const padding = EdgeInsets.symmetric(vertical: 1.0);
     return DefaultTextStyle.merge(
       style: Theme.of(context).textTheme.bodySmall,
       child: Column(
         children: [
-          Padding(
-            padding: padding,
-            child: Row(
-              mainAxisAlignment: alignment,
-              children: [
-                _title(context),
-                _chapter(context),
-              ],
-            ),
-          ),
-          Padding(
-            padding: padding,
-            child: Row(
-              mainAxisAlignment: alignment,
-              children: [
-                _audioType(context),
-                _volume(context),
-              ],
-            ),
-          ),
-          Padding(
-            padding: padding,
-            child: Row(
-              mainAxisAlignment: alignment,
-              children: [
-                _audioTrack(context),
-                _subtitles(context),
-              ],
-            ),
-          ),
-          Padding(
-            padding: padding,
-            child: Row(
-              mainAxisAlignment: alignment,
-              children: [
-                _contentResolution(context),
-                _outputResolution(context),
-              ],
-            ),
-          ),
-          Padding(
-            padding: padding,
-            child: Row(
-              mainAxisAlignment: alignment,
-              children: [_discType(context)],
-            ),
-          ),
+          PaddedRow(children: [
+              _title(context),
+              _chapter(context),
+            ]),
+          PaddedRow(children: [
+              _audioType(context),
+              _volume(context),
+            ]),
+          PaddedRow(children: [
+              _audioTrack(context),
+              _subtitles(context),
+            ]),
+          PaddedRow(children: [
+              _contentResolution(context),
+              _outputResolution(context),
+            ]),
+          PaddedRow(children: [_discType(context)]),
         ],
       ),
     );
@@ -137,5 +105,24 @@ class Display extends StatelessWidget {
       return SizedBox();
     }
     return Text('Out: ${device.outputResolution!.displayName}');
+  }
+}
+
+class PaddedRow extends StatelessWidget {
+  const PaddedRow({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    const alignment = MainAxisAlignment.spaceBetween;
+    const padding = EdgeInsets.symmetric(vertical: 1.0);
+    return Padding(
+      padding: padding,
+      child: Row(
+        mainAxisAlignment: alignment,
+        children: children,
+      ),
+    );
   }
 }
