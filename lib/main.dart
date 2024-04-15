@@ -17,7 +17,7 @@ import 'util.dart';
 final _log = Logger('main');
 
 void main() {
-  Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;
+  Logger.root.level = kDebugMode ? Level.INFO : Level.INFO;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');

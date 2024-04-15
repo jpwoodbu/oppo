@@ -573,6 +573,8 @@ enum DiscType {
 }
 
 enum AudioType {
+  // The API docs say the typeCode should always be 2 chars, but in the field a
+  // typeCode of 'PCM' has been observed when playing back CDs.
   dolbyDigital('DD', 'Dolby Digital'),
   dolbyDigitalPlus('DP', 'DolbyDigitalPlus'),
   dolbyTrueHD('DT', 'Dolby TrueHD'),
@@ -580,6 +582,7 @@ enum AudioType {
   dtsHdHighResolution('TH', 'DTS-HD High Resolution'),
   dtsHdMasterAudio('TM', 'DTS-HD Master Audio'),
   lPcm('PC', 'LPCM'),
+  pcm('PCM', 'PCM'), // This type is not documented.
   mpegAudio('MP', 'MPEG Audio'),
   cd('CD', 'CD Audio'),
   unknown('UN', 'Unknown');
@@ -872,6 +875,9 @@ class Device {
         _AudioTypeUpdate update;
         try {
           update = _parseAudioTypeUpdate(parameters);
+        } on _PcmAudioTypeException {
+          audioType = AudioType.pcm;
+          break;
         } catch (e) {
           _log.severe(e);
           break;
@@ -1332,12 +1338,19 @@ class _AudioTypeUpdate {
       this.language, this.channels);
 }
 
+class _PcmAudioTypeException implements Exception {
+  final String message;
+
+  _PcmAudioTypeException(this.message);
+}
+
 _AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
   final parts = parameters.split(' ');
-  if (parts.length != 4) {
-    throw 'Could not parse audio type update: $parameters';
-  }
   final type = AudioType.fromTypeCode(parts[0].trim());
+  if (type == AudioType.pcm) {
+    throw _PcmAudioTypeException(
+      'The PCM audio type update does not include any other fields normally in a UAT message');
+  }
   int currentTrack;
   int availableTracks;
   try {

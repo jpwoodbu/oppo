@@ -13,13 +13,11 @@ class Position extends StatelessWidget {
     if (p == null) {
       return SizedBox();
     }
-    final bool displayExtras =
-        p.timeInformation == oppo.TimeInformation.titleElapsedTime;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        if (displayExtras) Text('T: ${p.title}', style: style),
-        if (displayExtras) Text('C: ${p.chapter}', style: style),
+        Text('T: ${p.title}', style: style),
+        Text('C: ${p.chapter}', style: style),
         Text('${p.timeInformation.displayName}: ${p.clock}', style: style),
       ],
     );
