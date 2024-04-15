@@ -19,8 +19,6 @@ class Display extends StatelessWidget {
         if (device.muted ?? false) const Text('Muted'),
         if (device.volume != null) Text('Volume: ${device.volume}'),
         Text('Disc type: ${device.discType.displayName}'),
-        // TODO - Probably should remove this. It doesn't get set unless the
-        // input source is changed, which is probably going to be rare.
         if (device.inputSourceName != null)
           Text('Input: ${device.inputSourceName}'),
         Text('Content: ${device.contentResolution?.displayName}'),
