@@ -165,16 +165,17 @@ enum PlaybackStatus {
   slowForwardEighth('SFW3'),
   slowForwardSixteenth('SFW4'),
   slowForwardThirtySecond('SFW5'),
-  fastForwardHalf('SRV1'),
-  fastForwardQuarter('SRV2'),
-  fastForwardEighth('SRV3'),
-  fastForwardSixteenth('SRV4'),
-  fastForwardThirtySecond('SRV5'),
+  slowReverseHalf('SRV1'),
+  slowReverseQuarter('SRV2'),
+  slowReverseEighth('SRV3'),
+  slowReverseSixteenth('SRV4'),
+  slowReverseThirtySecond('SRV5'),
   homeMenu('HOME'),
   mediaCenter('MCTR'),
   screenSaver('SCSV'),
   discMenu('MENU'),
-  dlna('DLNA'); // undocumented
+  dlna('DLNA'), // undocumented
+  setup('SETUP'); // only documented for the QPL command
 
   final String typeCode;
   const PlaybackStatus(this.typeCode);
@@ -185,6 +186,35 @@ enum PlaybackStatus {
           .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for playback status: $typeCode';
+    }
+  }
+
+  /// Responses to the QPL command are formatted differently from the updates
+  /// from the UPL command. This factory translates those which are different.
+  factory PlaybackStatus.fromQueryResponse(String response) {
+    switch (response) {
+      case 'PAUSE':
+        return PlaybackStatus.playbackPaused;
+      case 'STEP':
+        return PlaybackStatus.forwardFrameByFrame;
+      case 'FREV':
+        return PlaybackStatus.fastReverse1;
+      case 'FFWD':
+        return PlaybackStatus.fastForward1;
+      case 'SFWD':
+        return PlaybackStatus.slowForwardHalf;
+      case 'SREV':
+        return PlaybackStatus.slowReverseHalf;
+      case 'HOME MENU':
+        return PlaybackStatus.homeMenu;
+      case 'MEDIA CENTER':
+        return PlaybackStatus.mediaCenter;
+      case 'SCREEN SAVER':
+        return PlaybackStatus.screenSaver;
+      case 'DISC MENU':
+        return PlaybackStatus.discMenu;
+      default:
+        return PlaybackStatus.fromTypeCode(response);
     }
   }
 }
@@ -292,6 +322,9 @@ class DirectoryItem {
   String toString() => name;
 }
 
+// TODO - Unify this class with VideoResolution. It's used as part of the QHD
+// command. I thikn it probably corresponds to the UVO output for the "output"
+// video resolution.
 enum HdmiResolution {
   auto('AUTO'),
   src('SRC'),
@@ -849,22 +882,15 @@ class Device {
         }
         break;
       case 'UVL':
-        if (parameters == 'MUT') {
-          muted = true;
-          break;
-        } else if (parameters == 'UMT') {
-          // 'UMT' is not a documented parameter for UVL, but it's been seen in
-          // the wild, in particular when the unit is powered off. It is assumed
-          // it means unmuted. Which seems like a strange state to enter when
-          // powered off.
-          muted = false;
-          break;
-        }
+        VolumeResponse r;
         try {
-          volume = int.parse(parameters);
+          r = VolumeResponse.fromString(parameters);
         } catch (e) {
           _log.severe('Unable to parse volume value: $e');
+          break;
         }
+        muted = r.muted;
+        volume = r.volume;
         break;
       case 'UDT':
         try {
@@ -933,7 +959,7 @@ class Device {
       case 'UVO':
         _VideoResolutionUpdate update;
         try {
-          update = _parseVideoResolutionUpdate(parameters);
+          update = _VideoResolutionUpdate.fromString(parameters);
         } catch (e) {
           _log.severe(e);
           break;
@@ -1007,7 +1033,6 @@ class Device {
     }
     return response;
   }
-
 
   Future<void> powerToggle() async => await _command('POW');
   Future<void> powerOn() async => await _rpc('PON');
@@ -1227,11 +1252,37 @@ class Device {
     return f;
   }
 
-  // TODO - Turn these into RPC type functions.
-  Future<void> queryVolume() async => await _command('QVL');
-  Future<void> queryResolution() async => await _command('QHD');
-  Future<void> queryPlaybackStatus() async => await _command('QPL');
-  Future<void> queryTrackOrTitle() async => await _command('QTK');
+  Future<VolumeResponse> queryVolume() async {
+    final r = await _rpc('QVL');
+    final vr = VolumeResponse.fromString(r.parameters!);
+    muted = vr.muted;
+    volume = vr.volume;
+    return vr;
+  }
+
+  Future<HdmiResolution> queryResolution() async {
+    final r = await _rpc('QHD');
+    return HdmiResolution.fromTypeCode(r.parameters!);
+  }
+
+  Future<PlaybackStatus> queryPlaybackStatus() async {
+    final r = await _rpc('QPL');
+    final p = PlaybackStatus.fromQueryResponse(r.parameters!);
+    playbackStatus = p;
+    return p;
+  }
+
+  Future<TrackInfo> queryTrackOrTitle() async {
+    final r = await _rpc('QTK');
+    final ti = TrackInfo.fromString(r.parameters!);
+    currentAudioTrack = ti.currentTrack;
+    availableAudioTracks = ti.availableTracks;
+    if (position != null) {
+      position!.title = ti.currentTrack;
+    }
+    return ti;
+  }
+
   Future<void> queryChapter() async => await _command('QCH');
   Future<void> queryTrackOrTitleElapsedTime() async => await _command('QTE');
   Future<void> queryTrackOrTitleRemainingTime() async => await _command('QTR');
@@ -1342,21 +1393,23 @@ _AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
   final type = AudioType.fromTypeCode(parts[0].trim());
   if (type == AudioType.pcm) {
     throw _PcmAudioTypeException(
-      'The PCM audio type update does not include any other fields normally in a UAT message');
+        'The PCM audio type update does not include any other fields normally in a UAT message');
   }
-  int currentTrack;
-  int availableTracks;
+  TrackInfo trackInfo;
   try {
-    final trackInfo = parts[1].trim().split('/').map(int.parse).toList();
-    currentTrack = trackInfo[0];
-    availableTracks = trackInfo[1];
+    trackInfo = TrackInfo.fromString(parts[1]);
   } catch (e) {
     throw 'Could not parse track info from audio type update: $parameters';
   }
   final language = parts[2].trim();
   final channels = parts[3].trim();
   return _AudioTypeUpdate(
-      type, currentTrack, availableTracks, language, channels);
+    type,
+    trackInfo.currentTrack,
+    trackInfo.availableTracks,
+    language,
+    channels,
+  );
 }
 
 class _SubtitleTypeUpdate {
@@ -1372,17 +1425,15 @@ _SubtitleTypeUpdate _parseSubtitleTypeUpdate(String parameters) {
   if (parts.length != 2) {
     throw 'Could not parse subtitle type update: $parameters';
   }
-  int currentTrack;
-  int availableTracks;
+  TrackInfo trackInfo;
   try {
-    final trackInfo = parts[0].trim().split('/').map(int.parse).toList();
-    currentTrack = trackInfo[0];
-    availableTracks = trackInfo[1];
+    trackInfo = TrackInfo.fromString(parts[0]);
   } catch (e) {
     throw 'Could not parse track info from subtitle type update: $parameters';
   }
   final language = parts[1].trim();
-  return _SubtitleTypeUpdate(currentTrack, availableTracks, language);
+  return _SubtitleTypeUpdate(
+      trackInfo.currentTrack, trackInfo.availableTracks, language);
 }
 
 class _InputSourceUpdate {
@@ -1495,14 +1546,53 @@ class _VideoResolutionUpdate {
   final VideoResolution outputResolution;
 
   _VideoResolutionUpdate(this.contentResolution, this.outputResolution);
+
+  factory _VideoResolutionUpdate.fromString(String text) {
+    final parts = text.split(' ');
+    if (parts.length != 2 ||
+        parts[0].trim().length != 7 ||
+        parts[1].trim().length != 7) {
+      throw 'Could not parse video resolution update: $text';
+    }
+    final contentResolution = VideoResolution.fromTypeCode(parts[0].trim());
+    final outputResolution = VideoResolution.fromTypeCode(parts[1].trim());
+    return _VideoResolutionUpdate(contentResolution, outputResolution);
+  }
 }
 
-_VideoResolutionUpdate _parseVideoResolutionUpdate(String parameters) {
-  final parts = parameters.split(' ');
-  if (parts.length != 2 || parts[0].trim().length != 7 || parts[1].trim().length != 7) {
-    throw 'Could not parse video resolution update: $parameters';
+class VolumeResponse {
+  final bool muted;
+  final int? volume;
+
+  VolumeResponse({required this.muted, this.volume});
+
+  factory VolumeResponse.fromString(String text) {
+    if (text == 'MUT') {
+      return VolumeResponse(muted: true);
+    } else if (text == 'UMT') {
+      // 'UMT' is not a documented parameter for UVL, but it's been seen in
+      // the wild, in particular when the unit is powered off. It is assumed
+      // it means unmuted. Which seems like a strange state to enter when
+      // powered off.
+      return VolumeResponse(muted: false);
+    }
+    try {
+      return VolumeResponse(muted: false, volume: int.parse(text));
+    } catch (e) {
+      throw 'Unable to parse volume value: $e';
+    }
   }
-  final contentResolution = VideoResolution.fromTypeCode(parts[0].trim());
-  final outputResolution = VideoResolution.fromTypeCode(parts[1].trim());
-  return _VideoResolutionUpdate(contentResolution, outputResolution);
+}
+
+class TrackInfo {
+  final int currentTrack;
+  final int availableTracks;
+
+  TrackInfo(this.currentTrack, this.availableTracks);
+
+  factory TrackInfo.fromString(String text) {
+    final trackInfo = text.split('/').map(int.parse).toList();
+    if (trackInfo.length != 2) throw 'Too many segments in track info: $text';
+    return TrackInfo(trackInfo[0], trackInfo[1]);
+  }
 }
