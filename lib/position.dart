@@ -5,6 +5,7 @@ import 'oppo.dart' as oppo;
 class Position extends StatelessWidget {
   final oppo.Device device;
   static const iconSize = 20.0;
+  static const scrubPadding = 2.0;
   const Position(this.device, {super.key});
 
   @override
@@ -14,7 +15,7 @@ class Position extends StatelessWidget {
       children: [
         _playbackStatusIcon(context),
         _clock(context),
-        SizedBox(width: 20.0),
+        SizedBox(width: iconSize, height: iconSize),
       ],
     );
   }
@@ -23,11 +24,9 @@ class Position extends StatelessWidget {
     final p = device.position;
     final style = Theme.of(context).textTheme.bodySmall;
     if (p == null) {
-      return SizedBox();
+      return SizedBox(height: iconSize, width: iconSize);
     }
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
       children: [
         _rewind(context),
         Text('${p.timeInformation.displayName}: ${p.clock}', style: style),
@@ -45,11 +44,14 @@ class Position extends StatelessWidget {
             oppo.PlaybackStatus.fastReverse4 ||
             oppo.PlaybackStatus.fastReverse5:
         return Padding(
-          padding: const EdgeInsets.only(right: 1.0),
+          padding: const EdgeInsets.only(right: scrubPadding),
           child: Icon(Icons.fast_rewind, size: iconSize),
         );
       default:
-        return SizedBox();
+        return Padding(
+          padding: const EdgeInsets.only(right: scrubPadding),
+          child: SizedBox(height: iconSize, width: iconSize),
+        );
     }
   }
 
@@ -72,30 +74,35 @@ class Position extends StatelessWidget {
             oppo.PlaybackStatus.fastForwardSixteenth ||
             oppo.PlaybackStatus.fastForwardThirtySecond:
         return Padding(
-          padding: const EdgeInsets.only(left: 1.0),
+          padding: const EdgeInsets.only(left: scrubPadding),
           child: Icon(Icons.fast_forward, size: iconSize),
         );
       default:
-        return SizedBox();
+        return Padding(
+          padding: const EdgeInsets.only(left: scrubPadding),
+          child: SizedBox(height: iconSize, width: iconSize),
+        );
     }
   }
 
   Widget _playbackStatusIcon(BuildContext context) {
+    final noIcon = SizedBox(width: iconSize, height: iconSize);
     switch (device.playbackStatus) {
       case oppo.PlaybackStatus.noDisc:
         return Icon(Icons.disc_full, size: iconSize);
       case oppo.PlaybackStatus.loadingDisc:
-        return Icon(Icons.downloading);
+        return Icon(Icons.downloading, size: iconSize);
       case oppo.PlaybackStatus.openTray:
-        return Icon(Icons.eject, color: Theme.of(context).highlightColor);
+        return Icon(Icons.eject,
+            size: iconSize, color: Theme.of(context).highlightColor);
       case oppo.PlaybackStatus.closingTray:
-        return Icon(Icons.eject);
+        return Icon(Icons.eject, size: iconSize);
       case oppo.PlaybackStatus.playbackStarted:
-        return Icon(Icons.play_arrow);
+        return Icon(Icons.play_arrow, size: iconSize);
       case oppo.PlaybackStatus.playbackPaused:
-        return Icon(Icons.pause);
+        return Icon(Icons.pause, size: iconSize);
       case oppo.PlaybackStatus.playbackStopped:
-        return Icon(Icons.stop);
+        return Icon(Icons.stop, size: iconSize);
       case oppo.PlaybackStatus.forwardFrameByFrame ||
             oppo.PlaybackStatus.fastForward1 ||
             oppo.PlaybackStatus.fastForward2 ||
@@ -112,28 +119,26 @@ class Position extends StatelessWidget {
             oppo.PlaybackStatus.fastForwardEighth ||
             oppo.PlaybackStatus.fastForwardSixteenth ||
             oppo.PlaybackStatus.fastForwardThirtySecond:
-        return SizedBox();
+        return noIcon;
       case oppo.PlaybackStatus.reverseFrameByFrame ||
             oppo.PlaybackStatus.fastReverse1 ||
             oppo.PlaybackStatus.fastReverse2 ||
             oppo.PlaybackStatus.fastReverse3 ||
             oppo.PlaybackStatus.fastReverse4 ||
             oppo.PlaybackStatus.fastReverse5:
-        return SizedBox();
+        return noIcon;
       case oppo.PlaybackStatus.homeMenu:
         return Icon(Icons.home, size: iconSize);
       case oppo.PlaybackStatus.mediaCenter:
-        // TODO - I'm not sure what the media center context is. Once I know, I
-        // can probably pick a better icon.
-        return Icon(Icons.folder_open);
+        return Icon(Icons.folder_open, size: iconSize);
       case oppo.PlaybackStatus.screenSaver:
-        return Icon(Icons.animation);
+        return Icon(Icons.animation, size: iconSize);
       case oppo.PlaybackStatus.discMenu:
-        return Icon(Icons.album);
+        return Icon(Icons.album, size: iconSize);
       case oppo.PlaybackStatus.dlna:
-        return Icon(Icons.cast);
+        return Icon(Icons.cast, size: iconSize);
       default:
-        return SizedBox(width: iconSize);
+        return noIcon;
     }
   }
 }

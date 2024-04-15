@@ -314,6 +314,8 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: device.powered ?? false ? Position(device) : null,
+          centerTitle: true,
+          titleSpacing: 0.0,
           actions: [
             if (device.powered ?? false)
               IconButton(
