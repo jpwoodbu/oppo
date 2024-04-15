@@ -36,7 +36,6 @@ class Display extends StatelessWidget {
     );
   }
 
-
   Widget _discType(BuildContext context) {
     if (device.discType == oppo.DiscType.unknown) {
       return SizedBox();
@@ -76,11 +75,11 @@ class Display extends StatelessWidget {
   }
 
   Widget _volume(BuildContext context) {
+    if (device.muted ?? false) {
+      return const Text('Muted');
+    }
     if (device.volume == null) {
       return SizedBox();
-    }
-    if (device.muted ?? false) {
-      return Icon(Icons.volume_mute);
     }
     return Text('Vol: ${device.volume}');
   }
@@ -147,56 +146,59 @@ class Display extends StatelessWidget {
   Widget _buildSplitRows(BuildContext context) {
     const alignment = MainAxisAlignment.spaceBetween;
     const padding = EdgeInsets.symmetric(vertical: 1.0);
-    return Column(
-      children: [
-        Padding(
-          padding: padding,
-          child: Row(
-            mainAxisAlignment: alignment,
-            children: [
-              _title(context),
-              _chapter(context),
-            ],
+    return DefaultTextStyle.merge(
+      style: Theme.of(context).textTheme.bodySmall,
+      child: Column(
+        children: [
+          Padding(
+            padding: padding,
+            child: Row(
+              mainAxisAlignment: alignment,
+              children: [
+                _title(context),
+                _chapter(context),
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: padding,
-          child: Row(
-            mainAxisAlignment: alignment,
-            children: [
-              _audioType(context),
-              _volume(context),
-            ],
+          Padding(
+            padding: padding,
+            child: Row(
+              mainAxisAlignment: alignment,
+              children: [
+                _audioType(context),
+                _volume(context),
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: padding,
-          child: Row(
-            mainAxisAlignment: alignment,
-            children: [
-              _audioTrack(context),
-              _subtitles(context),
-            ],
+          Padding(
+            padding: padding,
+            child: Row(
+              mainAxisAlignment: alignment,
+              children: [
+                _audioTrack(context),
+                _subtitles(context),
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: padding,
-          child: Row(
-            mainAxisAlignment: alignment,
-            children: [
-              _contentResolution(context),
-              _outputResolution(context),
-            ],
+          Padding(
+            padding: padding,
+            child: Row(
+              mainAxisAlignment: alignment,
+              children: [
+                _contentResolution(context),
+                _outputResolution(context),
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: padding,
-          child: Row(
-            mainAxisAlignment: alignment,
-            children: [_discType(context)],
+          Padding(
+            padding: padding,
+            child: Row(
+              mainAxisAlignment: alignment,
+              children: [_discType(context)],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
