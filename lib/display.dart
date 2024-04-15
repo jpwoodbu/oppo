@@ -8,6 +8,10 @@ class Display extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _buildTable(context);
+  }
+
+  Widget _buildColumn(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -88,5 +92,112 @@ class Display extends StatelessWidget {
       default:
         return Icon(null);
     }
+  }
+
+  Widget _discType(BuildContext context) {
+    if (device.discType == oppo.DiscType.unknown) {
+      return SizedBox();
+    }
+    return Text(device.discType.displayName);
+  }
+
+  Widget _title(BuildContext context) {
+    if (device.position == null) {
+      return SizedBox();
+    }
+    return Text('Title: ${device.position!.title}');
+  }
+
+  Widget _chapter(BuildContext context) {
+    if (device.position == null) {
+      return SizedBox();
+    }
+    return Text('Chapter: ${device.position!.chapter}');
+  }
+
+  Widget _audioTrack(BuildContext context) {
+    if (device.currentAudioTrack == null) {
+      return SizedBox();
+    }
+    final language = device.audioLanguage == 'UNK' ? '' : device.audioLanguage;
+    return Text('Audio: ${device.currentAudioTrack}/'
+        '${device.availableAudioTracks} $language');
+  }
+
+  Widget _audioType(BuildContext context) {
+    if (device.audioType == null) {
+      return SizedBox();
+    }
+    final channels = device.channels == '0.0' ? '' : device.channels;
+    return Text('${device.audioType!.displayName} $channels');
+  }
+
+  Widget _volume(BuildContext context) {
+    if (device.volume == null) {
+      return SizedBox();
+    }
+    if (device.muted ?? false) {
+      return Icon(Icons.volume_mute);
+    }
+    return Text('Vol: ${device.volume}');
+  }
+
+  Widget _subtitles(BuildContext context) {
+    if (device.currentAudioTrack == null) {
+      return SizedBox();
+    }
+    return Text('Subtitles: ${device.currentSubtitleTrack}/'
+        '${device.availableSubtitleTracks} ${device.subtitleLanguage}');
+  }
+
+  Widget _contentResolution(BuildContext context) {
+    if (device.contentResolution == null) {
+      return SizedBox();
+    }
+    final aspectRatio = device.aspectRatioSetting == null
+        ? ''
+        : device.aspectRatioSetting!.ratio.displayName;
+    return Text('In: ${device.contentResolution!.displayName} $aspectRatio');
+  }
+
+  Widget _outputResolution(BuildContext context) {
+    if (device.outputResolution == null) {
+      return SizedBox();
+    }
+    return Text('Out: ${device.outputResolution!.displayName}');
+  }
+
+  Widget _tableCellPadder(Widget w) {
+    return Padding(padding: const EdgeInsets.all(2.0), child: w);
+  }
+
+  Widget _buildTable(BuildContext context) {
+    return Table(
+      children: [
+        TableRow(
+          children: [
+            _title(context),
+            _chapter(context),
+            _discType(context),
+          ].map(_tableCellPadder).toList(),
+        ),
+        TableRow(
+          children: [
+            _audioTrack(context),
+            _audioType(context),
+            // When not playing anything, this is the only visible Widget in
+            // this table and that's a bad look.
+            _volume(context),
+          ].map(_tableCellPadder).toList(),
+        ),
+        TableRow(
+          children: [
+            _subtitles(context),
+            _contentResolution(context),
+            _outputResolution(context),
+          ].map(_tableCellPadder).toList(),
+        ),
+      ],
+    );
   }
 }
