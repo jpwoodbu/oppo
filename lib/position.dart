@@ -49,7 +49,12 @@ class _PositionState extends State<Position> {
             oppo.PlaybackStatus.fastReverse2 ||
             oppo.PlaybackStatus.fastReverse3 ||
             oppo.PlaybackStatus.fastReverse4 ||
-            oppo.PlaybackStatus.fastReverse5:
+            oppo.PlaybackStatus.fastReverse5 ||
+            oppo.PlaybackStatus.slowReverseHalf ||
+            oppo.PlaybackStatus.slowReverseQuarter ||
+            oppo.PlaybackStatus.slowReverseEighth ||
+            oppo.PlaybackStatus.slowReverseSixteenth ||
+            oppo.PlaybackStatus.slowReverseThirtySecond:
         return Padding(
           padding: const EdgeInsets.only(right: _scrubPadding),
           child: PositionIcon(icon: Icons.fast_rewind),
@@ -74,12 +79,7 @@ class _PositionState extends State<Position> {
             oppo.PlaybackStatus.slowForwardQuarter ||
             oppo.PlaybackStatus.slowForwardEighth ||
             oppo.PlaybackStatus.slowForwardSixteenth ||
-            oppo.PlaybackStatus.slowForwardThirtySecond ||
-            oppo.PlaybackStatus.fastForwardHalf ||
-            oppo.PlaybackStatus.fastForwardQuarter ||
-            oppo.PlaybackStatus.fastForwardEighth ||
-            oppo.PlaybackStatus.fastForwardSixteenth ||
-            oppo.PlaybackStatus.fastForwardThirtySecond:
+            oppo.PlaybackStatus.slowForwardThirtySecond:
         return Padding(
           padding: const EdgeInsets.only(left: _scrubPadding),
           child: PositionIcon(icon: Icons.fast_forward),
@@ -110,30 +110,6 @@ class _PositionState extends State<Position> {
         return PositionIcon(icon: Icons.pause);
       case oppo.PlaybackStatus.playbackStopped:
         return PositionIcon(icon: Icons.stop);
-      case oppo.PlaybackStatus.forwardFrameByFrame ||
-            oppo.PlaybackStatus.fastForward1 ||
-            oppo.PlaybackStatus.fastForward2 ||
-            oppo.PlaybackStatus.fastForward3 ||
-            oppo.PlaybackStatus.fastForward4 ||
-            oppo.PlaybackStatus.fastForward5 ||
-            oppo.PlaybackStatus.slowForwardHalf ||
-            oppo.PlaybackStatus.slowForwardQuarter ||
-            oppo.PlaybackStatus.slowForwardEighth ||
-            oppo.PlaybackStatus.slowForwardSixteenth ||
-            oppo.PlaybackStatus.slowForwardThirtySecond ||
-            oppo.PlaybackStatus.fastForwardHalf ||
-            oppo.PlaybackStatus.fastForwardQuarter ||
-            oppo.PlaybackStatus.fastForwardEighth ||
-            oppo.PlaybackStatus.fastForwardSixteenth ||
-            oppo.PlaybackStatus.fastForwardThirtySecond:
-        return noIcon;
-      case oppo.PlaybackStatus.reverseFrameByFrame ||
-            oppo.PlaybackStatus.fastReverse1 ||
-            oppo.PlaybackStatus.fastReverse2 ||
-            oppo.PlaybackStatus.fastReverse3 ||
-            oppo.PlaybackStatus.fastReverse4 ||
-            oppo.PlaybackStatus.fastReverse5:
-        return noIcon;
       case oppo.PlaybackStatus.homeMenu:
         return PositionIcon(icon: Icons.home);
       case oppo.PlaybackStatus.mediaCenter:
