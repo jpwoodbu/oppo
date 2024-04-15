@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'oppo.dart' as oppo;
 
+const _iconSize = 20.0;
+
 class Position extends StatefulWidget {
   final oppo.Device _device;
   const Position(this._device, {super.key});
@@ -11,14 +13,10 @@ class Position extends StatefulWidget {
 }
 
 class _PositionState extends State<Position> {
-  static const _iconSize = 20.0;
   static const _scrubPadding = 2.0;
-  late Color _iconColor;
 
   @override
   Widget build(BuildContext context) {
-    // TODO - Create a local icon factory to set their size and color.
-    _iconColor = Theme.of(context).colorScheme.onPrimaryContainer;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -54,7 +52,7 @@ class _PositionState extends State<Position> {
             oppo.PlaybackStatus.fastReverse5:
         return Padding(
           padding: const EdgeInsets.only(right: _scrubPadding),
-          child: Icon(Icons.fast_rewind, size: _iconSize, color: _iconColor),
+          child: PositionIcon(icon: Icons.fast_rewind),
         );
       default:
         return Padding(
@@ -84,7 +82,7 @@ class _PositionState extends State<Position> {
             oppo.PlaybackStatus.fastForwardThirtySecond:
         return Padding(
           padding: const EdgeInsets.only(left: _scrubPadding),
-          child: Icon(Icons.fast_forward, size: _iconSize, color: _iconColor),
+          child: PositionIcon(icon: Icons.fast_forward),
         );
       default:
         return Padding(
@@ -98,20 +96,20 @@ class _PositionState extends State<Position> {
     final noIcon = SizedBox(width: _iconSize, height: _iconSize);
     switch (widget._device.playbackStatus) {
       case oppo.PlaybackStatus.noDisc:
-        return Icon(Icons.disc_full, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.disc_full);
       case oppo.PlaybackStatus.loadingDisc:
-        return Icon(Icons.downloading, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.downloading);
       case oppo.PlaybackStatus.openTray:
         return Icon(Icons.eject,
             size: _iconSize, color: Theme.of(context).colorScheme.tertiary);
       case oppo.PlaybackStatus.closingTray:
-        return Icon(Icons.eject, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.eject);
       case oppo.PlaybackStatus.playbackStarted:
-        return Icon(Icons.play_arrow, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.play_arrow);
       case oppo.PlaybackStatus.playbackPaused:
-        return Icon(Icons.pause, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.pause);
       case oppo.PlaybackStatus.playbackStopped:
-        return Icon(Icons.stop, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.stop);
       case oppo.PlaybackStatus.forwardFrameByFrame ||
             oppo.PlaybackStatus.fastForward1 ||
             oppo.PlaybackStatus.fastForward2 ||
@@ -137,17 +135,28 @@ class _PositionState extends State<Position> {
             oppo.PlaybackStatus.fastReverse5:
         return noIcon;
       case oppo.PlaybackStatus.homeMenu:
-        return Icon(Icons.home, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.home);
       case oppo.PlaybackStatus.mediaCenter:
-        return Icon(Icons.folder_open, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.folder_open);
       case oppo.PlaybackStatus.screenSaver:
-        return Icon(Icons.animation, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.animation);
       case oppo.PlaybackStatus.discMenu:
-        return Icon(Icons.album, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.menu_book);
       case oppo.PlaybackStatus.dlna:
-        return Icon(Icons.cast, size: _iconSize, color: _iconColor);
+        return PositionIcon(icon: Icons.cast);
       default:
         return noIcon;
     }
+  }
+}
+
+class PositionIcon extends StatelessWidget {
+  const PositionIcon({super.key, required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(icon, size: _iconSize);
   }
 }
