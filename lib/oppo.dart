@@ -262,7 +262,6 @@ class Position {
 enum DirectoryItemType {
   usb('U'),
   opticalDisc('O'),
-  // TODO - 0 is also an example of a network search?!
   upperLevel('0'),
   file('F'),
   directory('D'),
@@ -755,7 +754,7 @@ class Device {
   /// Flutter apps will probably want to implement a function like this inside a
   /// Provider/Consumer system. But for testing this package, it's handy to have
   /// this function.
-  // TODO - I don't know why this function needs to be async. But if it's not,
+  // I don't know why this function needs to be async. But if it's not,
   // then it seems we might send a command before we start listening for
   // responses.
   Future<void> startListener() async {
@@ -996,8 +995,6 @@ class Device {
     // Because with verboseMode.detailed, we might get unsoliticed responses, we
     // need to check all responses in a loop until we get a response to our last
     // command, or we timeout.
-    // TODO - Is this a race condition? Should I use the listen() method instead
-    // of the for loop.
     await _command(code, parameters: parameters);
     await for (final r in _responses.stream.timeout(_responseTimeout)) {
       if (r.commandCode == code) {
@@ -1378,9 +1375,6 @@ _SubtitleTypeUpdate _parseSubtitleTypeUpdate(String parameters) {
   int currentTrack;
   int availableTracks;
   try {
-    // TODO - Maybe these fields might sometimes include 'xx'. The API docs say,
-    // "If subtitle is set to off, use 00/xx where xx is the number of available
-    // subtitle tracks. If no subtitle is available, use 00/00."
     final trackInfo = parts[0].trim().split('/').map(int.parse).toList();
     currentTrack = trackInfo[0];
     availableTracks = trackInfo[1];
