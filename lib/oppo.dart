@@ -331,17 +331,19 @@ enum VideoResolution {
   r480p60('_480P60', '480p 60Hz'),
   r576i50('_576I50', '576i 50Hz'),
   r576p50('_576P50', '576p 50Hz'),
-  r720p60('_720P60', '720p 60Hz'),
   r720p50('_720P50', '720p 50Hz'),
-  r1080i60('1080I60', '1080i 60Hz'),
+  r720p60('_720P60', '720p 60Hz'),
   r1080i50('1080I50', '1080i 50Hz'),
-  r1080p60('1080P60', '1080p 60Hz'),
-  r1080p50('1080P50', '1080p 50Hz'),
-  r1080p24('1080P24', '1080p 24Hz'),
+  r1080i60('1080I60', '1080i 60Hz'),
   r1080p23('1080P23', '1080p 23.97Hz'),
-  rUhd60('_UHD60_', 'UHD 60Hz'),
-  rUhd24('_UHD24_', 'UHD 24Hz'),
+  r1080p24('1080P24', '1080p 24Hz'),
+  r1080p30('1080P30', '1080p 30Hz'),
+  r1080p50('1080P50', '1080p 50Hz'),
+  r1080p60('1080P60', '1080p 60Hz'),
+  rUhd24('_UHD24_', 'UHD 24Hz'), // Not documented, but observed.
+  rUhd30('_UHD30_', 'UHD 30Hz'),
   rUhd50('_UHD50_', 'UHD 50Hz'),
+  rUhd60('_UHD60_', 'UHD 60Hz'),
   rOther('_OTHER_', 'Other');
 
   final String typeCode;
@@ -573,6 +575,8 @@ enum DiscType {
 }
 
 enum AudioType {
+  // The API docs say the typeCode should always be 2 chars, but in the field a
+  // typeCode of 'PCM' has been observed when playing back CDs.
   dolbyDigital('DD', 'Dolby Digital'),
   dolbyDigitalPlus('DP', 'DolbyDigitalPlus'),
   dolbyTrueHD('DT', 'Dolby TrueHD'),
@@ -580,8 +584,10 @@ enum AudioType {
   dtsHdHighResolution('TH', 'DTS-HD High Resolution'),
   dtsHdMasterAudio('TM', 'DTS-HD Master Audio'),
   lPcm('PC', 'LPCM'),
+  pcm('PCM', 'PCM'), // Not documented, but observed.
   mpegAudio('MP', 'MPEG Audio'),
   cd('CD', 'CD Audio'),
+  ac('AC', 'AAC'), // Not documented, but observed.
   unknown('UN', 'Unknown');
 
   final String typeCode;
@@ -872,6 +878,9 @@ class Device {
         _AudioTypeUpdate update;
         try {
           update = _parseAudioTypeUpdate(parameters);
+        } on _PcmAudioTypeException {
+          audioType = AudioType.pcm;
+          break;
         } catch (e) {
           _log.severe(e);
           break;
@@ -1332,12 +1341,19 @@ class _AudioTypeUpdate {
       this.language, this.channels);
 }
 
+class _PcmAudioTypeException implements Exception {
+  final String message;
+
+  _PcmAudioTypeException(this.message);
+}
+
 _AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
   final parts = parameters.split(' ');
-  if (parts.length != 4) {
-    throw 'Could not parse audio type update: $parameters';
-  }
   final type = AudioType.fromTypeCode(parts[0].trim());
+  if (type == AudioType.pcm) {
+    throw _PcmAudioTypeException(
+      'The PCM audio type update does not include any other fields normally in a UAT message');
+  }
   int currentTrack;
   int availableTracks;
   try {
