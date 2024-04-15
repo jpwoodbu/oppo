@@ -1011,16 +1011,6 @@ class Device {
     return response;
   }
 
-  VerboseMode _parseVerboseMode(String parameters) {
-    try {
-      var v = VerboseMode.fromTypeCode(parameters);
-      verboseMode = v;
-      _log.fine('Verbose mode is: ${verboseMode.toString()}');
-      return v;
-    } catch (e) {
-      throw 'Unexpected verbose mode: $e';
-    }
-  }
 
   Future<void> powerToggle() async => await _command('POW');
   Future<void> powerOn() async => await _rpc('PON');
@@ -1220,7 +1210,10 @@ class Device {
 
   Future<VerboseMode> queryVerboseMode() async {
     final r = await _rpc('QVM');
-    return _parseVerboseMode(r.parameters!);
+    final v = VerboseMode.fromTypeCode(r.parameters!);
+    verboseMode = v;
+    _log.fine('Verbose mode is: ${verboseMode.toString()}');
+    return v;
   }
 
   Future<bool> queryPowerStatus() async {
