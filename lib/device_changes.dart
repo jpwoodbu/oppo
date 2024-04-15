@@ -36,6 +36,7 @@ class DeviceChanges with ChangeNotifier {
     } catch (e) {
       _snackBar('Reconnect error: $e\n', logLevel: Level.SEVERE);
       _log.severe(e);
+      return;
     }
     _snackBar('Reconnected.');
     startListener();
