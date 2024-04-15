@@ -57,6 +57,40 @@ class OppoBroadcast {
             address.address == other.address.address &&
             port == other.port;
   }
+
+  factory OppoBroadcast.fromDatagram(Datagram datagram) {
+    InternetAddress? address;
+    int? port;
+    String name = '';
+    final decoded = ascii.decode(datagram.data);
+    for (final line in decoded.split('\n')) {
+      if (line.isEmpty) continue;
+      final segments = line.split(':');
+      final key = segments[0].trim();
+      final value = segments[1].trim();
+      switch (key) {
+        case 'Server IP':
+          address = InternetAddress(value);
+          break;
+        case 'Server Port':
+          port = int.parse(value);
+          break;
+        case 'Server Name':
+          name = value;
+          break;
+        case 'Notify':
+          // There's is the broadcast packet prefix. It has no data we need. And
+          // it doesn't seem necessary to verify its contents.
+          break;
+        default:
+          _log.warning('Unrecognized line in broadcast packet: $line');
+          break;
+      }
+    }
+    if (address == null) throw 'failed to find IP address';
+    if (port == null) throw 'failed to find port';
+    return OppoBroadcast(address, port, name);
+  }
 }
 
 class Discover {
@@ -79,47 +113,13 @@ class Discover {
         final datagram = _socket!.receive();
         if (datagram == null) continue;
         try {
-          yield _parseBroadcast(datagram);
+          yield OppoBroadcast.fromDatagram(datagram);
         } catch (e) {
           _log.warning('Failed to parse broadcast packet: $e');
         }
       }
     }
   }
-}
-
-OppoBroadcast _parseBroadcast(Datagram datagram) {
-  InternetAddress? address;
-  int? port;
-  String name = '';
-  final decoded = ascii.decode(datagram.data);
-  for (final line in decoded.split('\n')) {
-    if (line.isEmpty) continue;
-    final segments = line.split(':');
-    final key = segments[0].trim();
-    final value = segments[1].trim();
-    switch (key) {
-      case 'Server IP':
-        address = InternetAddress(value);
-        break;
-      case 'Server Port':
-        port = int.parse(value);
-        break;
-      case 'Server Name':
-        name = value;
-        break;
-      case 'Notify':
-        // There's is the broadcast packet prefix. It has no data we need. And
-        // it doesn't seem necessary to verify its contents.
-        break;
-      default:
-        _log.warning('Unrecognized line in broadcast packet: $line');
-        break;
-    }
-  }
-  if (address == null) throw 'failed to find IP address';
-  if (port == null) throw 'failed to find port';
-  return OppoBroadcast(address, port, name);
 }
 
 enum VerboseMode {
@@ -255,6 +255,89 @@ class AspectRatioSetting {
   AspectRatioPlayback playback;
 
   AspectRatioSetting(this.ratio, this.mode, this.playback);
+
+  factory AspectRatioSetting.fromUpdateParameters(String parameters) {
+    final update = parameters.trim().toUpperCase();
+    if (update.length != 4) {
+      throw 'Could not parse aspect ratio status update: $parameters';
+    }
+    switch (update) {
+      case '16WW':
+        return AspectRatioSetting(
+          AspectRatio.ratio16x9,
+          AspectRatioMode.wide,
+          AspectRatioPlayback.wide,
+        );
+      case '16AW':
+        return AspectRatioSetting(
+          AspectRatio.ratio16x9,
+          AspectRatioMode.wideAuto,
+          AspectRatioPlayback.wide,
+        );
+      case '16A4':
+        return AspectRatioSetting(
+          AspectRatio.ratio16x9,
+          AspectRatioMode.wideAuto,
+          AspectRatioPlayback.ratio4x3,
+        );
+      case '21M0':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.moveable,
+          AspectRatioPlayback.fullScreen,
+        );
+      case '21M1':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.moveable,
+          AspectRatioPlayback.ratio16x9or4x3,
+        );
+      case '21M2':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.moveable,
+          AspectRatioPlayback.ratio21x9,
+        );
+      case '21F0':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.fixed,
+          AspectRatioPlayback.fullScreen,
+        );
+      case '21F1':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.fixed,
+          AspectRatioPlayback.ratio16x9or4x3,
+        );
+      case '21F2':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.fixed,
+          AspectRatioPlayback.ratio21x9,
+        );
+      case '21C0':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.cropped,
+          AspectRatioPlayback.fullScreen,
+        );
+      case '21C1':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.cropped,
+          AspectRatioPlayback.ratio16x9or4x3,
+        );
+      case '21C2':
+        return AspectRatioSetting(
+          AspectRatio.ratio21x9,
+          AspectRatioMode.cropped,
+          AspectRatioPlayback.ratio21x9,
+        );
+      default:
+        throw 'Could not parse aspect ratio status update: $parameters';
+    }
+  }
 }
 
 enum TimeInformation {
@@ -287,6 +370,18 @@ class Position {
   String clock;
 
   Position(this.title, this.chapter, this.timeInformation, this.clock);
+
+  factory Position.fromTimeCodeUpdate(String text) {
+    final parts = text.split(' ');
+    if (parts.length != 4) {
+      throw 'Could not parse time code: $text';
+    }
+    final title = int.parse(parts[0].trim());
+    final chapter = int.parse(parts[1].trim());
+    final timeInformation = TimeInformation.fromTypeCode(parts[2].trim());
+    final clock = parts[3].trim();
+    return Position(title, chapter, timeInformation, clock);
+  }
 }
 
 enum DirectoryItemType {
@@ -902,7 +997,7 @@ class Device {
       case 'UAT':
         _AudioTypeUpdate update;
         try {
-          update = _parseAudioTypeUpdate(parameters);
+          update = _AudioTypeUpdate.fromUpdateParameters(parameters);
         } on _PcmAudioTypeException {
           audioType = AudioType.pcm;
           break;
@@ -919,7 +1014,7 @@ class Device {
       case 'UST':
         _SubtitleTypeUpdate update;
         try {
-          update = _parseSubtitleTypeUpdate(parameters);
+          update = _SubtitleTypeUpdate.fromUpdateParameters(parameters);
         } catch (e) {
           _log.severe(e);
           break;
@@ -931,7 +1026,7 @@ class Device {
       case 'UIS':
         _InputSourceUpdate update;
         try {
-          update = _parseInputSourceUpdate(parameters);
+          update = _InputSourceUpdate.fromUpdateParameters(parameters);
         } catch (e) {
           _log.severe(e);
           break;
@@ -948,13 +1043,14 @@ class Device {
         break;
       case 'UAR':
         try {
-          aspectRatioSetting = _parseAspectRatioUpdate(parameters);
+          aspectRatioSetting =
+              AspectRatioSetting.fromUpdateParameters(parameters);
         } catch (e) {
           _log.severe(e);
         }
         break;
       case 'UTC':
-        position = _parseTimeCodeUpdate(parameters);
+        position = Position.fromTimeCodeUpdate(parameters);
         break;
       case 'UVO':
         _VideoResolutionUpdate update;
@@ -1277,14 +1373,27 @@ class Device {
     final ti = TrackInfo.fromString(r.parameters!);
     currentAudioTrack = ti.currentTrack;
     availableAudioTracks = ti.availableTracks;
+    // TODO - Maybe I should break out the fields in Position into the Device
+    // class.
     if (position != null) {
       position!.title = ti.currentTrack;
     }
     return ti;
   }
 
-  Future<void> queryChapter() async => await _command('QCH');
-  Future<void> queryTrackOrTitleElapsedTime() async => await _command('QTE');
+  Future<TrackInfo> queryChapter() async {
+    final r = await _rpc('QCH');
+    final ti = TrackInfo.fromString(r.parameters!);
+    if (position != null) {
+      position!.chapter = ti.currentTrack;
+    }
+    return ti;
+  }
+
+  Future<void> queryTrackOrTitleElapsedTime() async {
+    await _rpc('QTE');
+  }
+
   Future<void> queryTrackOrTitleRemainingTime() async => await _command('QTR');
   Future<void> queryChapterElapsedTime() async => await _command('QCE');
   Future<void> queryChapterRemainingTime() async => await _command('QCR');
@@ -1359,18 +1468,6 @@ class Device {
   }
 }
 
-Position _parseTimeCodeUpdate(String timeCode) {
-  final parts = timeCode.split(' ');
-  if (parts.length != 4) {
-    throw 'Could not parse time code: $timeCode';
-  }
-  final title = int.parse(parts[0].trim());
-  final chapter = int.parse(parts[1].trim());
-  final timeInformation = TimeInformation.fromTypeCode(parts[2].trim());
-  final clock = parts[3].trim();
-  return Position(title, chapter, timeInformation, clock);
-}
-
 class _AudioTypeUpdate {
   final AudioType type;
   final int currentTrack;
@@ -1380,6 +1477,30 @@ class _AudioTypeUpdate {
 
   _AudioTypeUpdate(this.type, this.currentTrack, this.availableTracks,
       this.language, this.channels);
+
+  factory _AudioTypeUpdate.fromUpdateParameters(String parameters) {
+    final parts = parameters.split(' ');
+    final type = AudioType.fromTypeCode(parts[0].trim());
+    if (type == AudioType.pcm) {
+      throw _PcmAudioTypeException(
+          'The PCM audio type update does not include any other fields normally in a UAT message');
+    }
+    TrackInfo trackInfo;
+    try {
+      trackInfo = TrackInfo.fromString(parts[1]);
+    } catch (e) {
+      throw 'Could not parse track info from audio type update: $parameters';
+    }
+    final language = parts[2].trim();
+    final channels = parts[3].trim();
+    return _AudioTypeUpdate(
+      type,
+      trackInfo.currentTrack,
+      trackInfo.availableTracks,
+      language,
+      channels,
+    );
+  }
 }
 
 class _PcmAudioTypeException implements Exception {
@@ -1388,52 +1509,28 @@ class _PcmAudioTypeException implements Exception {
   _PcmAudioTypeException(this.message);
 }
 
-_AudioTypeUpdate _parseAudioTypeUpdate(String parameters) {
-  final parts = parameters.split(' ');
-  final type = AudioType.fromTypeCode(parts[0].trim());
-  if (type == AudioType.pcm) {
-    throw _PcmAudioTypeException(
-        'The PCM audio type update does not include any other fields normally in a UAT message');
-  }
-  TrackInfo trackInfo;
-  try {
-    trackInfo = TrackInfo.fromString(parts[1]);
-  } catch (e) {
-    throw 'Could not parse track info from audio type update: $parameters';
-  }
-  final language = parts[2].trim();
-  final channels = parts[3].trim();
-  return _AudioTypeUpdate(
-    type,
-    trackInfo.currentTrack,
-    trackInfo.availableTracks,
-    language,
-    channels,
-  );
-}
-
 class _SubtitleTypeUpdate {
   final int currentTrack;
   final int availableTracks;
   final String language;
 
   _SubtitleTypeUpdate(this.currentTrack, this.availableTracks, this.language);
-}
 
-_SubtitleTypeUpdate _parseSubtitleTypeUpdate(String parameters) {
-  final parts = parameters.split(' ');
-  if (parts.length != 2) {
-    throw 'Could not parse subtitle type update: $parameters';
+  factory _SubtitleTypeUpdate.fromUpdateParameters(String parameters) {
+    final parts = parameters.split(' ');
+    if (parts.length != 2) {
+      throw 'Could not parse subtitle type update: $parameters';
+    }
+    TrackInfo trackInfo;
+    try {
+      trackInfo = TrackInfo.fromString(parts[0]);
+    } catch (e) {
+      throw 'Could not parse track info from subtitle type update: $parameters';
+    }
+    final language = parts[1].trim();
+    return _SubtitleTypeUpdate(
+        trackInfo.currentTrack, trackInfo.availableTracks, language);
   }
-  TrackInfo trackInfo;
-  try {
-    trackInfo = TrackInfo.fromString(parts[0]);
-  } catch (e) {
-    throw 'Could not parse track info from subtitle type update: $parameters';
-  }
-  final language = parts[1].trim();
-  return _SubtitleTypeUpdate(
-      trackInfo.currentTrack, trackInfo.availableTracks, language);
 }
 
 class _InputSourceUpdate {
@@ -1441,103 +1538,20 @@ class _InputSourceUpdate {
   final String inputSourceName;
 
   _InputSourceUpdate(this.inputSourceNumber, this.inputSourceName);
-}
 
-_InputSourceUpdate _parseInputSourceUpdate(String parameters) {
-  final parts = parameters.split(' ');
-  if (parts.length != 2) {
-    throw 'Could not parse input source update: $parameters';
-  }
-  int inputSourceNumber;
-  try {
-    inputSourceNumber = int.parse(parts[0].trim());
-  } catch (e) {
-    throw 'Could not parse input source number from input source update: $parameters';
-  }
-  final inputSourceName = parts[1].trim();
-  return _InputSourceUpdate(inputSourceNumber, inputSourceName);
-}
-
-AspectRatioSetting _parseAspectRatioUpdate(String parameters) {
-  final update = parameters.trim().toUpperCase();
-  if (update.length != 4) {
-    throw 'Could not parse aspect ratio status update: $parameters';
-  }
-  switch (update) {
-    case '16WW':
-      return AspectRatioSetting(
-        AspectRatio.ratio16x9,
-        AspectRatioMode.wide,
-        AspectRatioPlayback.wide,
-      );
-    case '16AW':
-      return AspectRatioSetting(
-        AspectRatio.ratio16x9,
-        AspectRatioMode.wideAuto,
-        AspectRatioPlayback.wide,
-      );
-    case '16A4':
-      return AspectRatioSetting(
-        AspectRatio.ratio16x9,
-        AspectRatioMode.wideAuto,
-        AspectRatioPlayback.ratio4x3,
-      );
-    case '21M0':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.moveable,
-        AspectRatioPlayback.fullScreen,
-      );
-    case '21M1':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.moveable,
-        AspectRatioPlayback.ratio16x9or4x3,
-      );
-    case '21M2':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.moveable,
-        AspectRatioPlayback.ratio21x9,
-      );
-    case '21F0':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.fixed,
-        AspectRatioPlayback.fullScreen,
-      );
-    case '21F1':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.fixed,
-        AspectRatioPlayback.ratio16x9or4x3,
-      );
-    case '21F2':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.fixed,
-        AspectRatioPlayback.ratio21x9,
-      );
-    case '21C0':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.cropped,
-        AspectRatioPlayback.fullScreen,
-      );
-    case '21C1':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.cropped,
-        AspectRatioPlayback.ratio16x9or4x3,
-      );
-    case '21C2':
-      return AspectRatioSetting(
-        AspectRatio.ratio21x9,
-        AspectRatioMode.cropped,
-        AspectRatioPlayback.ratio21x9,
-      );
-    default:
-      throw 'Could not parse aspect ratio status update: $parameters';
+  factory _InputSourceUpdate.fromUpdateParameters(String parameters) {
+    final parts = parameters.split(' ');
+    if (parts.length != 2) {
+      throw 'Could not parse input source update: $parameters';
+    }
+    int inputSourceNumber;
+    try {
+      inputSourceNumber = int.parse(parts[0].trim());
+    } catch (e) {
+      throw 'Could not parse input source number from input source update: $parameters';
+    }
+    final inputSourceName = parts[1].trim();
+    return _InputSourceUpdate(inputSourceNumber, inputSourceName);
   }
 }
 
