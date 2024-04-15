@@ -448,10 +448,11 @@ class Buttons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: ListView(
         children: [
           Display(device),
+          SizedBox(height: 4.0),
           HomeRow(device),
           Arrows(device),
           PlayControls(device),
