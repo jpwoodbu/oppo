@@ -12,30 +12,22 @@ class Display extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _playbackStatusIcon(context),
-        Text(device.audioType?.displayName ?? 'audio type'),
-        Text(device.channels ?? 'channels'),
-        Text(
-            'Audio Track: ${device.currentAudioTrack}/${device.availableAudioTracks}'),
-        Text('Language: ${device.audioLanguage}'),
-        device.muted ?? false
-            ? const Text('Muted')
-            : Text('Volume: ${device.volume}'),
-        Row(
-          children: [
-            const Icon(Icons.album),
-            const SizedBox(width: 8.0),
-            Text(device.discType.displayName)
-          ],
-        ),
+        Text('${device.audioType?.displayName ?? "audio type"} '
+            '${device.channels ?? "channels"}'),
+        Text('Audio Track: ${device.currentAudioTrack}/'
+            '${device.availableAudioTracks} ${device.audioLanguage}'),
+        if (device.muted ?? false) const Text('Muted'),
+        if (device.volume != null) Text('Volume: ${device.volume}'),
+        Text('Disc type: ${device.discType.displayName}'),
         // TODO - Probably should remove this. It doesn't get set unless the
         // input source is changed, which is probably going to be rare.
-        Text('Input: ${device.inputSourceName ?? 'Unknown'}'),
+        if (device.inputSourceName != null)
+          Text('Input: ${device.inputSourceName}'),
         Text('Content: ${device.contentResolution?.displayName}'),
         Text('Ouput: ${device.outputResolution?.displayName}'),
-        device.threeDimensional ? const Text('3D') : const Text('2D'),
-        Text(
-            'Subtitle Track: ${device.currentSubtitleTrack}/${device.availableSubtitleTracks}'),
-        Text('Language: ${device.audioLanguage}'),
+        if (device.threeDimensional) const Text('3D'),
+        Text('Subtitle Track: ${device.currentSubtitleTrack}/'
+            '${device.availableSubtitleTracks} ${device.subtitleLanguage}'),
         Text('Apect ratio: ${device.aspectRatioSetting?.ratio.displayName}'),
         Text('Mode: ${device.aspectRatioSetting?.mode.displayName}'),
         Text('Playback: ${device.aspectRatioSetting?.playback.displayName}'),
@@ -88,7 +80,7 @@ class Display extends StatelessWidget {
       case oppo.PlaybackStatus.mediaCenter:
         // TODO - I'm not sure what the media center context is. Once I know, I
         // can probably pick a better icon.
-        return Icon(Icons.newspaper);
+        return Icon(Icons.folder_open);
       case oppo.PlaybackStatus.screenSaver:
         return Icon(Icons.animation);
       case oppo.PlaybackStatus.discMenu:
