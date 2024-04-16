@@ -1152,7 +1152,7 @@ class Device {
           channels = null;
           subtitleLanguage = null;
           currentSubtitleTrack = null;
-          availableSubtitleTracks = null; 
+          availableSubtitleTracks = null;
         }
         break;
       case 'UVL':
@@ -1230,6 +1230,20 @@ class Device {
         break;
       case 'UTC':
         position = Position.fromTimeCodeUpdate(parameters);
+        
+        if (position?.clock == '00:00:01') {
+          // This is a workaround for the player sometimes not knowing the audio
+          // type right after a play command is issued. Querying the audio type
+          // once playback has confirmed to be started should be more reliable.
+          queryAudioType.call().onError(
+            (error, stackTrace) async {
+              // The returned value is unused since we're not making an
+              // assignment, only updating the cache. It's just the required
+              // return type for this error handler.
+              return AudioTypeResponse(AudioType.unknown);
+            },
+          );
+        }
         break;
       case 'UVO':
         _VideoResolutionUpdate update;
