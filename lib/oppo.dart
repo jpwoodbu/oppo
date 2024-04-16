@@ -348,8 +348,10 @@ enum TimeInformation {
   totalRemainingTime('Total remaining time', 'R'),
   titleElapsedTime('Title elapsed time', 'T'),
   titleRemainingTime('Title remaining time', 'X'),
-  chapterOrTrackElapsedTime('Chapter/Track elapsed time', 'C'),
-  chapterOrTrackRemainingTime('Chapter/Track remaining time', 'K');
+  // It's typical to be playing tracks (audio) when using these modes, so don't
+  // mention chapters in their display names.
+  chapterOrTrackElapsedTime('Track elapsed time', 'C'),
+  chapterOrTrackRemainingTime('Track remaining time', 'K');
 
   final String displayName;
   final String typeCode;
