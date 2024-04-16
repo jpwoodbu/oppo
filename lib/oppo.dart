@@ -29,7 +29,7 @@ void main() async {
     devices.add(info);
   }
   */
-  devices.add(OppoBroadcast(InternetAddress('192.168.86.149'), 23, 'unknown'));
+  devices.add(OppoBroadcast(InternetAddress('192.168.86.59'), 23, 'unknown'));
 
   if (devices.isNotEmpty) {
     var info = devices.first;
@@ -651,9 +651,10 @@ enum InputSource {
   }
 
   factory InputSource.fromQueryResponse(String text) {
+    final parts = text.split(' ');
     int source;
     try {
-      source = int.parse(text.trim());
+      source = int.parse(parts[0].trim());
     } catch (e) {
       throw 'Could not parse input source response: $text, $e';
     }
@@ -1487,7 +1488,7 @@ class Device {
     return vr;
   }
 
-  Future<HdmiResolution> queryResolution() async {
+  Future<HdmiResolution> queryHdmiResolution() async {
     final r = await _rpc('QHD');
     return HdmiResolution.fromTypeCode(r.parameters!);
   }
@@ -1551,7 +1552,7 @@ class Device {
     return _parseClockText(r.parameters!);
   }
 
-  Future<DiscType> queryDiskType() async {
+  Future<DiscType> queryDiscType() async {
     final r = await _rpc('QDT');
     final d = DiscType.fromQueryResponse(r.parameters!);
     discType = d;
@@ -1624,7 +1625,7 @@ class Device {
     return HdrSetting.fromTypeCode(r.parameters!);
   }
 
-  Future<bool> query3DStatus() async {
+  Future<bool> query3dStatus() async {
     final r = await _rpc('Q3D');
     if (r.parameters == '3D') {
       threeDimensional = true;
@@ -1647,11 +1648,13 @@ class Device {
   // The API docs show the response format for this command violating their
   // documented response structure (i.e. their example shows QC1 and QC2
   // prefixed before the result code). This function might not work.
+  // TODO - test with CD; including queryTrack* functions.
   Future<String> queryCddbNumber() async {
     final r = await _rpc('QCD');
     return r.parameters!;
   }
 
+  // TODO - test with file.
   Future<String> queryMediaFileFormat() async {
     final r = await _rpc('QFT');
     return r.parameters!;
@@ -1925,6 +1928,7 @@ class SubtitleTypeResponse {
 
   SubtitleTypeResponse(this.language);
 
+  // TODO - broken; got parameters of 'Subtitle off'.
   factory SubtitleTypeResponse.fromString(String parameters) {
     final parts = parameters.split(' ');
     if (parts.length == 1) return SubtitleTypeResponse(parts[0].trim());
