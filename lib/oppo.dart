@@ -37,6 +37,9 @@ void main() async {
     await device.connect();
     await device.startListener();
     await device.engage();
+
+    final r = await device.queryCddbNumber();
+    print(r);
   }
 }
 
@@ -1645,10 +1648,14 @@ class Device {
     return InputSource.fromQueryResponse(r.parameters!);
   }
 
-  // The API docs show the response format for this command violating their
-  // documented response structure (i.e. their example shows QC1 and QC2
-  // prefixed before the result code). This function might not work.
-  // TODO - test with CD; including queryTrack* functions.
+  /// WARNING: broken
+  /// The API docs show the response format for this command to be
+  /// violating their documented response structure Their example shows
+  /// QC1 and QC2 prefixed before the result code. And indeed, the QCD command
+  /// returns TWO responses, one prefixed with QC1 (CDDB1 probably) and QC2
+  /// (CDBB2 probably). The low-level functions in this module currently do not
+  /// allow for a command to return two responses nor a response that's not
+  /// prefixed with the command code sent in the request.
   Future<String> queryCddbNumber() async {
     final r = await _rpc('QCD');
     return r.parameters!;
