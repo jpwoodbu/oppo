@@ -1147,6 +1147,9 @@ class Device {
           availableAudioTracks = null;
           audioLanguage = null;
           channels = null;
+          subtitleLanguage = null;
+          currentSubtitleTrack = null;
+          availableSubtitleTracks = null; 
         }
         break;
       case 'UVL':
