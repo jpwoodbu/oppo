@@ -339,7 +339,7 @@ class AspectRatioSetting {
     }
   }
 
-  factory AspectRatioSetting.fromQueryResponse(String typeCode) => 
+  factory AspectRatioSetting.fromQueryResponse(String typeCode) =>
       AspectRatioSetting.fromUpdateParameters(typeCode);
 }
 
@@ -1928,8 +1928,10 @@ class SubtitleTypeResponse {
 
   SubtitleTypeResponse(this.language);
 
-  // TODO - broken; got parameters of 'Subtitle off'.
   factory SubtitleTypeResponse.fromString(String parameters) {
+    if (parameters.toLowerCase() == 'subtitle off') {
+      return SubtitleTypeResponse('OFF');
+    }
     final parts = parameters.split(' ');
     if (parts.length == 1) return SubtitleTypeResponse(parts[0].trim());
     if (parts.length == 2) {
