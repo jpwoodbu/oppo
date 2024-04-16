@@ -13,51 +13,53 @@ class Display extends StatelessWidget {
       child: Column(
         children: [
           PaddedRow(children: [
-              _title(context),
-              _chapter(context),
-            ]),
+            _title(context),
+            _chapter(context),
+          ]),
           PaddedRow(children: [
-              _audioType(context),
-              _volume(context),
-            ]),
+            _audioType(context),
+            _volume(context),
+          ]),
           PaddedRow(children: [
-              _audioTrack(context),
-              _subtitles(context),
-            ]),
+            _audioTrack(context),
+            _subtitles(context),
+          ]),
           PaddedRow(children: [
-              _contentResolution(context),
-              _outputResolution(context),
-            ]),
-          PaddedRow(children: [_discType(context)]),
+            _contentResolution(context),
+            _outputResolution(context),
+          ]),
         ],
       ),
     );
-  }
-
-  Widget _discType(BuildContext context) {
-    if (device.discType == oppo.DiscType.unknown) {
-      return SizedBox();
-    }
-    return Text('${device.discType.displayName} in tray');
   }
 
   Widget _title(BuildContext context) {
     if (device.position == null || device.position!.title == 0) {
       return SizedBox();
     }
-    return Text('Title: ${device.position!.title}');
+    switch (device.discType) {
+      case oppo.DiscType.cd || oppo.DiscType.dvdAudio || oppo.DiscType.sacd:
+        return Text('Track: ${device.position!.title}');
+      default:
+        return Text('Title: ${device.position!.title}');
+    }
   }
 
   Widget _chapter(BuildContext context) {
     if (device.position == null || device.position!.chapter == 0) {
-      return SizedBox();
+      return const SizedBox();
     }
-    return Text('Chapter: ${device.position!.chapter}');
+    switch (device.discType) {
+      case oppo.DiscType.cd || oppo.DiscType.dvdAudio || oppo.DiscType.sacd:
+        return const SizedBox();
+      default:
+        return Text('Chapter: ${device.position!.chapter}');
+    }
   }
 
   Widget _audioTrack(BuildContext context) {
     if (device.currentAudioTrack == null || device.currentAudioTrack == 0) {
-      return const Text('Audio: N/A');
+      return const SizedBox();
     }
     final language = device.audioLanguage == 'UNK' ? '' : device.audioLanguage;
     return Text('Audio: ${device.currentAudioTrack}/'
@@ -66,7 +68,7 @@ class Display extends StatelessWidget {
 
   Widget _audioType(BuildContext context) {
     if (device.audioType == null) {
-      return SizedBox();
+      return const SizedBox();
     }
     final channels = device.channels == '0.0' ? '' : device.channels;
     return Text('${device.audioType!.displayName} ${channels ?? ""}');
@@ -84,7 +86,7 @@ class Display extends StatelessWidget {
 
   Widget _subtitles(BuildContext context) {
     if (device.currentSubtitleTrack == null) {
-      return const Text('Subtitles: N/A');
+      return const SizedBox();
     }
     return Text('Subtitles: ${device.currentSubtitleTrack}/'
         '${device.availableSubtitleTracks} ${device.subtitleLanguage}');
