@@ -338,6 +338,9 @@ class AspectRatioSetting {
         throw 'Could not parse aspect ratio status update: $parameters';
     }
   }
+
+  factory AspectRatioSetting.fromQueryResponse(String typeCode) => 
+      AspectRatioSetting.fromUpdateParameters(typeCode);
 }
 
 enum TimeInformation {
@@ -488,22 +491,23 @@ enum VideoResolution {
 }
 
 enum ZoomRatio {
-  aspectRatioCorrection('AR'),
-  fullScreen('FS'),
-  underScan('US'),
-  oneX('1'),
-  onePointTwoX('1.2'),
-  onePointThreeX('1.3'),
-  onePointFiveX('1.5'),
-  twoX('2'),
-  threeX('3'),
-  fourX('4'),
-  oneHalf('1/2'),
-  oneThird('1/3'),
-  oneQuarter('1/4');
+  aspectRatioCorrection('AR', 'Stretch'),
+  fullScreen('FS', 'Fullscreen'),
+  underScan('US', 'Underscan'),
+  oneX('1', 'Off'),
+  onePointTwoX('1.2', '1.2x'),
+  onePointThreeX('1.3', '1.3x'),
+  onePointFiveX('1.5', '1.5x'),
+  twoX('2', '2x'),
+  threeX('3', '3x'),
+  fourX('4', '4x'),
+  oneHalf('1/2', '1/2x'),
+  oneThird('1/3', '1/3x'),
+  oneQuarter('1/4', '1/4x');
 
   final String typeCode;
-  const ZoomRatio(this.typeCode);
+  final String displayName;
+  const ZoomRatio(this.typeCode, this.displayName);
 
   factory ZoomRatio.fromTypeCode(String typeCode) {
     try {
@@ -513,18 +517,60 @@ enum ZoomRatio {
       throw 'Unknown typeCode for zoom ratio: $typeCode';
     }
   }
+
+  factory ZoomRatio.fromQueryResponse(String text) {
+    final parts = text.split(' ');
+    int mode;
+    try {
+      mode = int.parse(parts[0].trim());
+    } catch (e) {
+      throw 'Could not parse zoom mode response: $text, $e';
+    }
+    switch (mode) {
+      case 0:
+        return ZoomRatio.oneX;
+      case 1:
+        return ZoomRatio.aspectRatioCorrection;
+      case 2:
+        return ZoomRatio.fullScreen;
+      case 3:
+        return ZoomRatio.underScan;
+      case 4:
+        return ZoomRatio.onePointTwoX;
+      case 5:
+        return ZoomRatio.onePointThreeX;
+      case 6:
+        return ZoomRatio.onePointFiveX;
+      case 7:
+        return ZoomRatio.twoX;
+      case 8:
+        return ZoomRatio.threeX;
+      case 9:
+        return ZoomRatio.fourX;
+      case 10:
+        return ZoomRatio.oneHalf;
+      case 11:
+        return ZoomRatio.oneThird;
+      case 12:
+        return ZoomRatio.oneQuarter;
+      default:
+        throw 'Unknown zoom mode code: $mode';
+    }
+  }
 }
 
 enum RepeatMode {
-  chapter('CH'),
-  titleOrTrack('TT'),
-  all('ALL'),
-  off('OFF'),
-  shuffle('SHf'),
-  random('RND');
+  chapter('CH', 'Chatper'),
+  titleOrTrack('TT', 'Title'),
+  all('ALL', 'All'),
+  off('OFF', 'Off'),
+  shuffle('SHf', 'Shuffle'),
+  random('RND', 'Random'),
+  one('', 'One'); // Only documented in the QRP response.
 
   final String typeCode;
-  const RepeatMode(this.typeCode);
+  final String displayName;
+  const RepeatMode(this.typeCode, this.displayName);
 
   factory RepeatMode.fromTypeCode(String typeCode) {
     try {
@@ -534,12 +580,41 @@ enum RepeatMode {
       throw 'Unknown typeCode for repeat mode: $typeCode';
     }
   }
+
+  factory RepeatMode.fromQueryResponse(String text) {
+    final parts = text.split(' ');
+    int mode;
+    try {
+      mode = int.parse(parts[0].trim());
+    } catch (e) {
+      throw 'Could not parse repeat mode response: $text, $e';
+    }
+    switch (mode) {
+      case 0:
+        return RepeatMode.off;
+      case 1:
+        return RepeatMode.one;
+      case 2:
+        return RepeatMode.chapter;
+      case 3:
+        return RepeatMode.all;
+      case 4:
+        return RepeatMode.titleOrTrack;
+      case 5:
+        return RepeatMode.shuffle;
+      case 6:
+        return RepeatMode.random;
+      default:
+        throw 'Unknown repeat mode: $mode';
+    }
+  }
 }
 
 enum HdrSetting {
   auto('Auto'),
   on('On'),
-  off('Off');
+  off('Off'),
+  stripMetadata('StripMetadata'); // Only documented for the QHR response.
 
   final String typeCode;
   const HdrSetting(this.typeCode);
@@ -572,6 +647,31 @@ enum InputSource {
           .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for input source: $typeCode';
+    }
+  }
+
+  factory InputSource.fromQueryResponse(String text) {
+    int source;
+    try {
+      source = int.parse(text.trim());
+    } catch (e) {
+      throw 'Could not parse input source response: $text, $e';
+    }
+    switch (source) {
+      case 0:
+        return InputSource.blurayPlayer;
+      case 1:
+        return InputSource.hdmi;
+      case 2:
+        return InputSource.arc;
+      case 3:
+        return InputSource.optical;
+      case 4:
+        return InputSource.coax;
+      case 5:
+        return InputSource.usb;
+      default:
+        throw 'Unknown input source: $source';
     }
   }
 }
@@ -685,7 +785,8 @@ enum DiscType {
   data('DATA', 'Data'),
   videoCD('VCD2', 'Video CD'), // VCD 2.0
   svcd('SVCD', 'Super Video CD'),
-  unknown('UNKW', 'Unknown');
+  unknown('UNKW', 'Unknown'),
+  noDisc('NO-DISC', 'No disc'); // Only documented for the QDT command.
 
   final String typeCode;
   final String displayName;
@@ -697,6 +798,21 @@ enum DiscType {
           .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for disc type: $typeCode';
+    }
+  }
+
+  factory DiscType.fromQueryResponse(String text) {
+    switch (text) {
+      case 'BD-MV':
+        return DiscType.blueRay;
+      case 'DVD-VIDEO':
+        return DiscType.dvdVideo;
+      case 'DVD-AUDIO':
+        return DiscType.dvdAudio;
+      case 'DATA-DISC':
+        return DiscType.data;
+      default:
+        return DiscType.fromTypeCode(text);
     }
   }
 }
@@ -727,6 +843,21 @@ enum AudioType {
           .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
       throw 'Unknown typeCode for audio type: $typeCode';
+    }
+  }
+
+  factory AudioType.fromQueryResponse(String text) {
+    // I suspect there are way more of these. The API docs only provide a few
+    // examples.
+    switch (text) {
+      case 'DTS':
+        return AudioType.dts;
+      case 'LPCM':
+        return AudioType.lPcm;
+      case 'DTS-HD':
+        return AudioType.dtsHdHighResolution;
+      default:
+        return AudioType.fromTypeCode(text);
     }
   }
 }
@@ -1390,33 +1521,166 @@ class Device {
     return ti;
   }
 
-  Future<void> queryTrackOrTitleElapsedTime() async {
-    await _rpc('QTE');
+  Future<String> queryTrackOrTitleElapsedTime() async {
+    final r = await _rpc('QTE');
+    return _parseClockText(r.parameters!);
   }
 
-  Future<void> queryTrackOrTitleRemainingTime() async => await _command('QTR');
-  Future<void> queryChapterElapsedTime() async => await _command('QCE');
-  Future<void> queryChapterRemainingTime() async => await _command('QCR');
-  Future<void> queryTotalElapsedTime() async => await _command('QEL');
-  Future<void> queryTotalRemainingTime() async => await _command('QRE');
-  Future<void> queryDiskType() async => await _command('QDT');
-  Future<void> queryAudioType() async => await _command('QAT');
-  Future<void> querySubtitleType() async => await _command('QST');
-  Future<void> querySubtitleShift() async => await _command('QSH');
-  Future<void> queryOsdPosition() async => await _command('QOP');
-  Future<void> queryRepeatMode() async => await _command('QRP');
-  Future<void> queryZoomMode() async => await _command('QZM');
-  Future<void> queryHdrSetting() async => await _command('QHR');
-  Future<void> query3DStatus() async => await _command('Q3D');
-  Future<void> queryHdrStatus() async => await _command('QHS');
-  Future<void> queryInputSource() async => await _command('QIS');
-  Future<void> queryCddbNumber() async => await _command('QCD');
-  Future<void> queryMediaFileFormat() async => await _command('QFT');
-  Future<void> queryMediaFileName() async => await _command('QFN');
-  Future<void> queryTrackName() async => await _command('QTN');
-  Future<void> queryTrackAlbum() async => await _command('QTA');
-  Future<void> queryTrackPerformer() async => await _command('QTP');
-  Future<void> queryAspectRatio() async => await _command('QAR');
+  Future<String> queryTrackOrTitleRemainingTime() async {
+    final r = await _rpc('QTR');
+    return _parseClockText(r.parameters!);
+  }
+
+  Future<String> queryChapterElapsedTime() async {
+    final r = await _rpc('QCE');
+    return _parseClockText(r.parameters!);
+  }
+
+  Future<String> queryChapterRemainingTime() async {
+    final r = await _rpc('QCR');
+    return _parseClockText(r.parameters!);
+  }
+
+  Future<String> queryTotalElapsedTime() async {
+    final r = await _rpc('QEL');
+    return _parseClockText(r.parameters!);
+  }
+
+  Future<String> queryTotalRemainingTime() async {
+    final r = await _rpc('QRE');
+    return _parseClockText(r.parameters!);
+  }
+
+  Future<DiscType> queryDiskType() async {
+    final r = await _rpc('QDT');
+    final d = DiscType.fromQueryResponse(r.parameters!);
+    discType = d;
+    return d;
+  }
+
+  Future<AudioTypeResponse> queryAudioType() async {
+    final r = await _rpc('QAT');
+    final audioTypeResponse = AudioTypeResponse.fromString(r.parameters!);
+    audioType = audioTypeResponse.type;
+    // Permit the response to set these values to null. That might be valid.
+    currentAudioTrack = audioTypeResponse.currentTrack;
+    availableAudioTracks = audioTypeResponse.availableTracks;
+    audioLanguage = audioTypeResponse.language;
+    return audioTypeResponse;
+  }
+
+  Future<SubtitleTypeResponse> querySubtitleType() async {
+    final r = await _rpc('QST');
+    final subtitleTypeResponse = SubtitleTypeResponse.fromString(r.parameters!);
+    currentSubtitleTrack = subtitleTypeResponse.currentTrack;
+    availableSubtitleTracks = subtitleTypeResponse.availableTracks;
+    // Do not set the [subtitleLanguage] attribute since the formatting is not
+    // the same in the query response as it is in the update text (E.g. English
+    // instead of ENG, at least according to the API doc.). Setting it here
+    // might lead to display jank in the UI.
+    return subtitleTypeResponse;
+  }
+
+  Future<int> querySubtitleShift() async {
+    final r = await _rpc('QSH');
+    int shift;
+    try {
+      shift = int.parse(r.parameters!);
+    } catch (e) {
+      throw 'Could not parse subtitle shift response: ${r.parameters}';
+    }
+    if (shift < -10 || shift > 10) {
+      throw 'Subtitle shift is out of range (-10..10): $shift';
+    }
+    return shift;
+  }
+
+  Future<int> queryOsdPosition() async {
+    final r = await _rpc('QOP');
+    int osdPosition;
+    try {
+      osdPosition = int.parse(r.parameters!);
+    } catch (e) {
+      throw 'Could not parse OSD position response: ${r.parameters}';
+    }
+    if (osdPosition < 0 || osdPosition > 5) {
+      throw 'OSD position is out of range (0..5): $osdPosition';
+    }
+    return osdPosition;
+  }
+
+  Future<RepeatMode> queryRepeatMode() async {
+    final r = await _rpc('QRP');
+    return RepeatMode.fromQueryResponse(r.parameters!);
+  }
+
+  Future<ZoomRatio> queryZoomMode() async {
+    final r = await _rpc('QZM');
+    return ZoomRatio.fromQueryResponse(r.parameters!);
+  }
+
+  Future<HdrSetting> queryHdrSetting() async {
+    final r = await _rpc('QHR');
+    return HdrSetting.fromTypeCode(r.parameters!);
+  }
+
+  Future<bool> query3DStatus() async {
+    final r = await _rpc('Q3D');
+    if (r.parameters == '3D') {
+      threeDimensional = true;
+      return true;
+    }
+    threeDimensional = false;
+    return false;
+  }
+
+  Future<HdrStatus> queryHdrStatus() async {
+    final r = await _rpc('QHS');
+    return HdrStatus.fromTypeCode(r.parameters!);
+  }
+
+  Future<InputSource> queryInputSource() async {
+    final r = await _rpc('QIS');
+    return InputSource.fromQueryResponse(r.parameters!);
+  }
+
+  // The API docs show the response format for this command violating their
+  // documented response structure (i.e. their example shows QC1 and QC2
+  // prefixed before the result code). This function might not work.
+  Future<String> queryCddbNumber() async {
+    final r = await _rpc('QCD');
+    return r.parameters!;
+  }
+
+  Future<String> queryMediaFileFormat() async {
+    final r = await _rpc('QFT');
+    return r.parameters!;
+  }
+
+  Future<String> queryMediaFileName() async {
+    final r = await _rpc('QFN');
+    return r.parameters!;
+  }
+
+  Future<String> queryTrackName() async {
+    final r = await _rpc('QTN');
+    return r.parameters!;
+  }
+
+  Future<String> queryTrackAlbum() async {
+    final r = await _rpc('QTA');
+    return r.parameters!;
+  }
+
+  Future<String> queryTrackPerformer() async {
+    final r = await _rpc('QTP');
+    return r.parameters!;
+  }
+
+  Future<AspectRatioSetting> queryAspectRatio() async {
+    final r = await _rpc('QAR');
+    return AspectRatioSetting.fromQueryResponse(r.parameters!);
+  }
 
   Future<int> queryDirectorySize() async {
     final r = await _rpc('QDS');
@@ -1608,5 +1872,86 @@ class TrackInfo {
     final trackInfo = text.split('/').map(int.parse).toList();
     if (trackInfo.length != 2) throw 'Too many segments in track info: $text';
     return TrackInfo(trackInfo[0], trackInfo[1]);
+  }
+}
+
+bool _validateClockText(String text) {
+  final segments = text.split(':');
+  if (segments.length != 3) return false;
+  for (final s in segments) {
+    if (s.length > 2 || !RegExp(r'^[0-9]+$').hasMatch(s)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+String _parseClockText(String text) {
+  if (_validateClockText(text)) {
+    return text;
+  } else {
+    throw 'Could not parse clock text: $text';
+  }
+}
+
+class AudioTypeResponse {
+  AudioType type;
+  int? currentTrack;
+  int? availableTracks;
+  String? language;
+
+  AudioTypeResponse(this.type);
+
+  factory AudioTypeResponse.fromString(String parameters) {
+    final parts = parameters.split(' ');
+    final r = AudioTypeResponse(AudioType.fromQueryResponse(parts[0]));
+    TrackInfo? trackInfo;
+    if (parts.length == 3) {
+      r.language = parts[2].trim();
+    }
+    if (parts.length > 1) {
+      trackInfo = TrackInfo.fromString(parts[1].trim());
+      r.currentTrack = trackInfo.currentTrack;
+      r.availableTracks = trackInfo.availableTracks;
+    }
+    return r;
+  }
+}
+
+class SubtitleTypeResponse {
+  String language;
+  int? currentTrack;
+  int? availableTracks;
+
+  SubtitleTypeResponse(this.language);
+
+  factory SubtitleTypeResponse.fromString(String parameters) {
+    final parts = parameters.split(' ');
+    if (parts.length == 1) return SubtitleTypeResponse(parts[0].trim());
+    if (parts.length == 2) {
+      final r = SubtitleTypeResponse(parts[1].trim());
+      final trackInfo = TrackInfo.fromString(parts[0].trim());
+      r.currentTrack = trackInfo.currentTrack;
+      r.availableTracks = trackInfo.availableTracks;
+      return r;
+    } else {
+      throw 'Could not parse subtitle type response: $parameters';
+    }
+  }
+}
+
+enum HdrStatus {
+  hdr('HDR'),
+  sdr('SDR'),
+  dov('DOV'); // I don't know what DOV means.
+
+  final String typeCode;
+  const HdrStatus(this.typeCode);
+
+  factory HdrStatus.fromTypeCode(String typeCode) {
+    for (final status in HdrStatus.values) {
+      if (status.typeCode == typeCode) return status;
+    }
+    throw 'Unknown HDR status type code: $typeCode';
   }
 }
