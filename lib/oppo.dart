@@ -37,9 +37,6 @@ void main() async {
     await device.connect();
     await device.startListener();
     await device.engage();
-
-    final r = await device.queryCddbNumber();
-    print(r);
   }
 }
 
@@ -1661,27 +1658,41 @@ class Device {
     return r.parameters!;
   }
 
-  // TODO - test with file.
+  /// WARNING: partially broken
+  /// Tested with SMB: Returns ER INVALID.
+  /// Tested with DLNA: OK
   Future<String> queryMediaFileFormat() async {
     final r = await _rpc('QFT');
     return r.parameters!;
   }
 
+  /// WARNING: broken
+  /// Tested with SMB: Returns ER INVALID.
+  /// Tested with DLNA: No response.
   Future<String> queryMediaFileName() async {
     final r = await _rpc('QFN');
     return r.parameters!;
   }
 
+  /// WARNING: partially broken
+  /// Tested with SMB: Returns ER INVALID.
+  /// Tested with DLNA: OK 
   Future<String> queryTrackName() async {
     final r = await _rpc('QTN');
     return r.parameters!;
   }
 
+  /// WARNING: partially broken
+  /// Tested with SMB: Returns ER INVALID.
+  /// Tested with DLNA: OK (truncated) 
   Future<String> queryTrackAlbum() async {
     final r = await _rpc('QTA');
     return r.parameters!;
   }
 
+  /// WARNING: partially broken
+  /// Tested with SMB: Returns ER INVALID.
+  /// Tested with DLNA: OK
   Future<String> queryTrackPerformer() async {
     final r = await _rpc('QTP');
     return r.parameters!;
