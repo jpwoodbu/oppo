@@ -1145,6 +1145,7 @@ class Device {
           audioType = null;
           currentAudioTrack = null;
           availableAudioTracks = null;
+          position = null;
           audioLanguage = null;
           channels = null;
           subtitleLanguage = null;
