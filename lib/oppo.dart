@@ -812,6 +812,8 @@ enum DiscType {
         return DiscType.dvdAudio;
       case 'DATA-DISC':
         return DiscType.data;
+      case 'UNKNOW-DISC':
+        return DiscType.unknown;
       default:
         return DiscType.fromTypeCode(text);
     }
@@ -832,6 +834,8 @@ enum AudioType {
   mpegAudio('MP', 'MPEG Audio'),
   cd('CD', 'CD Audio'),
   ac('AC', 'AAC'), // Not documented, but observed.
+  dsd('DSD', 'DSD'), // Not documted, but observed.
+  flac('FLAC', 'FLAC'), // Not documentd, not observed.
   unknown('UN', 'Unknown');
 
   final String typeCode;
@@ -851,12 +855,14 @@ enum AudioType {
     // I suspect there are way more of these. The API docs only provide a few
     // examples.
     switch (text) {
+      case 'AAC':
+        return AudioType.ac;
       case 'DTS':
         return AudioType.dts;
-      case 'LPCM':
-        return AudioType.lPcm;
       case 'DTS-HD':
         return AudioType.dtsHdHighResolution;
+      case 'LPCM':
+        return AudioType.lPcm;
       default:
         return AudioType.fromTypeCode(text);
     }
@@ -978,6 +984,29 @@ class Device {
       await _waitForPowerOn(Duration(seconds: 1), 10);
     }
     await setVerboseMode(VerboseMode.detailed);
+    await fetchState();
+  }
+
+  Future<void> fetchState() async {
+    Future<void> wrapper(Function f) async {
+      try {
+        await f();
+      } catch (e) {
+        _log.warning('Error fetching initial state: $e');
+      }
+    }
+
+    await wrapper(queryPlaybackStatus);
+    // TODO - Query again on chapter/title change? The updates don't update the
+    // audio track fields so the UI gets stale (and wrong) on the next track
+    // change.
+    await wrapper(queryTrackOrTitle);
+    await wrapper(queryDiscType);
+    await wrapper(queryAudioType);
+    await wrapper(queryVolume); // also fetches muted state
+    await wrapper(querySubtitleType);
+    // Note, there's no query functions that the data that UVO does (in/out HDMI
+    // resolution).
   }
 
   Future<void> _waitForPowerOn(Duration delay, int attemptsRemaining) async {
@@ -1060,7 +1089,7 @@ class Device {
       // part2 might be empty if it's being used for parameters.
       String part2 = '';
       if (parts.length > 1) part2 = parts[1].trim();
-      // If part1 is a result code, the unit is using verbose mode <=1 and we
+      // If part1 is a result code, the player is using verbose mode <=1 and we
       // need to infer the command code from our last command.
       if (part1 == 'OK' || part1 == 'ER') {
         _log.warning('Parsing a verbose mode less than "major" response...');
@@ -1077,10 +1106,12 @@ class Device {
         resultCode = ResultCode.fromTypeCode(part2);
         parameters = parts.sublist(2).join(' ').trim();
       }
-      _responses.add(Response(
-          resultCode: resultCode,
-          commandCode: commandCode,
-          parameters: parameters));
+      _responses.add(
+        Response(
+            resultCode: resultCode,
+            commandCode: commandCode,
+            parameters: parameters.isEmpty ? null : parameters),
+      );
       _lastCommandTimestamp = null;
       _lastCommandCode = null;
       if (resultCode == ResultCode.error) {
@@ -1106,6 +1137,16 @@ class Device {
           playbackStatus = PlaybackStatus.fromTypeCode(parameters);
         } catch (e) {
           _log.severe(e);
+        }
+        if (playbackStatus == PlaybackStatus.openTray) {
+          discType = DiscType.unknown;
+        }
+        if (playbackStatus == PlaybackStatus.playbackStopped) {
+          audioType = null;
+          currentAudioTrack = null;
+          availableAudioTracks = null;
+          audioLanguage = null;
+          channels = null;
         }
         break;
       case 'UVL':
@@ -1561,6 +1602,9 @@ class Device {
 
   Future<AudioTypeResponse> queryAudioType() async {
     final r = await _rpc('QAT');
+    // Sometimes the player doesn't return an audio type parameter but the
+    // result code was not an error.
+    if (r.parameters == null) return AudioTypeResponse(AudioType.unknown);
     final audioTypeResponse = AudioTypeResponse.fromString(r.parameters!);
     audioType = audioTypeResponse.type;
     // Permit the response to set these values to null. That might be valid.
@@ -1676,7 +1720,7 @@ class Device {
 
   /// WARNING: partially broken
   /// Tested with SMB: Returns ER INVALID.
-  /// Tested with DLNA: OK 
+  /// Tested with DLNA: OK
   Future<String> queryTrackName() async {
     final r = await _rpc('QTN');
     return r.parameters!;
@@ -1684,7 +1728,7 @@ class Device {
 
   /// WARNING: partially broken
   /// Tested with SMB: Returns ER INVALID.
-  /// Tested with DLNA: OK (truncated) 
+  /// Tested with DLNA: OK (truncated)
   Future<String> queryTrackAlbum() async {
     final r = await _rpc('QTA');
     return r.parameters!;
@@ -1930,6 +1974,8 @@ class AudioTypeResponse {
     if (parts.length == 3) {
       r.language = parts[2].trim();
     }
+    // TODO - When playing a CD, got parameter text like 'PCM 44.1/16' not track
+    // info and language.
     if (parts.length > 1) {
       trackInfo = TrackInfo.fromString(parts[1].trim());
       r.currentTrack = trackInfo.currentTrack;

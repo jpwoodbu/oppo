@@ -7,13 +7,13 @@ final _log = Logger('DeviceChanges');
 
 class DeviceChanges with ChangeNotifier {
   final Device device;
-  final BuildContext context;
+  final BuildContext _context;
 
-  DeviceChanges(this.device, this.context) {
-    startListener();
+  DeviceChanges(this.device, this._context) {
+    _startListener();
   }
 
-  void startListener() {
+  void _startListener() {
     device.stream().listen(
       (event) {
         device.parseEvent(event);
@@ -21,13 +21,13 @@ class DeviceChanges with ChangeNotifier {
       },
       onError: (e) {
         _log.severe(e);
-        reconnect();
+        _reconnect();
       },
     );
     _log.info('Listener started.');
   }
 
-  void reconnect() async {
+  void _reconnect() async {
     await device.close();
     // Don't attempt to reconnect more than once per second to avoid storming
     // the network.
@@ -39,12 +39,13 @@ class DeviceChanges with ChangeNotifier {
       return;
     }
     _snackBar('Reconnected.');
-    startListener();
+    _startListener();
+    await device.fetchState();
   }
 
   void _snackBar(String message, {logLevel = Level.INFO}) {
     _log.log(logLevel, message);
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(_context).showSnackBar(
       SnackBar(content: Text(message)),
     );
   }

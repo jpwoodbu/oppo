@@ -336,6 +336,16 @@ class _HomePageState extends State<HomePage> {
               ),
               if (device.powered ?? false)
                 ListTile(
+                  leading: Icon(Icons.refresh),
+                  title: const Text('Refresh player info'),
+                  onTap: () {
+                    addHaptic(device.fetchState);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Refreshing player info...')));
+                  },
+                ),
+                ListTile(
                   leading: Icon(Icons.power_settings_new),
                   title: const Text('Power off'),
                   onTap: () {
