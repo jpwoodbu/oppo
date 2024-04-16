@@ -38,30 +38,30 @@ class Display extends StatelessWidget {
     if (device.discType == oppo.DiscType.unknown) {
       return SizedBox();
     }
-    return Text(device.discType.displayName);
+    return Text('${device.discType.displayName} in tray');
   }
 
   Widget _title(BuildContext context) {
-    if (device.position == null) {
+    if (device.position == null || device.position!.title == 0) {
       return SizedBox();
     }
     return Text('Title: ${device.position!.title}');
   }
 
   Widget _chapter(BuildContext context) {
-    if (device.position == null) {
+    if (device.position == null || device.position!.chapter == 0) {
       return SizedBox();
     }
     return Text('Chapter: ${device.position!.chapter}');
   }
 
   Widget _audioTrack(BuildContext context) {
-    if (device.currentAudioTrack == null) {
-      return SizedBox();
+    if (device.currentAudioTrack == null || device.currentAudioTrack == 0) {
+      return const Text('Audio: N/A');
     }
     final language = device.audioLanguage == 'UNK' ? '' : device.audioLanguage;
     return Text('Audio: ${device.currentAudioTrack}/'
-        '${device.availableAudioTracks} $language');
+        '${device.availableAudioTracks} ${language ?? ""}');
   }
 
   Widget _audioType(BuildContext context) {
@@ -69,7 +69,7 @@ class Display extends StatelessWidget {
       return SizedBox();
     }
     final channels = device.channels == '0.0' ? '' : device.channels;
-    return Text('${device.audioType!.displayName} $channels');
+    return Text('${device.audioType!.displayName} ${channels ?? ""}');
   }
 
   Widget _volume(BuildContext context) {
@@ -83,8 +83,8 @@ class Display extends StatelessWidget {
   }
 
   Widget _subtitles(BuildContext context) {
-    if (device.currentAudioTrack == null) {
-      return SizedBox();
+    if (device.currentSubtitleTrack == null) {
+      return const Text('Subtitles: N/A');
     }
     return Text('Subtitles: ${device.currentSubtitleTrack}/'
         '${device.availableSubtitleTracks} ${device.subtitleLanguage}');
