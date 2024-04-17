@@ -1118,7 +1118,7 @@ class Device {
       _lastCommandTimestamp = null;
       _lastCommandCode = null;
       if (resultCode == ResultCode.error) {
-        _log.severe('Got an error with command code $commandCode '
+        _log.warning('Got an error with command code $commandCode '
             'with parameters: $parameters');
       }
     }
