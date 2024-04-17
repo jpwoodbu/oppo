@@ -1124,7 +1124,7 @@ class Device {
     }
   }
 
-  void _parseUpdate(String commandCode, String parameters) {
+  void _parseUpdate(String commandCode, String parameters) async {
     switch (commandCode) {
       case 'UPW':
         if (parameters == '1') {
@@ -1233,25 +1233,23 @@ class Device {
         break;
       case 'UTC':
         position = Position.fromTimeCodeUpdate(parameters);
-
         if (position?.clock == '00:00:01') {
           // This is a workaround for the player sometimes not knowing the audio
           // type right after a play command is issued. Querying the audio type
           // once playback has confirmed to be started should be more reliable.
-          queryAudioType.call().onError((error, stackTrace) async {
-            // The returned value is unused since we're not making an
-            // assignment, only updating the cache. It's just the required
-            // return type for this error handler.
-            return AudioTypeResponse(AudioType.unknown);
-          });
+          try {
+            await queryAudioType();
+          } catch (e) {
+            // Log and move on. Logging happens inside the call.
+          }
+          // If this fails, log (happens inside the call) and move on.
           // This is a workaround for the player almost always not updating the
           // playback status once something just started playing.
-          queryPlaybackStatus.call().onError((error, stackTrace) async {
-            // The returned value is unused since we're not making an
-            // assignment, only updating the cache. It's just the required
-            // return type for this error handler.
-            return PlaybackStatus.playbackStarted;
-          });
+          try {
+            await queryPlaybackStatus();
+          } catch (e) {
+            // Log and move on. Logging happens inside the call.
+          }
         }
         break;
       case 'UVO':
@@ -1399,6 +1397,7 @@ class Device {
 
   /// Zoom in/out and adjust aspect ratio.
   Future<void> zoom() async => await _command('ZOM');
+
   /// WARNING: Doesn't get a response on my UDP-203.
   Future<void> secondaryAudioProgramToggle() async => await _command('SAP');
 
@@ -1421,6 +1420,8 @@ class Device {
   /// Show defailed info. The same operation as long pressing the info button.
   Future<void> infoDetailed() async => await _command('INH');
   Future<void> audioVideoSyncMenu() async => await _command('AVS');
+
+  /// WARNING: Doesn't get a response on my UDP-203.
   Future<void> gaplessPlayback() async => await _command('GAP');
   Future<void> inputMenu() async => await _command('SRC');
 
@@ -1477,6 +1478,7 @@ class Device {
         'T ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
   }
 
+  /// It's unclear what this does.
   Future<void> directPlay() async => await _command('DPL');
 
   /// Clear command buffers.
