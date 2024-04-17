@@ -423,7 +423,7 @@ class DirectoryItem {
 }
 
 // TODO - Unify this class with VideoResolution. It's used as part of the QHD
-// command. I thikn it probably corresponds to the UVO output for the "output"
+// command. I think it probably corresponds to the UVO output for the "output"
 // video resolution.
 enum HdmiResolution {
   auto('AUTO'),
@@ -1394,10 +1394,12 @@ class Device {
   Future<void> subtitle() async => await _command('SUB');
 
   /// Change camera angle.
+  /// WARNING: Doesn't get a response on my UDP-203.
   Future<void> angle() async => await _command('ANG');
 
   /// Zoom in/out and adjust aspect ratio.
   Future<void> zoom() async => await _command('ZOM');
+  /// WARNING: Doesn't get a response on my UDP-203.
   Future<void> secondaryAudioProgramToggle() async => await _command('SAP');
 
   /// Set A/B repeat play points.
@@ -1405,6 +1407,7 @@ class Device {
   Future<void> repeat() async => await _command('RPT');
 
   /// Picture-in-picture toggle.
+  /// WARNING: Doesn't get a response on my UDP-203.
   Future<void> pipToggle() async => await _command('PIP');
   Future<void> outputResolutionCycle() async => await _command('HDM');
   // Same as subtitle hold.
@@ -1423,7 +1426,7 @@ class Device {
 
   /// No operation.
   ///
-  /// This command is documentd and therefore included. Probably it's only
+  /// This command is documented and therefore included. Probably it's only
   /// useful for testing.
   Future<void> noOp() async => await _command('NOP');
 

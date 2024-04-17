@@ -389,7 +389,89 @@ class BottomGrid extends StatelessWidget {
             ),
           ),
         ]),
+        TableRow(children: [
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.outputResolutionAuto),
+              child: VerticalIcon(
+                  icon: Icon(Icons.display_settings), label: 'Res auto'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.threeDimensionalMenu),
+              child: VerticalIcon(icon: Icon(Icons.view_in_ar), label: '3D'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.audioVideoSyncMenu),
+              child: VerticalIcon(icon: Icon(Icons.tune), label: 'A/V sync'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.subtitleShift),
+              child: VerticalIcon(
+                  icon: Icon(Icons.format_indent_increase), label: 'Sub shift'),
+            ),
+          ),
+        ]),
+        TableRow(children: [
+          // TODO - Try this when playing CDs or music from SMB.
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.gaplessPlayback),
+              child: VerticalIcon(icon: Icon(Icons.abc), label: 'Gapless'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<oppo.HdmiResolution>(
+                    context: context,
+                    builder: (context) => SetHdmiResolution());
+                if (selection != null) {
+                  await device.setHdmiResolution(selection);
+                }
+              },
+              child: VerticalIcon(icon: Icon(Icons.abc), label: 'Set HDMI res'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.directPlay),
+              child: VerticalIcon(
+                  icon: Icon(Icons.play_circle), label: 'Direct play'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.reset),
+              child: VerticalIcon(icon: Icon(Icons.bug_report), label: 'Reset'),
+            ),
+          ),
+        ]),
       ],
+    );
+  }
+}
+
+class SetHdmiResolution extends StatelessWidget {
+  const SetHdmiResolution({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('HDMI resolution'),
+      children: oppo.HdmiResolution.values
+          .map(
+            (e) => TextButton(
+              onPressed: addHaptic(() => Navigator.pop(context, e)),
+              child: Text(e.typeCode),
+            ),
+          )
+          .toList(),
     );
   }
 }
