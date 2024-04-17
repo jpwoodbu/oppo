@@ -931,10 +931,11 @@ class Device {
   int? volume;
   bool? muted;
   DiscType discType = DiscType.unknown;
-  AudioType? audioType;
+  AudioType audioType = AudioType.unknown;
   int? currentAudioTrack;
   int? availableAudioTracks;
   String? audioLanguage; // ISO 3166 country codes
+  String? audioExtraInfo; // E.g. "44.1/16", "44.1"; The API is inconsistent.
   String? channels;
   int? currentSubtitleTrack;
   int? availableSubtitleTracks;
@@ -1144,7 +1145,7 @@ class Device {
           discType = DiscType.unknown;
         }
         if (playbackStatus == PlaybackStatus.playbackStopped) {
-          audioType = null;
+          audioType = AudioType.unknown;
           currentAudioTrack = null;
           availableAudioTracks = null;
           position = null;
@@ -1153,6 +1154,8 @@ class Device {
           subtitleLanguage = null;
           currentSubtitleTrack = null;
           availableSubtitleTracks = null;
+          contentResolution = null;
+          outputResolution = null;
         }
         break;
       case 'UVL':
@@ -1230,7 +1233,7 @@ class Device {
         break;
       case 'UTC':
         position = Position.fromTimeCodeUpdate(parameters);
-        
+
         if (position?.clock == '00:00:01') {
           // This is a workaround for the player sometimes not knowing the audio
           // type right after a play command is issued. Querying the audio type
@@ -1624,13 +1627,17 @@ class Device {
     final r = await _rpc('QAT');
     // Sometimes the player doesn't return an audio type parameter but the
     // result code was not an error.
-    if (r.parameters == null) return AudioTypeResponse(AudioType.unknown);
+    if (r.parameters == null) {
+      audioType = AudioType.unknown;
+      return AudioTypeResponse(AudioType.unknown);
+    }
     final audioTypeResponse = AudioTypeResponse.fromString(r.parameters!);
     audioType = audioTypeResponse.type;
     // Permit the response to set these values to null. That might be valid.
     currentAudioTrack = audioTypeResponse.currentTrack;
     availableAudioTracks = audioTypeResponse.availableTracks;
     audioLanguage = audioTypeResponse.language;
+    audioExtraInfo = audioTypeResponse.extraInfo;
     return audioTypeResponse;
   }
 
@@ -1984,6 +1991,7 @@ class AudioTypeResponse {
   int? currentTrack;
   int? availableTracks;
   String? language;
+  String? extraInfo;
 
   AudioTypeResponse(this.type);
 
@@ -1991,15 +1999,24 @@ class AudioTypeResponse {
     final parts = parameters.split(' ');
     final r = AudioTypeResponse(AudioType.fromQueryResponse(parts[0]));
     TrackInfo? trackInfo;
-    if (parts.length == 3) {
-      r.language = parts[2].trim();
-    }
-    // TODO - When playing a CD, got parameter text like 'PCM 44.1/16' not track
-    // info and language.
     if (parts.length > 1) {
-      trackInfo = TrackInfo.fromString(parts[1].trim());
-      r.currentTrack = trackInfo.currentTrack;
-      r.availableTracks = trackInfo.availableTracks;
+      try {
+        trackInfo = TrackInfo.fromString(parts[1].trim());
+        r.currentTrack = trackInfo.currentTrack;
+        r.availableTracks = trackInfo.availableTracks;
+        // If the text includes valid track info it will sometimes also include
+        // a language token.
+        if (parts.length == 3) r.language = parts[2].trim();
+        
+      } catch (e) {
+        // When playing a CD, sometimes we get parameter text like 'PCM 44.1/16'
+        // not track info and language. When playing a FLAC over DLNA, sometimes
+        // the text is like 'FLAC 44.1'.
+        _log.info(
+            'Audio type response did not include track info. '
+            'Asigning given parameters to "extraInfo".');
+        r.extraInfo = parts.sublist(1).join(' ');
+      }
     }
     return r;
   }

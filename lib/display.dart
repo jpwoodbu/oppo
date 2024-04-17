@@ -18,7 +18,7 @@ class Display extends StatelessWidget {
           ]),
           PaddedRow(children: [
             _audioType(context),
-            _volume(context),
+            _muted(context),
           ]),
           PaddedRow(children: [
             _audioTrack(context),
@@ -67,21 +67,20 @@ class Display extends StatelessWidget {
   }
 
   Widget _audioType(BuildContext context) {
-    if (device.audioType == null) {
+    if (device.audioType == oppo.AudioType.unknown) {
       return const SizedBox();
     }
     final channels = device.channels == '0.0' ? '' : device.channels;
-    return Text('${device.audioType!.displayName} ${channels ?? ""}');
+    return Text('${device.audioType.displayName} '
+        '${channels ?? ""} '
+        '${device.audioExtraInfo ?? ""}');
   }
 
-  Widget _volume(BuildContext context) {
+  Widget _muted(BuildContext context) {
     if (device.muted ?? false) {
       return const Text('Muted');
     }
-    if (device.volume == null) {
-      return SizedBox();
-    }
-    return Text('Vol: ${device.volume}');
+    return SizedBox();
   }
 
   Widget _subtitles(BuildContext context) {
