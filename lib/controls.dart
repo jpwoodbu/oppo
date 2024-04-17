@@ -418,7 +418,6 @@ class BottomGrid extends StatelessWidget {
           ),
         ]),
         TableRow(children: [
-          // TODO - Try this when playing CDs or music from SMB.
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.noOp),
@@ -463,12 +462,12 @@ class SetHdmiResolution extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('HDMI resolution'),
+      title: const Text('HDMI output mode'),
       children: oppo.HdmiResolution.values
           .map(
-            (e) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, e)),
-              child: Text(e.typeCode),
+            (mode) => TextButton(
+              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
+              child: Text(mode.displayName),
             ),
           )
           .toList(),

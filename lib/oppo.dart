@@ -422,31 +422,32 @@ class DirectoryItem {
   String toString() => name;
 }
 
-// TODO - Unify this class with VideoResolution. It's used as part of the QHD
-// command. I think it probably corresponds to the UVO output for the "output"
-// video resolution.
+/// Parameters passed to [setHdmiResolution]. This is distict from
+/// [VideoResolution] in that it includes not just valid HDMI resolutions, but
+/// also conceputal modes like 'auto'.
 enum HdmiResolution {
-  auto('AUTO'),
-  src('SRC'),
-  uhdAuto('UDH_AUTO'),
-  udh24('UHD24'),
-  uhd50('UHD50'),
-  uhd60('UHD60'),
-  r1080pAuto('1080P_AUTO'),
-  r1080p24('1080P24'),
-  r1080p50('1080P50'),
-  r1080p60('1080P60'),
-  r1080i50('1080I50'),
-  r1080i60('1080I60'),
-  r720p50('720P50'),
-  r720p60('720P60'),
-  r576p('576P'),
-  r576i('576I'),
-  r480p('480P'),
-  r480i('480I');
+  auto('AUTO', 'Auto'),
+  src('SRC', 'Match source'),
+  uhdAuto('UDH_AUTO', 'UHD Auto'),
+  udh24('UHD24', 'UHD 24Hz'),
+  uhd50('UHD50', 'UHD 50Hz'),
+  uhd60('UHD60', 'UHD 60Hz'),
+  r1080pAuto('1080P_AUTO', '1080p Auto'),
+  r1080p24('1080P24', '1080p 24Hz'),
+  r1080p50('1080P50', '1080p 50Hz'),
+  r1080p60('1080P60', '1080p 60Hz'),
+  r1080i50('1080I50', '1080i 50Hz'),
+  r1080i60('1080I60', '1080i 60Hz'),
+  r720p50('720P50', '720p 50Hz'),
+  r720p60('720P60', '720p 60Hz'),
+  r576p('576P', '576p'),
+  r576i('576I', '576i'),
+  r480p('480P', '480p'),
+  r480i('480I', '480i');
 
   final String typeCode;
-  const HdmiResolution(this.typeCode);
+  final String displayName;
+  const HdmiResolution(this.typeCode, this.displayName);
 
   factory HdmiResolution.fromTypeCode(String typeCode) {
     try {
