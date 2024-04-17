@@ -1421,8 +1421,6 @@ class Device {
   Future<void> infoDetailed() async => await _command('INH');
   Future<void> audioVideoSyncMenu() async => await _command('AVS');
 
-  /// WARNING: Doesn't get a response on my UDP-203.
-  Future<void> gaplessPlayback() async => await _command('GAP');
   Future<void> inputMenu() async => await _command('SRC');
 
   /// No operation.
@@ -1478,7 +1476,7 @@ class Device {
         'T ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
   }
 
-  /// It's unclear what this does.
+  /// Opens the "Program Play" menu.
   Future<void> directPlay() async => await _command('DPL');
 
   /// Clear command buffers.
