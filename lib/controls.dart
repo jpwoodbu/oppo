@@ -389,6 +389,19 @@ class BottomGrid extends StatelessWidget {
             ),
           ),
         ]),
+      ],
+    );
+  }
+}
+
+class ExtraControls extends StatelessWidget {
+  final oppo.Device device;
+  const ExtraControls(this.device, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Table(
+      children: [
         TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
@@ -420,8 +433,15 @@ class BottomGrid extends StatelessWidget {
         TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
-              onPressed: () => addHaptic(device.noOp),
-              child: VerticalIcon(icon: Icon(Icons.abc), label: 'Noop'),
+              onPressed: () async {
+                final selection = await showDialog<oppo.ZoomRatio>(
+                    context: context, builder: (context) => SetZoomRatio());
+                if (selection != null) {
+                  await device.setZoomRatio(selection);
+                }
+              },
+              child: VerticalIcon(
+                  icon: Icon(Icons.zoom_out_map), label: 'Zoom ratio'),
             ),
           ),
           TableCellPadded(
@@ -434,14 +454,48 @@ class BottomGrid extends StatelessWidget {
                   await device.setHdmiResolution(selection);
                 }
               },
-              child: VerticalIcon(icon: Icon(Icons.abc), label: 'Set HDMI res'),
+              child: VerticalIcon(
+                  icon: Icon(Icons.settings_input_hdmi), label: 'HDMI mode'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.directPlay),
+              child:
+                  VerticalIcon(icon: Icon(Icons.table_view), label: 'Program'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.reset),
+              child: VerticalIcon(icon: Icon(Icons.bug_report), label: 'Reset'),
+            ),
+          ),
+        ]),
+        TableRow(children: [
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<int>(
+                    context: context, builder: (context) => SetVolume());
+                if (selection != null) {
+                  await device.setVolume(selection);
+                }
+              },
               child: VerticalIcon(
-                  icon: Icon(Icons.table_view), label: 'Program'),
+                  icon: Icon(Icons.volume_up), label: 'Set Volume'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.reset),
+              child: VerticalIcon(icon: Icon(Icons.bug_report), label: 'Reset'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.reset),
+              child: VerticalIcon(icon: Icon(Icons.bug_report), label: 'Reset'),
             ),
           ),
           TableCellPadded(
@@ -462,7 +516,7 @@ class SetHdmiResolution extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('HDMI output mode'),
+      title: const Text('HDMI mode'),
       children: oppo.HdmiResolution.values
           .map(
             (mode) => TextButton(
@@ -472,5 +526,84 @@ class SetHdmiResolution extends StatelessWidget {
           )
           .toList(),
     );
+  }
+}
+
+class SetZoomRatio extends StatelessWidget {
+  const SetZoomRatio({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('Zoom ratio'),
+      children: oppo.ZoomRatio.values
+          .map(
+            (mode) => TextButton(
+              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
+              child: Text(mode.displayName),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class SetVolume extends StatefulWidget {
+  const SetVolume({super.key});
+
+  @override
+  State<SetVolume> createState() => _SetVolumeState();
+}
+
+class _SetVolumeState extends State<SetVolume> {
+  final _volumeController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _volumeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('Set volume (0 - 100)'),
+      contentPadding: EdgeInsets.all(12.0),
+      children: [
+        Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _volumeController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Volume',
+            ),
+            validator: _validate,
+            autofocus: true,
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              final volume = int.parse(_volumeController.text);
+              addHaptic(() => Navigator.pop(context, volume));
+            }
+          },
+          child: const Text('Submit'),
+        ),
+      ],
+    );
+  }
+
+  String? _validate(value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a value';
+    }
+    final volume = int.tryParse(value);
+    if (volume == null || volume < 0 || volume > 100) {
+      return 'Please enter a value between 0 and 100';
+    }
+    return null;
   }
 }

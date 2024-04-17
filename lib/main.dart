@@ -458,6 +458,8 @@ class Buttons extends StatelessWidget {
           PlayControls(device),
           PositionControls(device),
           BottomGrid(device),
+          Divider(),
+          ExtraControls(device),
         ],
       ),
     );
