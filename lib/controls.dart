@@ -467,7 +467,7 @@ class SetHdmiResolution extends StatelessWidget {
       children: oppo.HdmiResolution.values
           .map(
             (e) => TextButton(
-              onPressed: addHaptic(() => Navigator.pop(context, e)),
+              onPressed: () => addHaptic(() => Navigator.pop(context, e)),
               child: Text(e.typeCode),
             ),
           )
