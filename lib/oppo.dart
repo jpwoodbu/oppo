@@ -1238,14 +1238,20 @@ class Device {
           // This is a workaround for the player sometimes not knowing the audio
           // type right after a play command is issued. Querying the audio type
           // once playback has confirmed to be started should be more reliable.
-          queryAudioType.call().onError(
-            (error, stackTrace) async {
-              // The returned value is unused since we're not making an
-              // assignment, only updating the cache. It's just the required
-              // return type for this error handler.
-              return AudioTypeResponse(AudioType.unknown);
-            },
-          );
+          queryAudioType.call().onError((error, stackTrace) async {
+            // The returned value is unused since we're not making an
+            // assignment, only updating the cache. It's just the required
+            // return type for this error handler.
+            return AudioTypeResponse(AudioType.unknown);
+          });
+          // This is a workaround for the player almost always not updating the
+          // playback status once something just started playing.
+          queryPlaybackStatus.call().onError((error, stackTrace) async {
+            // The returned value is unused since we're not making an
+            // assignment, only updating the cache. It's just the required
+            // return type for this error handler.
+            return PlaybackStatus.playbackStarted;
+          });
         }
         break;
       case 'UVO':
@@ -2007,13 +2013,11 @@ class AudioTypeResponse {
         // If the text includes valid track info it will sometimes also include
         // a language token.
         if (parts.length == 3) r.language = parts[2].trim();
-        
       } catch (e) {
         // When playing a CD, sometimes we get parameter text like 'PCM 44.1/16'
         // not track info and language. When playing a FLAC over DLNA, sometimes
         // the text is like 'FLAC 44.1'.
-        _log.info(
-            'Audio type response did not include track info. '
+        _log.info('Audio type response did not include track info. '
             'Asigning given parameters to "extraInfo".');
         r.extraInfo = parts.sublist(1).join(' ');
       }
