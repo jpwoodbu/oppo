@@ -421,8 +421,8 @@ class BottomGrid extends StatelessWidget {
           // TODO - Try this when playing CDs or music from SMB.
           TableCellPadded(
             child: ElevatedButton(
-              onPressed: () => addHaptic(device.gaplessPlayback),
-              child: VerticalIcon(icon: Icon(Icons.abc), label: 'Gapless'),
+              onPressed: () => addHaptic(device.noOp),
+              child: VerticalIcon(icon: Icon(Icons.abc), label: 'Noop'),
             ),
           ),
           TableCellPadded(
@@ -442,7 +442,7 @@ class BottomGrid extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => addHaptic(device.directPlay),
               child: VerticalIcon(
-                  icon: Icon(Icons.play_circle), label: 'Direct play'),
+                  icon: Icon(Icons.table_view), label: 'Program'),
             ),
           ),
           TableCellPadded(
