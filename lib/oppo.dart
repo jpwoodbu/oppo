@@ -614,13 +614,15 @@ enum RepeatMode {
 }
 
 enum HdrSetting {
-  auto('Auto'),
-  on('On'),
-  off('Off'),
-  stripMetadata('StripMetadata'); // Only documented for the QHR response.
+  auto('Auto', 'Auto'),
+  on('On', 'On'),
+  off('Off', 'Off'),
+  // Only documented for the QHR response.
+  stripMetadata('StripMetadata', 'Strip Metadata');
 
   final String typeCode;
-  const HdrSetting(this.typeCode);
+  final String displayName;
+  const HdrSetting(this.typeCode, this.displayName);
 
   factory HdrSetting.fromTypeCode(String typeCode) {
     try {
@@ -633,16 +635,17 @@ enum HdrSetting {
 }
 
 enum InputSource {
-  blurayPlayer('0'),
-  hdmi('1'),
-  arc('2'),
+  blurayPlayer('0', 'BD Player'),
+  hdmi('1', 'HDMI Input'),
+  arc('2', 'HDMI ARC'),
   // 3-5 only available on UDP-205.
-  optical('3'),
-  coax('4'),
-  usb('5');
+  optical('3', 'Optical'),
+  coax('4', 'Coax'),
+  usb('5', 'USB');
 
   final String typeCode;
-  const InputSource(this.typeCode);
+  final String displayName;
+  const InputSource(this.typeCode, this.displayName);
 
   factory InputSource.fromTypeCode(String typeCode) {
     try {
@@ -699,15 +702,16 @@ enum ScreenSaverSetting {
 }
 
 enum App {
-  disc('DIS'),
-  music('MUS'),
-  photo('PHO'),
-  movie('MOV'),
-  network('NET'),
-  setup('SET');
+  disc('DIS', 'Disc'),
+  music('MUS', 'Music'),
+  photo('PHO', 'Photos'),
+  movie('MOV', 'Movie'),
+  network('NET', 'Network'),
+  setup('SET', 'Setup');
 
   final String typeCode;
-  const App(this.typeCode);
+  final String displayName;
+  const App(this.typeCode, this.displayName);
 
   factory App.fromTypeCode(String typeCode) {
     try {
@@ -719,12 +723,13 @@ enum App {
 }
 
 enum SacdPriority {
-  multiChannel('M'),
-  stereo('S'),
-  cdMode('C');
+  multiChannel('M', 'multi-channel'),
+  stereo('S', 'stereo'),
+  cdMode('C', 'CD');
 
   final String typeCode;
-  const SacdPriority(this.typeCode);
+  final String displayName;
+  const SacdPriority(this.typeCode, this.displayName);
 
   factory SacdPriority.fromTypeCode(String typeCode) {
     try {
@@ -737,12 +742,13 @@ enum SacdPriority {
 }
 
 enum SacdOutputMode {
-  dsd('D'),
-  pcm('P'),
-  auto('A');
+  dsd('D', 'DSD'),
+  pcm('P', 'PCM'),
+  auto('A', 'Auto');
 
   final String typeCode;
-  const SacdOutputMode(this.typeCode);
+  final String displayName;
+  const SacdOutputMode(this.typeCode, this.displayName);
 
   factory SacdOutputMode.fromTypeCode(String typeCode) {
     try {
@@ -1501,7 +1507,6 @@ class Device {
     await _command('STC', parameters: timeInformation.typeCode);
   }
 
-  // TODO - resume implementing UI here.
   Future<void> setHdrSetting(HdrSetting setting) async {
     await _command('SHR', parameters: setting.typeCode);
   }
