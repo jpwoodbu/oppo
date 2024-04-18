@@ -340,6 +340,8 @@ class _HomePageState extends State<HomePage> {
                         content: Text('Refreshing player info...')));
                   },
                 ),
+              // TODO - Maybe change this to a control button that opens an
+              // AlertDialog for confirmation.
               ListTile(
                 leading: Icon(Icons.power_settings_new),
                 title: const Text('Power off'),
@@ -350,15 +352,8 @@ class _HomePageState extends State<HomePage> {
                       content: Text('Waiting for power off signal...')));
                 },
               ),
-              if (device.powered ?? false)
-                ListTile(
-                  leading: Icon(Icons.route),
-                  title: const Text('Input'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    addHaptic(device.inputMenu);
-                  },
-                ),
+              // TODO - Maybe change this to a control button that opens an
+              // AlertDialog for confirmation.
               if (device.powered ?? false)
                 ListTile(
                   leading: Icon(Icons.eject),
@@ -397,6 +392,8 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
+        // TODO - BROKEN; Without a Consumer above, this doesn't get re-eval'd
+        // when the device powers off.
         body: device.powered ?? false ? Buttons(device) : NotPoweredOn(device),
       ),
     );

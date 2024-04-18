@@ -11,14 +11,18 @@ dynamic addHaptic(Function function) {
 class VerticalIcon extends StatelessWidget {
   final String label;
   final Icon icon;
-  const VerticalIcon({super.key, required this.label, required this.icon});
+  final bool small;
+  const VerticalIcon({super.key, required this.label, required this.icon, this.small = false});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall,
+          textScaler: TextScaler.linear(small ? 0.8 : 1.0),
+        ),
         icon,
       ],
     );

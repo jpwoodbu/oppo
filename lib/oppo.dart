@@ -427,7 +427,7 @@ class DirectoryItem {
 /// also conceputal modes like 'auto'.
 enum HdmiResolution {
   auto('AUTO', 'Auto'),
-  src('SRC', 'Match source'),
+  src('SRC', 'Source direct'),
   uhdAuto('UDH_AUTO', 'UHD Auto'),
   udh24('UHD24', 'UHD 24Hz'),
   uhd50('UHD50', 'UHD 50Hz'),
@@ -493,6 +493,9 @@ enum VideoResolution {
   }
 }
 
+// The commented out values are ones which are rejected by my UDP-203. Maybe the
+// UDP-205 will accept them, but until I know for sure, I'm going to keep them
+// commented out.
 enum ZoomRatio {
   aspectRatioCorrection('AR', 'Stretch'),
   fullScreen('FS', 'Fullscreen'),
@@ -502,11 +505,11 @@ enum ZoomRatio {
   onePointThreeX('1.3', '1.3x'),
   onePointFiveX('1.5', '1.5x'),
   twoX('2', '2x'),
-  threeX('3', '3x'),
-  fourX('4', '4x'),
-  oneHalf('1/2', '1/2x'),
-  oneThird('1/3', '1/3x'),
-  oneQuarter('1/4', '1/4x');
+  // threeX('3', '3x'),
+  // fourX('4', '4x'),
+  oneHalf('1/2', '1/2x');
+  // oneThird('1/3', '1/3x'),
+  // oneQuarter('1/4', '1/4x');
 
   final String typeCode;
   final String displayName;
@@ -546,16 +549,16 @@ enum ZoomRatio {
         return ZoomRatio.onePointFiveX;
       case 7:
         return ZoomRatio.twoX;
-      case 8:
-        return ZoomRatio.threeX;
-      case 9:
-        return ZoomRatio.fourX;
+      // case 8:
+      //   return ZoomRatio.threeX;
+      // case 9:
+      //   return ZoomRatio.fourX;
       case 10:
         return ZoomRatio.oneHalf;
-      case 11:
-        return ZoomRatio.oneThird;
-      case 12:
-        return ZoomRatio.oneQuarter;
+      // case 11:
+      //   return ZoomRatio.oneThird;
+      // case 12:
+      //   return ZoomRatio.oneQuarter;
       default:
         throw 'Unknown zoom mode code: $mode';
     }
@@ -564,9 +567,9 @@ enum ZoomRatio {
 
 enum RepeatMode {
   chapter('CH', 'Chatper'),
-  titleOrTrack('TT', 'Title/Track'),
+  titleOrTrack('TT', 'Title/Track (One)'),
   all('ALL', 'All'),
-  shuffle('SHf', 'Shuffle'),
+  shuffle('SHF', 'Shuffle'),
   random('RND', 'Random'),
   one('', 'One'), // Only documented in the QRP response.
   off('OFF', 'Off');
@@ -615,8 +618,12 @@ enum RepeatMode {
 
 enum HdrSetting {
   auto('Auto', 'Auto'),
-  on('On', 'On'),
-  off('Off', 'Off'),
+  on('On', 'Forced'),
+  // TODO - 'Off' is a documented parameter, but my UDP-203 considers it
+  // invalid. The UI offers two settings for "Off": "Off (BT.709)" and "Off
+  // (BT.2020)". I should write some code to brute force lots of permutations of
+  // parameters that might trigger those modes.
+  // off('Off', 'Off'),
   // Only documented for the QHR response.
   stripMetadata('StripMetadata', 'Strip Metadata');
 
@@ -684,12 +691,13 @@ enum InputSource {
 }
 
 enum ScreenSaverSetting {
-  on('ON'),
-  off('OFF'),
-  save('SAVE');
+  on('ON', 'On'),
+  off('OFF', 'Off'),
+  save('SAVE', 'Energy Saver');
 
   final String typeCode;
-  const ScreenSaverSetting(this.typeCode);
+  final String displayName;
+  const ScreenSaverSetting(this.typeCode, this.displayName);
 
   factory ScreenSaverSetting.fromTypeCode(String typeCode) {
     try {
@@ -1447,6 +1455,9 @@ class Device {
     await _command('SZM', parameters: zoomRatio.typeCode);
   }
 
+  // WARNING: This is exceptionally janky on my UDP-203. The volume does change,
+  // but to a value that is not even close to the input. Maybe it's interpreting
+  // the values using a different base, but I failed to see any patterns.
   Future<void> setVolume(int level) async {
     int sanitizedLevel = max(level, 0);
     sanitizedLevel = min(level, 100);
@@ -1460,6 +1471,9 @@ class Device {
     await _command('SRP', parameters: repeatMode.typeCode);
   }
 
+  // WARNING: This is mostly non-responsive on my UDP-203. There are plenty of
+  // contexts in which it will return an OK result code, but then not act, even
+  // when using the IR remote to jump to a time works fine.
   Future<void> searchTo(String position) async {
     await _command('SRH', parameters: position);
   }
@@ -1531,10 +1545,14 @@ class Device {
     await _command('SDP', parameters: mode.typeCode);
   }
 
+  // This is very janky on the player. With BDs sometimes the fractional speeds
+  // get transposed to whole number speeds. On DVDs, sometimes asking for speed
+  // 3 gives you speed 1. It's all over the place.
   Future<void> setForwardPlaybackSpeed(PlaybackSpeed speed) async {
     await _command('FWD', parameters: speed.typeCode);
   }
 
+  // The comment above applies here too.
   Future<void> setReversePlaybackSpeed(PlaybackSpeed speed) async {
     await _command('REV', parameters: speed.typeCode);
   }
@@ -2064,6 +2082,8 @@ class SubtitleTypeResponse {
 
 enum HdrStatus {
   hdr('HDR'),
+  /// Returned if [HdrSetting] is [HdrSetting.off] or
+  /// [HdrSetting.stripMetadata].
   sdr('SDR'),
   dov('DOV'); // I don't know what DOV means.
 

@@ -7,7 +7,7 @@ Placeholder.
 '''.trim();
 
 String ki1 = '''
-Placeholder.
+1. The API doesn't allow turning off HDR.
 '''.trim();
 
 class Help extends StatelessWidget {

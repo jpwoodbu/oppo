@@ -249,7 +249,9 @@ class TableCellPadded extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TableCell(
-        child: Padding(padding: EdgeInsets.all(padding), child: child));
+      verticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
+      child: Padding(padding: EdgeInsets.all(padding), child: child),
+    );
   }
 }
 
@@ -323,7 +325,13 @@ class BottomGrid extends StatelessWidget {
             ),
             TableCellPadded(
               child: ElevatedButton(
-                onPressed: () => addHaptic(device.zoom),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.ZoomRatio>(
+                      context: context, builder: (context) => SetZoomRatio());
+                  if (selection != null) {
+                    await device.setZoomRatio(selection);
+                  }
+                },
                 child: VerticalIcon(icon: Icon(Icons.zoom_in), label: 'Zoom'),
               ),
             ),
@@ -351,7 +359,13 @@ class BottomGrid extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
-              onPressed: () => addHaptic(device.repeat),
+              onPressed: () async {
+                final selection = await showDialog<oppo.RepeatMode>(
+                    context: context, builder: (context) => SetRepeatMode());
+                if (selection != null) {
+                  await device.setRepeatMode(selection);
+                }
+              },
               child: VerticalIcon(icon: Icon(Icons.repeat), label: 'Repeat'),
             ),
           ),
@@ -365,7 +379,14 @@ class BottomGrid extends StatelessWidget {
         TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
-              onPressed: () => addHaptic(device.outputResolutionCycle),
+              onPressed: () async {
+                final selection = await showDialog<oppo.HdmiResolution>(
+                    context: context,
+                    builder: (context) => SetHdmiResolution());
+                if (selection != null) {
+                  await device.setHdmiResolution(selection);
+                }
+              },
               child: VerticalIcon(
                   icon: Icon(Icons.aspect_ratio), label: 'Resolution'),
             ),
@@ -386,7 +407,13 @@ class BottomGrid extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
-              onPressed: () => addHaptic(device.hdrMenu),
+              onPressed: () async {
+                final selection = await showDialog<oppo.HdrSetting>(
+                    context: context, builder: (context) => SetHdrMode());
+                if (selection != null) {
+                  await device.setHdrSetting(selection);
+                }
+              },
               child: VerticalIcon(icon: Icon(Icons.hdr_strong), label: 'HDR'),
             ),
           ),
@@ -407,11 +434,45 @@ class ExtraControls extends StatelessWidget {
         TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
-              onPressed: () => addHaptic(device.outputResolutionAuto),
-              child: VerticalIcon(
-                  icon: Icon(Icons.display_settings), label: 'Res auto'),
+              onPressed: () async {
+                final selection = await showDialog<oppo.App>(
+                    context: context, builder: (context) => SelectApp());
+                if (selection != null) {
+                  await device.runApp(selection);
+                }
+              },
+              child: VerticalIcon(icon: Icon(Icons.apps), label: 'Apps'),
             ),
           ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<oppo.TimeInformation>(
+                    context: context, builder: (context) => SetTimeMode());
+                if (selection != null) {
+                  await device.setTimeInformationDisplay(selection);
+                }
+              },
+              child: VerticalIcon(
+                  icon: Icon(Icons.hourglass_bottom), label: 'Time'),
+            ),
+          ),
+          // TODO - May be a good spot to inset eject or power off.
+          SizedBox(),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<oppo.InputSource>(
+                    context: context, builder: (context) => SetInputSource());
+                if (selection != null) {
+                  await device.setInputSource(selection);
+                }
+              },
+              child: VerticalIcon(icon: Icon(Icons.input), label: 'Input'),
+            ),
+          ),
+        ]),
+        TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.threeDimensionalMenu),
@@ -424,42 +485,8 @@ class ExtraControls extends StatelessWidget {
               child: VerticalIcon(icon: Icon(Icons.tune), label: 'A/V sync'),
             ),
           ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.subtitleShift),
-              child: VerticalIcon(
-                  icon: Icon(Icons.format_indent_increase), label: 'Sub shift'),
-            ),
-          ),
-        ]),
-        TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () async {
-                final selection = await showDialog<oppo.ZoomRatio>(
-                    context: context, builder: (context) => SetZoomRatio());
-                if (selection != null) {
-                  await device.setZoomRatio(selection);
-                }
-              },
-              child: VerticalIcon(
-                  icon: Icon(Icons.zoom_out_map), label: 'Zoom ratio'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () async {
-                final selection = await showDialog<oppo.HdmiResolution>(
-                    context: context,
-                    builder: (context) => SetHdmiResolution());
-                if (selection != null) {
-                  await device.setHdmiResolution(selection);
-                }
-              },
-              child: VerticalIcon(
-                  icon: Icon(Icons.settings_input_hdmi), label: 'HDMI'),
-            ),
-          ),
+          // TODO - Put an AlertDialog on this? It restarts playback when
+          // playing a DVD.
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.directPlay),
@@ -473,56 +500,15 @@ class ExtraControls extends StatelessWidget {
                 final selection = await showDialog<int>(
                     context: context, builder: (context) => SetSubtitleShift());
                 if (selection != null) {
-                  await device.setVolume(selection);
+                  await device.setSubtitleShift(selection);
                 }
               },
               child: VerticalIcon(
-                  icon: Icon(Icons.margin), label: 'Set sub shift'),
+                  icon: Icon(Icons.format_indent_increase), label: 'Sub shift'),
             ),
           ),
         ]),
         TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () async {
-                final selection = await showDialog<int>(
-                    context: context, builder: (context) => SetVolume());
-                if (selection != null) {
-                  await device.setVolume(selection);
-                }
-              },
-              child: VerticalIcon(
-                  icon: Icon(Icons.volume_up), label: 'Set volume'),
-            ),
-          ),
-          // TODO - Maybe make this the long press option on the repeat button.
-          // But how to decorate that button to make it clear it can be long
-          // pressed?
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () async {
-                final selection = await showDialog<oppo.RepeatMode>(
-                    context: context, builder: (context) => SetRepeatMode());
-                if (selection != null) {
-                  await device.setRepeatMode(selection);
-                }
-              },
-              child: VerticalIcon(
-                  icon: Icon(Icons.repeat_on), label: 'Repeat mode'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () async {
-                final selection = await showDialog<String>(
-                    context: context, builder: (context) => JumpTo());
-                if (selection != null) {
-                  await device.searchTo(selection);
-                }
-              },
-              child: VerticalIcon(icon: Icon(Icons.schedule), label: 'Jump to'),
-            ),
-          ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () async {
@@ -532,144 +518,56 @@ class ExtraControls extends StatelessWidget {
                   await device.setOsdPosition(selection);
                 }
               },
+              child: VerticalIcon(icon: Icon(Icons.margin), label: 'OSD'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<oppo.ScreenSaverSetting>(
+                    context: context, builder: (context) => SetScreenSaver());
+                if (selection != null) {
+                  await device.setScreenSaver(selection);
+                }
+              },
               child: VerticalIcon(
-                  icon: Icon(Icons.menu_open), label: 'Set OSD position'),
+                  icon: Icon(Icons.tv), label: 'Screensaver', small: true),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<oppo.SacdPriority>(
+                    context: context, builder: (context) => SetSacdPriority());
+                if (selection != null) {
+                  await device.setSacdPriority(selection);
+                }
+              },
+              child: VerticalIcon(
+                  icon: Icon(Icons.speaker_group),
+                  label: 'SACD priority',
+                  small: true),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<oppo.SacdOutputMode>(
+                    context: context,
+                    builder: (context) => SetSacdOutputMode());
+                if (selection != null) {
+                  await device.setSacdOutputMode(selection);
+                }
+              },
+              child: VerticalIcon(
+                  icon: Icon(Icons.album), label: 'SACD output', small: true),
             ),
           ),
         ]),
-        TableRow(
-          children: [
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.TimeInformation>(
-                      context: context, builder: (context) => SetTimeMode());
-                  if (selection != null) {
-                    await device.setTimeInformationDisplay(selection);
-                  }
-                },
-                child: VerticalIcon(
-                    icon: Icon(Icons.hourglass_bottom), label: 'Time mode'),
-              ),
-            ),
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.HdrSetting>(
-                      context: context, builder: (context) => SetHdrMode());
-                  if (selection != null) {
-                    await device.setHdrSetting(selection);
-                  }
-                },
-                child:
-                    VerticalIcon(icon: Icon(Icons.hdr_on), label: 'HDR mode'),
-              ),
-            ),
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.InputSource>(
-                      context: context, builder: (context) => SetInputSource());
-                  if (selection != null) {
-                    await device.setInputSource(selection);
-                  }
-                },
-                child: VerticalIcon(
-                    icon: Icon(Icons.input), label: 'Input source'),
-              ),
-            ),
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.ScreenSaverSetting>(
-                      context: context, builder: (context) => SetScreenSaver());
-                  if (selection != null) {}
-                },
-                child: VerticalIcon(icon: Icon(Icons.tv), label: 'Screensaver'),
-              ),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.App>(
-                      context: context, builder: (context) => SelectApp());
-                  if (selection != null) {
-                    await device.runApp(selection);
-                  }
-                },
-                child: VerticalIcon(icon: Icon(Icons.apps), label: 'Apps'),
-              ),
-            ),
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.SacdPriority>(
-                      context: context,
-                      builder: (context) => SetSacdPriority());
-                  if (selection != null) {
-                    await device.setSacdPriority(selection);
-                  }
-                },
-                child: VerticalIcon(
-                    icon: Icon(Icons.speaker_group), label: 'SACD priority'),
-              ),
-            ),
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.SacdOutputMode>(
-                      context: context,
-                      builder: (context) => SetSacdOutputMode());
-                  if (selection != null) {
-                    await device.setSacdOutputMode(selection);
-                  }
-                },
-                child:
-                    VerticalIcon(icon: Icon(Icons.album), label: 'SACD output'),
-              ),
-            ),
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.PlaybackSpeed>(
-                      context: context,
-                      builder: (context) => SetForwardPlaybackSpeed());
-                  if (selection != null) {
-                    await device.setForwardPlaybackSpeed(selection);
-                  }
-                },
-                child:
-                    VerticalIcon(icon: Icon(Icons.fast_forward), label: 'FF'),
-              ),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selection = await showDialog<oppo.PlaybackSpeed>(
-                      context: context,
-                      builder: (context) => SetReversePlaybackSpeed());
-                  if (selection != null) {
-                    await device.setReversePlaybackSpeed(selection);
-                  }
-                },
-                child: VerticalIcon(icon: Icon(Icons.fast_rewind), label: 'RW'),
-              ),
-            ),
-            const SizedBox(),
-            const SizedBox(),
-            const SizedBox(),
-          ],
-        ),
       ],
     );
+    // TODO - Add a button to query and present the track/album data when
+    // playing from DLNA?
   }
 }
 
@@ -726,63 +624,6 @@ class SetZoomRatio extends StatelessWidget {
   }
 }
 
-class SetVolume extends StatefulWidget {
-  const SetVolume({super.key});
-
-  @override
-  State<SetVolume> createState() => _SetVolumeState();
-}
-
-class _SetVolumeState extends State<SetVolume> {
-  final _volumeController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    _volumeController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('Set volume (0 - 100)'),
-      contentPadding: _dialogPadding,
-      children: [
-        Form(
-          key: _formKey,
-          child: TextFormField(
-            controller: _volumeController,
-            keyboardType: TextInputType.number,
-            validator: _validate,
-            autofocus: true,
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              final volume = int.parse(_volumeController.text);
-              addHaptic(() => Navigator.pop(context, volume));
-            }
-          },
-          child: const Text('Submit'),
-        ),
-      ],
-    );
-  }
-
-  String? _validate(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a value';
-    }
-    final volume = int.tryParse(value);
-    if (volume == null || volume < 0 || volume > 100) {
-      return 'Please enter a value between 0 and 100';
-    }
-    return null;
-  }
-}
-
 class SetRepeatMode extends StatelessWidget {
   const SetRepeatMode({super.key});
 
@@ -792,6 +633,8 @@ class SetRepeatMode extends StatelessWidget {
       title: const Text('Repeat mode'),
       contentPadding: _dialogPadding,
       children: oppo.RepeatMode.values
+          // RepeatMode.one is not available for the SRP command.
+          .where((element) => element != oppo.RepeatMode.one)
           .map(
             (mode) => TextButton(
               onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
@@ -803,82 +646,6 @@ class SetRepeatMode extends StatelessWidget {
   }
 }
 
-class JumpTo extends StatefulWidget {
-  const JumpTo({super.key});
-
-  @override
-  State<JumpTo> createState() => _JumpToState();
-}
-
-class _JumpToState extends State<JumpTo> {
-  final _positionController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('Jump to'),
-      contentPadding: _dialogPadding,
-      children: [
-        Form(
-          key: _formKey,
-          child: TextFormField(
-            controller: _positionController,
-            keyboardType: TextInputType.number,
-            validator: _validate,
-            autofocus: true,
-          ),
-        ),
-        const SizedBox(height: 12.0),
-        Wrap(
-          children: [
-            TextButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  addHaptic(
-                      () => Navigator.pop(context, _positionController.text));
-                }
-              },
-              child: const Text('Time'),
-            ),
-            // TODO - implement the other options below.
-            TextButton(
-              onPressed: () {},
-              child: const Text('Title'),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text('Chatper'),
-            ),
-          ],
-        ),
-        Wrap(
-          children: [
-            TextButton(
-              onPressed: () {},
-              child: const Text('Chatper time'),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text('Title time'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  String? _validate(String? value) {
-    if (value == null) {
-      return 'Please enter a value';
-    }
-    if (!oppo.validateClockText(value)) {
-      return 'Format like 01:23:45';
-    }
-    return null;
-  }
-}
-
 class SetSubtitleShift extends StatefulWidget {
   const SetSubtitleShift({super.key});
 
@@ -886,7 +653,8 @@ class SetSubtitleShift extends StatefulWidget {
   State<SetSubtitleShift> createState() => _SetSubtitleShiftState();
 }
 
-// TODO - Can this be made into a notched slider?
+// TODO - Can this be made into a notched slider? Or just change it to a list of
+// 11 options. That's fewer than the resolution Dialog.
 class _SetSubtitleShiftState extends State<SetSubtitleShift> {
   final _shiftController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -900,7 +668,7 @@ class _SetSubtitleShiftState extends State<SetSubtitleShift> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('Subtitle shift'),
+      title: const Text('Subtitle shift (0 - 10)'),
       contentPadding: _dialogPadding,
       children: [
         Form(
@@ -949,7 +717,7 @@ class SetOsdPosition extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('OSD position'),
+      title: const Text('OSD margin'),
       contentPadding: _dialogPadding,
       children: [0, 1, 2, 3, 4, 5]
           .map(
@@ -1036,7 +804,7 @@ class SetScreenSaver extends StatelessWidget {
           .map(
             (mode) => TextButton(
               onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.typeCode),
+              child: PopupSelectionChoice(label: mode.displayName),
             ),
           )
           .toList(),
