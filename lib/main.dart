@@ -452,6 +452,7 @@ class Buttons extends StatelessWidget {
           BottomGrid(device),
           Divider(),
           ExtraControls(device),
+          SizedBox(height: 4.0),
         ],
       ),
     );
