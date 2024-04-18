@@ -240,25 +240,20 @@ class _HomePageState extends State<HomePage> {
   // It's important that the "engage" Future is stateful so we don't try to
   // run it on every widget rebuild or hot reload.
   late Future<void> _engage;
+  late oppo.Device device;
 
   @override
   void initState() {
     super.initState();
     _engage = widget.device.engage();
+    // Just a convenience.
+    device = widget.device;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DeviceChanges>(
-      builder: (context, deviceChanges, _) =>
-          _futureBuilder(context, _engage, deviceChanges.device),
-    );
-  }
-
-  Widget _futureBuilder(
-      BuildContext context, Future future, oppo.Device device) {
     return FutureBuilder<void>(
-      future: future,
+      future: _engage,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
@@ -282,7 +277,7 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           }
-          return _build(context, device);
+          return _build(context);
         } else {
           return const Scaffold(
             body: Center(
@@ -294,7 +289,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _build(BuildContext context, oppo.Device device) {
+  Widget _build(BuildContext context) {
     Image appIcon = const Image(
       image: AssetImage('assets/hdpi_app_icon.png'),
     );
@@ -345,16 +340,16 @@ class _HomePageState extends State<HomePage> {
                         content: Text('Refreshing player info...')));
                   },
                 ),
-                ListTile(
-                  leading: Icon(Icons.power_settings_new),
-                  title: const Text('Power off'),
-                  onTap: () {
-                    addHaptic(device.powerOff);
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Waiting for power off signal...')));
-                  },
-                ),
+              ListTile(
+                leading: Icon(Icons.power_settings_new),
+                title: const Text('Power off'),
+                onTap: () {
+                  addHaptic(device.powerOff);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Waiting for power off signal...')));
+                },
+              ),
               if (device.powered ?? false)
                 ListTile(
                   leading: Icon(Icons.route),

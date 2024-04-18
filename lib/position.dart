@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'device_changes.dart';
 import 'oppo.dart' as oppo;
 
 const _iconSize = 20.0;
@@ -17,13 +19,17 @@ class _PositionState extends State<Position> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _playbackStatusIcon(context),
-        _clock(context),
-        SizedBox(width: _iconSize, height: _iconSize),
-      ],
+    return Consumer<DeviceChanges>(
+      builder: (_, __, ___) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _playbackStatusIcon(context),
+            _clock(context),
+            SizedBox(width: _iconSize, height: _iconSize),
+          ],
+        );
+      },
     );
   }
 

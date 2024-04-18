@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'device_changes.dart';
 import 'oppo.dart' as oppo;
 
 class Display extends StatelessWidget {
@@ -8,28 +10,32 @@ class Display extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTextStyle.merge(
-      style: Theme.of(context).textTheme.bodySmall,
-      child: Column(
-        children: [
-          PaddedRow(children: [
-            _title(context),
-            _chapter(context),
-          ]),
-          PaddedRow(children: [
-            _audioType(context),
-            _muted(context),
-          ]),
-          PaddedRow(children: [
-            _audioTrack(context),
-            _subtitles(context),
-          ]),
-          PaddedRow(children: [
-            _contentResolution(context),
-            _outputResolution(context),
-          ]),
-        ],
-      ),
+    return Consumer<DeviceChanges>(
+      builder: (_, __, ___) {
+        return DefaultTextStyle.merge(
+          style: Theme.of(context).textTheme.bodySmall,
+          child: Column(
+            children: [
+              PaddedRow(children: [
+                _title(context),
+                _chapter(context),
+              ]),
+              PaddedRow(children: [
+                _audioType(context),
+                _muted(context),
+              ]),
+              PaddedRow(children: [
+                _audioTrack(context),
+                _subtitles(context),
+              ]),
+              PaddedRow(children: [
+                _contentResolution(context),
+                _outputResolution(context),
+              ]),
+            ],
+          ),
+        );
+      },
     );
   }
 
