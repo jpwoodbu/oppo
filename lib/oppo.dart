@@ -564,12 +564,12 @@ enum ZoomRatio {
 
 enum RepeatMode {
   chapter('CH', 'Chatper'),
-  titleOrTrack('TT', 'Title'),
+  titleOrTrack('TT', 'Title/Track'),
   all('ALL', 'All'),
-  off('OFF', 'Off'),
   shuffle('SHf', 'Shuffle'),
   random('RND', 'Random'),
-  one('', 'One'); // Only documented in the QRP response.
+  one('', 'One'), // Only documented in the QRP response.
+  off('OFF', 'Off');
 
   final String typeCode;
   final String displayName;
@@ -1484,11 +1484,14 @@ class Device {
   Future<void> reset() async => await _command('RST');
 
   Future<void> setSubtitleShift(int shift) async {
+    // TODO - This range follows the API docs, but the player has (while playing
+    // a CD anyway) rejected values below 0.
     int sanitizedShift = max(shift, -10);
-    sanitizedShift = min(shift, 10);
+    sanitizedShift = min(sanitizedShift, 10);
     await _command('SSH', parameters: sanitizedShift.toString());
   }
 
+  // MARK - resume work here
   Future<void> setOsdPosition(int position) async {
     int sanitizedPosition = max(position, 0);
     sanitizedPosition = min(position, 5);
@@ -1977,7 +1980,7 @@ class TrackInfo {
   }
 }
 
-bool _validateClockText(String text) {
+bool validateClockText(String text) {
   final segments = text.split(':');
   if (segments.length != 3) return false;
   for (final s in segments) {
@@ -1989,7 +1992,7 @@ bool _validateClockText(String text) {
 }
 
 String _parseClockText(String text) {
-  if (_validateClockText(text)) {
+  if (validateClockText(text)) {
     return text;
   } else {
     throw 'Could not parse clock text: $text';

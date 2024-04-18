@@ -467,8 +467,15 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
-              onPressed: () => addHaptic(device.reset),
-              child: VerticalIcon(icon: Icon(Icons.bug_report), label: 'Reset'),
+              onPressed: () async {
+                final selection = await showDialog<int>(
+                    context: context, builder: (context) => SetSubtitleShift());
+                if (selection != null) {
+                  await device.setVolume(selection);
+                }
+              },
+              child: VerticalIcon(
+                  icon: Icon(Icons.pin), label: 'Set sub shift'),
             ),
           ),
         ]),
@@ -483,29 +490,56 @@ class ExtraControls extends StatelessWidget {
                 }
               },
               child: VerticalIcon(
-                  icon: Icon(Icons.volume_up), label: 'Set Volume'),
+                  icon: Icon(Icons.volume_up), label: 'Set volume'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<oppo.RepeatMode>(
+                    context: context, builder: (context) => SetRepeatMode());
+                if (selection != null) {
+                  await device.setRepeatMode(selection);
+                }
+              },
+              child: VerticalIcon(
+                  icon: Icon(Icons.repeat_on), label: 'Repeat mode'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<String>(
+                    context: context, builder: (context) => JumpTo());
+                if (selection != null) {
+                  await device.searchTo(selection);
+                }
+              },
+              child: VerticalIcon(icon: Icon(Icons.schedule), label: 'Jump to'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.reset),
-              child: VerticalIcon(icon: Icon(Icons.bug_report), label: 'Reset'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.reset),
-              child: VerticalIcon(icon: Icon(Icons.bug_report), label: 'Reset'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.reset),
-              child: VerticalIcon(icon: Icon(Icons.bug_report), label: 'Reset'),
+              child:
+                  VerticalIcon(icon: Icon(Icons.abc), label: 'Dummy')
             ),
           ),
         ]),
       ],
+    );
+  }
+}
+
+class PopupSelectionChoice extends StatelessWidget {
+  final String label;
+  const PopupSelectionChoice({super.key, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(label),
     );
   }
 }
@@ -521,7 +555,7 @@ class SetHdmiResolution extends StatelessWidget {
           .map(
             (mode) => TextButton(
               onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: Text(mode.displayName),
+              child: PopupSelectionChoice(label: mode.displayName),
             ),
           )
           .toList(),
@@ -540,7 +574,7 @@ class SetZoomRatio extends StatelessWidget {
           .map(
             (mode) => TextButton(
               onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: Text(mode.displayName),
+              child: PopupSelectionChoice(label: mode.displayName),
             ),
           )
           .toList(),
@@ -576,9 +610,6 @@ class _SetVolumeState extends State<SetVolume> {
           child: TextFormField(
             controller: _volumeController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Volume',
-            ),
             validator: _validate,
             autofocus: true,
           ),
@@ -596,7 +627,7 @@ class _SetVolumeState extends State<SetVolume> {
     );
   }
 
-  String? _validate(value) {
+  String? _validate(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a value';
     }
@@ -606,4 +637,163 @@ class _SetVolumeState extends State<SetVolume> {
     }
     return null;
   }
+}
+
+class SetRepeatMode extends StatelessWidget {
+  const SetRepeatMode({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('Repeat mode'),
+      children: oppo.RepeatMode.values
+          .map(
+            (mode) => TextButton(
+              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
+              child: PopupSelectionChoice(label: mode.displayName),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class JumpTo extends StatefulWidget {
+  const JumpTo({super.key});
+
+  @override
+  State<JumpTo> createState() => _JumpToState();
+}
+
+class _JumpToState extends State<JumpTo> {
+  final _positionController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('Jump to'),
+      contentPadding: EdgeInsets.all(12.0),
+      children: [
+        Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _positionController,
+            keyboardType: TextInputType.number,
+            validator: _validate,
+            autofocus: true,
+          ),
+        ),
+        const SizedBox(height: 12.0),
+        Wrap(
+          children: [
+            TextButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  addHaptic(
+                      () => Navigator.pop(context, _positionController.text));
+                }
+              },
+              child: const Text('Time'),
+            ),
+            // TODO - implement the other options below.
+            TextButton(
+              onPressed: () {},
+              child: const Text('Title'),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: const Text('Chatper'),
+            ),
+          ],
+        ),
+        Wrap(
+          children: [
+            TextButton(
+              onPressed: () {},
+              child: const Text('Chatper time'),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: const Text('Title time'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String? _validate(String? value) {
+    if (value == null) {
+      return 'Please enter a value';
+    }
+    if (!oppo.validateClockText(value)) {
+      return 'Format like 01:23:45';
+    }
+    return null;
+  }
+}
+
+class SetSubtitleShift extends StatefulWidget {
+  const SetSubtitleShift({super.key});
+
+  @override
+  State<SetSubtitleShift> createState() => _SetSubtitleShiftState();
+}
+
+class _SetSubtitleShiftState extends State<SetSubtitleShift> {
+  final _shiftController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _shiftController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('Subtitle shift'),
+      // TODO - centralize the padding value;
+      contentPadding: EdgeInsets.all(12.0),
+      children: [
+        Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _shiftController,
+            keyboardType: TextInputType.number,
+            validator: (value) => _numberInputValidator(value, -10, 10),
+            autofocus: true,
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              final shift = int.parse(_shiftController.text);
+              addHaptic(() => Navigator.pop(context, shift));
+            }
+          },
+          child: const Text('Submit'),
+        ),
+      ],
+    );
+  }
+}
+
+String? _numberInputValidator(String? value, [int? min, int? max]) {
+  if (value == null || value.isEmpty) {
+    return 'Please enter a number';
+  }
+  final number = int.tryParse(value);
+  if (number == null) {
+    return 'Please enter a valid number';
+  }
+  if (min != null && number < min) {
+    return 'Enter a number greater than $min';
+  }
+  if (max != null && number > max) {
+    return 'Enter a number less than $max';
+  }
+  return null;
 }
