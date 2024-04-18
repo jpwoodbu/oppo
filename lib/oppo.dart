@@ -960,9 +960,10 @@ class Device {
     }
     _socket = await Socket.connect(address, port,
         timeout: const Duration(seconds: 3));
-    _log.info('Connected to device at ${address.address}.');
     final socket = _socket;
     if (socket != null) {
+      _log.info('Connected to device at ${address.address}.');
+      // Sets encoding for writing strings.
       socket.encoding = const AsciiCodec();
       socket.setOption(SocketOption.tcpNoDelay, true);
     }
@@ -1025,12 +1026,10 @@ class Device {
     }
   }
 
-  // TODO - Perhaps do something like ascii.decoder.bind(_socket) when connecting
-  // and make the socket public so this layer of indirection can be removed.
-  // Note that [connect] sets the encoding already, so why is this decode step
-  // needed?
   Stream<String> stream() async* {
-    if (_socket == null) connect();
+    if (_socket == null) {
+      throw 'Cannot stream events. Socket disconnected.';
+    } 
     final socket = _socket;
     if (socket != null) {
       await for (final data in socket) {
