@@ -542,10 +542,10 @@ class ExtraControls extends StatelessWidget {
             TableCellPadded(
               child: ElevatedButton(
                 onPressed: () async {
-                  final selection = await showDialog<oppo.RepeatMode>(
+                  final selection = await showDialog<oppo.TimeInformation>(
                       context: context, builder: (context) => SetTimeMode());
                   if (selection != null) {
-                    await device.setRepeatMode(selection);
+                    await device.setTimeInformationDisplay(selection);
                   }
                 },
                 child: VerticalIcon(
