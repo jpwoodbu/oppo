@@ -11,11 +11,14 @@ class NumberPadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: ElevatedButton(
-        onPressed: () => addHaptic(onPressed),
-        child: child,
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: ElevatedButton(
+          onPressed: () => addHaptic(onPressed),
+          child: child,
+        ),
       ),
     );
   }
