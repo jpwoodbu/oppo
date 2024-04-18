@@ -1491,7 +1491,6 @@ class Device {
     await _command('SSH', parameters: sanitizedShift.toString());
   }
 
-  // MARK - resume work here
   Future<void> setOsdPosition(int position) async {
     int sanitizedPosition = max(position, 0);
     sanitizedPosition = min(position, 5);
@@ -1503,6 +1502,7 @@ class Device {
     await _command('STC', parameters: timeInformation.typeCode);
   }
 
+  // TODO - resume implementing UI here.
   Future<void> setHdrSetting(HdrSetting setting) async {
     await _command('SHR', parameters: setting.typeCode);
   }

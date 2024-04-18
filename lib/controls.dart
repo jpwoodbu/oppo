@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'oppo.dart' as oppo;
 import 'util.dart';
 
+const _dialogPadding = EdgeInsets.all(12.0);
+
 class HomeRow extends StatelessWidget {
   final oppo.Device device;
   const HomeRow(this.device, {super.key});
@@ -455,7 +457,9 @@ class ExtraControls extends StatelessWidget {
                 }
               },
               child: VerticalIcon(
-                  icon: Icon(Icons.settings_input_hdmi), label: 'HDMI mode'),
+                  // TODO - This label wraps on my phone.
+                  icon: Icon(Icons.settings_input_hdmi),
+                  label: 'HDMI mode'),
             ),
           ),
           TableCellPadded(
@@ -475,7 +479,7 @@ class ExtraControls extends StatelessWidget {
                 }
               },
               child: VerticalIcon(
-                  icon: Icon(Icons.pin), label: 'Set sub shift'),
+                  icon: Icon(Icons.margin), label: 'Set sub shift'),
             ),
           ),
         ]),
@@ -493,6 +497,9 @@ class ExtraControls extends StatelessWidget {
                   icon: Icon(Icons.volume_up), label: 'Set volume'),
             ),
           ),
+          // TODO - Maybe make this the long press option on the repeat button.
+          // But how to decorate that button to make it clear it can be long
+          // pressed?
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () async {
@@ -520,12 +527,65 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
-              onPressed: () => addHaptic(device.reset),
-              child:
-                  VerticalIcon(icon: Icon(Icons.abc), label: 'Dummy')
+              onPressed: () async {
+                final selection = await showDialog<int>(
+                    context: context, builder: (context) => SetOsdPosition());
+                if (selection != null) {
+                  await device.setOsdPosition(selection);
+                }
+              },
+              child: VerticalIcon(
+                  icon: Icon(Icons.menu_open), label: 'Set OSD position'),
             ),
           ),
         ]),
+        TableRow(
+          children: [
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  final selection = await showDialog<oppo.RepeatMode>(
+                      context: context, builder: (context) => SetTimeMode());
+                  if (selection != null) {
+                    await device.setRepeatMode(selection);
+                  }
+                },
+                child: VerticalIcon(
+                    icon: Icon(Icons.hourglass_bottom), label: 'Time mode'),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  final selection = await showDialog<oppo.RepeatMode>(
+                      context: context, builder: (context) => SetRepeatMode());
+                  if (selection != null) {}
+                },
+                child: VerticalIcon(icon: Icon(Icons.abc), label: 'Dummy'),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  final selection = await showDialog<oppo.RepeatMode>(
+                      context: context, builder: (context) => SetRepeatMode());
+                  if (selection != null) {}
+                },
+                child: VerticalIcon(icon: Icon(Icons.abc), label: 'Dummy'),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  final selection = await showDialog<oppo.RepeatMode>(
+                      context: context, builder: (context) => SetRepeatMode());
+                  if (selection != null) {}
+                },
+                child: VerticalIcon(icon: Icon(Icons.abc), label: 'Dummy'),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -551,6 +611,7 @@ class SetHdmiResolution extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('HDMI mode'),
+      contentPadding: _dialogPadding,
       children: oppo.HdmiResolution.values
           .map(
             (mode) => TextButton(
@@ -570,6 +631,7 @@ class SetZoomRatio extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Zoom ratio'),
+      contentPadding: _dialogPadding,
       children: oppo.ZoomRatio.values
           .map(
             (mode) => TextButton(
@@ -603,7 +665,7 @@ class _SetVolumeState extends State<SetVolume> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Set volume (0 - 100)'),
-      contentPadding: EdgeInsets.all(12.0),
+      contentPadding: _dialogPadding,
       children: [
         Form(
           key: _formKey,
@@ -646,6 +708,7 @@ class SetRepeatMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Repeat mode'),
+      contentPadding: _dialogPadding,
       children: oppo.RepeatMode.values
           .map(
             (mode) => TextButton(
@@ -673,7 +736,7 @@ class _JumpToState extends State<JumpTo> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Jump to'),
-      contentPadding: EdgeInsets.all(12.0),
+      contentPadding: _dialogPadding,
       children: [
         Form(
           key: _formKey,
@@ -741,6 +804,7 @@ class SetSubtitleShift extends StatefulWidget {
   State<SetSubtitleShift> createState() => _SetSubtitleShiftState();
 }
 
+// TODO - Can this be made into a notched slider?
 class _SetSubtitleShiftState extends State<SetSubtitleShift> {
   final _shiftController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -755,8 +819,7 @@ class _SetSubtitleShiftState extends State<SetSubtitleShift> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Subtitle shift'),
-      // TODO - centralize the padding value;
-      contentPadding: EdgeInsets.all(12.0),
+      contentPadding: _dialogPadding,
       children: [
         Form(
           key: _formKey,
@@ -796,4 +859,45 @@ String? _numberInputValidator(String? value, [int? min, int? max]) {
     return 'Enter a number less than $max';
   }
   return null;
+}
+
+class SetOsdPosition extends StatelessWidget {
+  const SetOsdPosition({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('OSD position'),
+      contentPadding: _dialogPadding,
+      children: [0, 1, 2, 3, 4, 5]
+          .map(
+            (position) => TextButton(
+              onPressed: () =>
+                  addHaptic(() => Navigator.pop(context, position)),
+              child: PopupSelectionChoice(label: position.toString()),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class SetTimeMode extends StatelessWidget {
+  const SetTimeMode({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('Time mode'),
+      contentPadding: _dialogPadding,
+      children: oppo.TimeInformation.values
+          .map(
+            (mode) => TextButton(
+              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
+              child: PopupSelectionChoice(label: mode.displayName),
+            ),
+          )
+          .toList(),
+    );
+  }
 }
