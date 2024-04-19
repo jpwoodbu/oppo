@@ -634,7 +634,7 @@ class SetHdmiResolution extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('HDMI mode'),
+      title: const Text('HDMI resolution'),
       contentPadding: dialogPadding,
       children: oppo.HdmiResolution.values
           .map(
@@ -837,7 +837,7 @@ class SetSacdPriority extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('SACD Priority'),
+      title: const Text('SACD priority'),
       contentPadding: dialogPadding,
       children: oppo.SacdPriority.values
           .map(
