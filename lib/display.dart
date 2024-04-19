@@ -4,6 +4,11 @@ import 'package:provider/provider.dart';
 import 'device_changes.dart';
 import 'oppo.dart' as oppo;
 
+// TODO - This module needs a lot of functions converted into Widget classes.
+
+// TODO - To keep the display height fixed, always show something for each
+// field.
+
 class Display extends StatelessWidget {
   final oppo.Device device;
   const Display(this.device, {super.key});
