@@ -12,6 +12,7 @@ import 'info.dart';
 import 'number_pad.dart';
 import 'oppo.dart' as oppo;
 import 'position.dart';
+import 'track_info.dart';
 import 'util.dart';
 
 void main() {
@@ -334,6 +335,18 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+                  if (powered ?? false)
+                    ListTile(
+                      leading: Icon(Icons.info),
+                      title: const Text('Fetch track metadata'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        showDialog(
+                          context: context,
+                          builder: (_) => TrackInfo(device: device),
+                        );
+                      },
+                    ),
                   if (powered ?? false)
                     ListTile(
                       leading: Icon(Icons.refresh),
