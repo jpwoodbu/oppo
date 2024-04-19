@@ -1497,7 +1497,11 @@ class Device {
         'T ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
   }
 
-  /// Opens the "Program Play" menu.
+  /// Opens the "Program Play" menu when playing CDs. Similar to pushing the
+  /// yellow button. However, it starts DVD playback over from the beginning.
+  /// Since this function is not present on the UDP-203 IR remote, and its
+  /// useful functionality seems to be duplicated with other functions, it's
+  /// probably best to avoid using this.
   Future<void> directPlay() async => await _command('DPL');
 
   /// Clear command buffers.

@@ -331,7 +331,7 @@ class BottomGrid extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.audio),
                 child:
-                    VerticalIcon(icon: Icon(Icons.audiotrack), label: 'Audio'),
+                    VerticalIcon(icon: Icon(Icons.animation), label: 'Audio'),
               ),
             ),
             TableCellPadded(
@@ -415,15 +415,15 @@ class BottomGrid extends StatelessWidget {
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.pageDown),
-              child:
-                  VerticalIcon(icon: Icon(Icons.arrow_downward), label: 'Page'),
+              child: VerticalIcon(
+                  icon: Icon(Icons.keyboard_double_arrow_down), label: 'Page'),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () => addHaptic(device.pageUp),
-              child:
-                  VerticalIcon(icon: Icon(Icons.arrow_upward), label: 'Page'),
+              child: VerticalIcon(
+                  icon: Icon(Icons.keyboard_double_arrow_up), label: 'Page'),
             ),
           ),
           TableCellPadded(
@@ -612,22 +612,6 @@ class ExtraControls extends StatelessWidget {
             ),
           ),
         ]),
-        TableRow(
-          children: [
-            const SizedBox(),
-            const SizedBox(),
-            const SizedBox(),
-            // TODO - Put an AlertDialog on this? It restarts playback when
-            // playing a DVD.
-            TableCellPadded(
-              child: ElevatedButton(
-                onPressed: () => addHaptic(device.directPlay),
-                child: VerticalIcon(
-                    icon: Icon(Icons.table_view), label: 'Program'),
-              ),
-            ),
-          ],
-        ),
       ],
     );
     // TODO - Add a button to query and present the track/album data when
