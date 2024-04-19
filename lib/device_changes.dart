@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
 
@@ -8,19 +10,28 @@ final _log = Logger('DeviceChanges');
 class DeviceChanges with ChangeNotifier {
   final Device device;
   final BuildContext _context;
+  late StreamSubscription<String> _subscription;
 
   DeviceChanges(this.device, this._context) {
-    _startListener();
+    _subscription = _startListener();
   }
 
-  void _startListener() {
-    device.stream().listen(
+  @override
+  void dispose() {
+    _subscription.cancel();
+    _log.info('Listener stopped.');
+    super.dispose();
+  }
+
+  StreamSubscription<String> _startListener() {
+    final subscription = device.stream().listen(
       (event) {
         device.parseEvent(event);
         notifyListeners();
       },
       onDone: () {
-        _snackBar('Disconnected.');
+        _log.info('disconnected.');
+        _reconnect();
       },
       onError: (e) {
         _log.severe(e);
@@ -28,6 +39,7 @@ class DeviceChanges with ChangeNotifier {
       },
     );
     _log.info('Listener started.');
+    return subscription;
   }
 
   void _reconnect() async {
@@ -42,7 +54,7 @@ class DeviceChanges with ChangeNotifier {
       return;
     }
     _snackBar('Reconnected.');
-    _startListener();
+    _subscription = _startListener();
     await device.fetchState();
   }
 
