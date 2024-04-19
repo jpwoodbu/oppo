@@ -255,6 +255,24 @@ class TableCellPadded extends StatelessWidget {
   }
 }
 
+ButtonStyle dialogButtonStyle(BuildContext context) {
+  return ButtonStyle(
+    backgroundColor:
+        MaterialStatePropertyAll(Theme.of(context).colorScheme.onSecondary),
+    foregroundColor:
+        MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary),
+  );
+}
+
+ButtonStyle alertDialogButtonStyle(BuildContext context) {
+  return ButtonStyle(
+    backgroundColor:
+        MaterialStatePropertyAll(Theme.of(context).colorScheme.onTertiary),
+    foregroundColor:
+        MaterialStatePropertyAll(Theme.of(context).colorScheme.tertiary),
+  );
+}
+
 class BottomGrid extends StatelessWidget {
   final oppo.Device device;
   const BottomGrid(this.device, {super.key});
@@ -325,6 +343,7 @@ class BottomGrid extends StatelessWidget {
             ),
             TableCellPadded(
               child: ElevatedButton(
+                style: dialogButtonStyle(context),
                 onPressed: () async {
                   final selection = await showDialog<oppo.ZoomRatio>(
                       context: context, builder: (context) => SetZoomRatio());
@@ -359,6 +378,7 @@ class BottomGrid extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.RepeatMode>(
                     context: context, builder: (context) => SetRepeatMode());
@@ -379,6 +399,7 @@ class BottomGrid extends StatelessWidget {
         TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.HdmiResolution>(
                     context: context,
@@ -407,6 +428,7 @@ class BottomGrid extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.HdrSetting>(
                     context: context, builder: (context) => SetHdrMode());
@@ -434,6 +456,7 @@ class ExtraControls extends StatelessWidget {
         TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
+              style: alertDialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<bool?>(
                     context: context, builder: (context) => PowerOff());
@@ -447,6 +470,7 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.App>(
                     context: context, builder: (context) => SelectApp());
@@ -459,6 +483,7 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.InputSource>(
                     context: context, builder: (context) => SetInputSource());
@@ -471,6 +496,7 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: alertDialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<bool?>(
                     context: context, builder: (context) => ToggleTray());
@@ -485,6 +511,7 @@ class ExtraControls extends StatelessWidget {
         TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.TimeInformation>(
                     context: context, builder: (context) => SetTimeMode());
@@ -498,6 +525,7 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<int>(
                     context: context, builder: (context) => SetSubtitleShift());
@@ -506,11 +534,14 @@ class ExtraControls extends StatelessWidget {
                 }
               },
               child: VerticalIcon(
-                  icon: Icon(Icons.format_indent_increase), label: 'Subtitle shift', small: true),
+                  icon: Icon(Icons.format_indent_increase),
+                  label: 'Subtitle shift',
+                  small: true),
             ),
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<int>(
                     context: context, builder: (context) => SetOsdPosition());
@@ -537,6 +568,7 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.ScreenSaverSetting>(
                     context: context, builder: (context) => SetScreenSaver());
@@ -550,6 +582,7 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.SacdPriority>(
                     context: context, builder: (context) => SetSacdPriority());
@@ -563,6 +596,7 @@ class ExtraControls extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
+              style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.SacdOutputMode>(
                     context: context,
@@ -578,20 +612,21 @@ class ExtraControls extends StatelessWidget {
             ),
           ),
         ]),
-        TableRow(children: [
-          const SizedBox(),
-          const SizedBox(),
-          const SizedBox(),
-          // TODO - Put an AlertDialog on this? It restarts playback when
-          // playing a DVD.
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.directPlay),
-              child:
-                  VerticalIcon(icon: Icon(Icons.table_view), label: 'Program'),
+        TableRow(
+          children: [
+            const SizedBox(),
+            const SizedBox(),
+            const SizedBox(),
+            // TODO - Put an AlertDialog on this? It restarts playback when
+            // playing a DVD.
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.directPlay),
+                child: VerticalIcon(
+                    icon: Icon(Icons.table_view), label: 'Program'),
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ],
     );
@@ -686,8 +721,7 @@ class SetSubtitleShift extends StatelessWidget {
       children: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
           .map(
             (shift) => TextButton(
-              onPressed: () =>
-                  addHaptic(() => Navigator.pop(context, shift)),
+              onPressed: () => addHaptic(() => Navigator.pop(context, shift)),
               child: PopupSelectionChoice(label: shift.toString()),
             ),
           )

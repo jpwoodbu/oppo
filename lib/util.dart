@@ -12,7 +12,8 @@ class VerticalIcon extends StatelessWidget {
   final String label;
   final Icon icon;
   final bool small;
-  const VerticalIcon({super.key, required this.label, required this.icon, this.small = false});
+  const VerticalIcon(
+      {super.key, required this.label, required this.icon, this.small = false});
 
   @override
   Widget build(BuildContext context) {
