@@ -19,6 +19,9 @@ class DeviceChanges with ChangeNotifier {
         device.parseEvent(event);
         notifyListeners();
       },
+      onDone: () {
+        _snackBar('Disconnected.');
+      },
       onError: (e) {
         _log.severe(e);
         _reconnect();
