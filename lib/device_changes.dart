@@ -52,6 +52,8 @@ class DeviceChanges with ChangeNotifier {
     } catch (e) {
       _snackBar('Reconnect error: $e\n', logLevel: Level.SEVERE);
       _log.severe(e);
+      // TODO - Can we use Navigator to get us back into scanning mode in this
+      // case?
       return;
     }
     _snackBar('Reconnected.');
