@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'oppo.dart' as oppo;
-import 'util.dart';
 
 class _FetchInfoResponse {
   final String album;
@@ -18,28 +17,32 @@ class TrackInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final errorColor = Theme.of(context).colorScheme.error;
+    final errorStyle = TextStyle(color: errorColor);
     return FutureBuilder(
       future: _fetchInfo(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Text('Error fetching track info');
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Error fetching track info.',
+                style: errorStyle,
+              ),
+              Text(
+                'It may not be available in this context.',
+                style: errorStyle,
+              ),
+            ],
+          );
         }
         if (snapshot.hasData) {
-          return SimpleDialog(
-            contentPadding: dialogPadding,
-            title: const Text('Track info'),
+          return Column(
             children: [
               InfoRow(header: 'Performer', value: snapshot.data!.performer),
               InfoRow(header: 'Album', value: snapshot.data!.album),
               InfoRow(header: 'Track', value: snapshot.data!.name),
-              Align(
-                heightFactor: 1.2,
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
-                ),
-              ),
             ],
           );
         }

@@ -343,7 +343,23 @@ class _HomePageState extends State<HomePage> {
                         Navigator.pop(context);
                         showDialog(
                           context: context,
-                          builder: (_) => TrackInfo(device: device),
+                          builder: (_) {
+                            return SimpleDialog(
+                              contentPadding: dialogPadding,
+                              title: const Text('Track info'),
+                              children: [
+                                TrackInfo(device: device),
+                                Align(
+                                  heightFactor: 1.2,
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Close'),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         );
                       },
                     ),
