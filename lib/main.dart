@@ -300,8 +300,7 @@ class _HomePageState extends State<HomePage> {
             centerTitle: true,
             titleSpacing: 0.0,
             actions: [
-              Selector<DeviceChanges, bool?>(
-                selector: (_, deviceChanges) => deviceChanges.device.powered,
+              PoweredProvider(
                 builder: (_, powered, __) {
                   return powered ?? false
                       ? IconButton(
@@ -319,8 +318,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          drawer: Selector<DeviceChanges, bool?>(
-            selector: (_, deviceChanges) => deviceChanges.device.powered,
+          drawer: PoweredProvider(
             builder: (_, powered, __) => Drawer(
               child: ListView(
                 padding: EdgeInsets.zero,
@@ -383,8 +381,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          body: Selector<DeviceChanges, bool?>(
-            selector: (_, deviceChanges) => deviceChanges.device.powered,
+          body: PoweredProvider(
             builder: (_, powered, __) =>
                 powered ?? false ? Buttons(device) : NotPoweredOn(device),
           )),
@@ -448,5 +445,17 @@ class Buttons extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class PoweredProvider extends StatelessWidget {
+  final ValueWidgetBuilder builder;
+  const PoweredProvider({super.key, required this.builder});
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<DeviceChanges, bool?>(
+        selector: (_, deviceChanges) => deviceChanges.device.powered,
+        builder: builder);
   }
 }
