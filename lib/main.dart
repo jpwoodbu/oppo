@@ -432,6 +432,7 @@ class Buttons extends StatelessWidget {
         children: [
           Display(device),
           SizedBox(height: 4.0),
+          Divider(),
           HomeRow(device),
           Arrows(device),
           PlayControls(device),

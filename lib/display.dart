@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'device_changes.dart';
 import 'oppo.dart' as oppo;
 
+const String _noInformation = '--';
+
 // TODO - To keep the display height fixed, always show something for each
 // field.
 
@@ -51,7 +53,7 @@ class Title extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (device.position == null || device.position!.title == 0) {
-      return SizedBox();
+      return const Text('Title: $_noInformation');
     }
     switch (device.discType) {
       case oppo.DiscType.cd || oppo.DiscType.dvdAudio || oppo.DiscType.sacd:
@@ -69,7 +71,7 @@ class Chapter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (device.position == null || device.position!.chapter == 0) {
-      return const SizedBox();
+      return const Text('Chapter: $_noInformation');
     }
     switch (device.discType) {
       case oppo.DiscType.cd || oppo.DiscType.dvdAudio || oppo.DiscType.sacd:
@@ -87,7 +89,7 @@ class AudioTrack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (device.currentAudioTrack == null || device.currentAudioTrack == 0) {
-      return const SizedBox();
+      return const Text('Audio: $_noInformation');
     }
     final language = device.audioLanguage == 'UNK' ? '' : device.audioLanguage;
     return Text('Audio: ${device.currentAudioTrack}/'
@@ -102,7 +104,7 @@ class AudioType extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (device.audioType == oppo.AudioType.unknown) {
-      return const SizedBox();
+      return const Text('Audio stream: $_noInformation');
     }
     final channels = device.channels == '0.0' ? '' : device.channels;
     return Text('${device.audioType.displayName} '
@@ -131,7 +133,7 @@ class Subtitles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (device.currentSubtitleTrack == null) {
-      return const SizedBox();
+      return const Text('Subtitles: $_noInformation');
     }
     return Text('Subtitles: ${device.currentSubtitleTrack}/'
         '${device.availableSubtitleTracks} ${device.subtitleLanguage}');
@@ -145,7 +147,7 @@ class ContentResolution extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (device.contentResolution == null) {
-      return SizedBox();
+      return const Text('In: $_noInformation');
     }
     final aspectRatio = device.aspectRatioSetting == null
         ? ''
@@ -161,7 +163,7 @@ class OutputResolution extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (device.outputResolution == null) {
-      return SizedBox();
+      return const Text('Out: $_noInformation');
     }
     return Text('Out: ${device.outputResolution!.displayName}');
   }
