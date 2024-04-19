@@ -19,6 +19,11 @@ class DeviceChanges with ChangeNotifier {
         device.parseEvent(event);
         notifyListeners();
       },
+      // This handler may get used on "connection closed by peer".
+      onDone: () {
+        _log.severe('Stream listener stopped. Reconnecting...');
+        _reconnect();
+      },
       onError: (e) {
         _log.severe(e);
         _reconnect();
