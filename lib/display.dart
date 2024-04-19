@@ -6,9 +6,6 @@ import 'oppo.dart' as oppo;
 
 const String _noInformation = '--';
 
-// TODO - To keep the display height fixed, always show something for each
-// field.
-
 class Display extends StatelessWidget {
   final oppo.Device device;
   const Display(this.device, {super.key});
