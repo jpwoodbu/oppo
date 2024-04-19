@@ -8,6 +8,8 @@ Placeholder.
 
 String ki1 = '''
 1. The API doesn't allow turning off HDR.
+
+2. The API severely truncates track metadata. If you see a trailing asterisk on metadata fields, it has been truncated by the player.
 '''.trim();
 
 class Help extends StatelessWidget {

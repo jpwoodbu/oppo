@@ -817,7 +817,7 @@ class SelectApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('App'),
+      title: const Text('Apps'),
       contentPadding: dialogPadding,
       children: oppo.App.values
           .map(
