@@ -295,107 +295,99 @@ class _HomePageState extends State<HomePage> {
     );
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: device.powered ?? false ? Position(device) : null,
-          centerTitle: true,
-          titleSpacing: 0.0,
-          actions: [
-            if (device.powered ?? false)
-              IconButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => NumberPad(device),
-                  );
+          appBar: AppBar(
+            title: Position(),
+            centerTitle: true,
+            titleSpacing: 0.0,
+            actions: [
+              Selector<DeviceChanges, bool?>(
+                selector: (_, deviceChanges) => deviceChanges.device.powered,
+                builder: (_, powered, __) {
+                  return powered ?? false
+                      ? IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  NumberPad(device),
+                            );
+                          },
+                          icon: Icon(Icons.dialpad),
+                        )
+                      : const SizedBox();
                 },
-                icon: Icon(Icons.dialpad),
-              ),
-          ],
-        ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              SizedBox(
-                height: 75.0,
-                child: DrawerHeader(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Row(children: [
-                      appIcon,
-                      SizedBox(width: 8.0),
-                      Text('Oppo Remote'),
-                    ]),
-                  ),
-                ),
-              ),
-              if (device.powered ?? false)
-                ListTile(
-                  leading: Icon(Icons.refresh),
-                  title: const Text('Refresh player info'),
-                  onTap: () {
-                    addHaptic(device.fetchState);
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Refreshing player info...')));
-                  },
-                ),
-              // TODO - Maybe change this to a control button that opens an
-              // AlertDialog for confirmation.
-              ListTile(
-                leading: Icon(Icons.power_settings_new),
-                title: const Text('Power off'),
-                onTap: () {
-                  addHaptic(device.powerOff);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Waiting for power off signal...')));
-                },
-              ),
-              // TODO - Maybe change this to a control button that opens an
-              // AlertDialog for confirmation.
-              if (device.powered ?? false)
-                ListTile(
-                  leading: Icon(Icons.eject),
-                  title: const Text('Tray open/close'),
-                  onTap: () => addHaptic(device.trayToggle),
-                ),
-              ListTile(
-                leading: Icon(Icons.sensors),
-                title: const Text('Scan for players'),
-                onTap: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => Discovery()),
-                    (Route<dynamic> route) => false,
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.help),
-                title: const Text('Help'),
-                onTap: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Help())),
-              ),
-              ListTile(
-                leading: Icon(Icons.bug_report),
-                title: const Text('Known issues'),
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => KnownIssues())),
-              ),
-              ListTile(
-                leading: Icon(Icons.article),
-                title: const Text('Licenses'),
-                onTap: () =>
-                    showLicensePage(context: context, applicationIcon: appIcon),
               ),
             ],
           ),
-        ),
-        // TODO - BROKEN; Without a Consumer above, this doesn't get re-eval'd
-        // when the device powers off.
-        body: device.powered ?? false ? Buttons(device) : NotPoweredOn(device),
-      ),
+          drawer: Selector<DeviceChanges, bool?>(
+            selector: (_, deviceChanges) => deviceChanges.device.powered,
+            builder: (_, powered, __) => Drawer(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  SizedBox(
+                    height: 75.0,
+                    child: DrawerHeader(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(children: [
+                          appIcon,
+                          SizedBox(width: 8.0),
+                          Text('Oppo Remote'),
+                        ]),
+                      ),
+                    ),
+                  ),
+                  if (powered ?? false)
+                    ListTile(
+                      leading: Icon(Icons.refresh),
+                      title: const Text('Refresh player info'),
+                      onTap: () {
+                        addHaptic(device.fetchState);
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Refreshing player info...')));
+                      },
+                    ),
+                  ListTile(
+                    leading: Icon(Icons.sensors),
+                    title: const Text('Scan for players'),
+                    onTap: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => Discovery()),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.help),
+                    title: const Text('Help'),
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Help())),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.bug_report),
+                    title: const Text('Known issues'),
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => KnownIssues())),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.article),
+                    title: const Text('Licenses'),
+                    onTap: () => showLicensePage(
+                        context: context, applicationIcon: appIcon),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          body: Selector<DeviceChanges, bool?>(
+            selector: (_, deviceChanges) => deviceChanges.device.powered,
+            builder: (_, powered, __) =>
+                powered ?? false ? Buttons(device) : NotPoweredOn(device),
+          )),
     );
   }
 }
@@ -412,7 +404,7 @@ class NotPoweredOn extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Turn on player to use remote.'),
+            const Text('Power on to use the remote.'),
             const SizedBox(height: 10.0),
             IconButton(
               onPressed: () {

@@ -435,6 +435,19 @@ class ExtraControls extends StatelessWidget {
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () async {
+                final selection = await showDialog<bool?>(
+                    context: context, builder: (context) => PowerOff());
+                if (selection != null && selection == true) {
+                  await device.powerOff();
+                }
+              },
+              child: VerticalIcon(
+                  icon: Icon(Icons.power_settings_new), label: 'Power'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
                 final selection = await showDialog<oppo.App>(
                     context: context, builder: (context) => SelectApp());
                 if (selection != null) {
@@ -444,6 +457,32 @@ class ExtraControls extends StatelessWidget {
               child: VerticalIcon(icon: Icon(Icons.apps), label: 'Apps'),
             ),
           ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<oppo.InputSource>(
+                    context: context, builder: (context) => SetInputSource());
+                if (selection != null) {
+                  await device.setInputSource(selection);
+                }
+              },
+              child: VerticalIcon(icon: Icon(Icons.input), label: 'Input'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () async {
+                final selection = await showDialog<bool?>(
+                    context: context, builder: (context) => ToggleTray());
+                if (selection != null && selection == true) {
+                  await device.trayToggle();
+                }
+              },
+              child: VerticalIcon(icon: Icon(Icons.eject), label: 'Open'),
+            ),
+          ),
+        ]),
+        TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () async {
@@ -457,43 +496,6 @@ class ExtraControls extends StatelessWidget {
                   icon: Icon(Icons.hourglass_bottom), label: 'Time'),
             ),
           ),
-          // TODO - May be a good spot to inset eject or power off.
-          SizedBox(),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () async {
-                final selection = await showDialog<oppo.InputSource>(
-                    context: context, builder: (context) => SetInputSource());
-                if (selection != null) {
-                  await device.setInputSource(selection);
-                }
-              },
-              child: VerticalIcon(icon: Icon(Icons.input), label: 'Input'),
-            ),
-          ),
-        ]),
-        TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.threeDimensionalMenu),
-              child: VerticalIcon(icon: Icon(Icons.view_in_ar), label: '3D'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.audioVideoSyncMenu),
-              child: VerticalIcon(icon: Icon(Icons.tune), label: 'A/V sync'),
-            ),
-          ),
-          // TODO - Put an AlertDialog on this? It restarts playback when
-          // playing a DVD.
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.directPlay),
-              child:
-                  VerticalIcon(icon: Icon(Icons.table_view), label: 'Program'),
-            ),
-          ),
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () async {
@@ -504,11 +506,9 @@ class ExtraControls extends StatelessWidget {
                 }
               },
               child: VerticalIcon(
-                  icon: Icon(Icons.format_indent_increase), label: 'Sub shift'),
+                  icon: Icon(Icons.format_indent_increase), label: 'Subtitle shift', small: true),
             ),
           ),
-        ]),
-        TableRow(children: [
           TableCellPadded(
             child: ElevatedButton(
               onPressed: () async {
@@ -519,6 +519,20 @@ class ExtraControls extends StatelessWidget {
                 }
               },
               child: VerticalIcon(icon: Icon(Icons.margin), label: 'OSD'),
+            ),
+          ),
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.audioVideoSyncMenu),
+              child: VerticalIcon(icon: Icon(Icons.tune), label: 'A/V sync'),
+            ),
+          ),
+        ]),
+        TableRow(children: [
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.threeDimensionalMenu),
+              child: VerticalIcon(icon: Icon(Icons.view_in_ar), label: '3D'),
             ),
           ),
           TableCellPadded(
@@ -544,9 +558,7 @@ class ExtraControls extends StatelessWidget {
                 }
               },
               child: VerticalIcon(
-                  icon: Icon(Icons.speaker_group),
-                  label: 'SACD priority',
-                  small: true),
+                  icon: Icon(Icons.album), label: 'SACD priority', small: true),
             ),
           ),
           TableCellPadded(
@@ -560,10 +572,27 @@ class ExtraControls extends StatelessWidget {
                 }
               },
               child: VerticalIcon(
-                  icon: Icon(Icons.album), label: 'SACD output', small: true),
+                  icon: Icon(Icons.transform),
+                  label: 'SACD output',
+                  small: true),
             ),
           ),
         ]),
+        TableRow(children: [
+          const SizedBox(),
+          const SizedBox(),
+          const SizedBox(),
+          // TODO - Put an AlertDialog on this? It restarts playback when
+          // playing a DVD.
+          TableCellPadded(
+            child: ElevatedButton(
+              onPressed: () => addHaptic(device.directPlay),
+              child:
+                  VerticalIcon(icon: Icon(Icons.table_view), label: 'Program'),
+            ),
+          ),
+        ],
+        ),
       ],
     );
     // TODO - Add a button to query and present the track/album data when
@@ -908,6 +937,52 @@ class SetReversePlaybackSpeed extends StatelessWidget {
             ),
           )
           .toList(),
+    );
+  }
+}
+
+class PowerOff extends StatelessWidget {
+  const PowerOff({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: const Text('Are you sure you want to power off the player?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            addHaptic(() => Navigator.pop(context, true));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Waiting for power off signal...')));
+          },
+          child: const Text('Proceed'),
+        ),
+      ],
+    );
+  }
+}
+
+class ToggleTray extends StatelessWidget {
+  const ToggleTray({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: const Text('Are you sure you want to toggle the tray?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Proceed'),
+        ),
+      ],
     );
   }
 }
