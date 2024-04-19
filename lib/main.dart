@@ -14,8 +14,6 @@ import 'oppo.dart' as oppo;
 import 'position.dart';
 import 'util.dart';
 
-final _log = Logger('main');
-
 void main() {
   Logger.root.level = kDebugMode ? Level.INFO : Level.INFO;
   Logger.root.onRecord.listen((record) {
