@@ -675,69 +675,25 @@ class SetRepeatMode extends StatelessWidget {
   }
 }
 
-class SetSubtitleShift extends StatefulWidget {
+class SetSubtitleShift extends StatelessWidget {
   const SetSubtitleShift({super.key});
-
-  @override
-  State<SetSubtitleShift> createState() => _SetSubtitleShiftState();
-}
-
-// TODO - Can this be made into a notched slider? Or just change it to a list of
-// 11 options. That's fewer than the resolution Dialog.
-class _SetSubtitleShiftState extends State<SetSubtitleShift> {
-  final _shiftController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    _shiftController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('Subtitle shift (0 - 10)'),
+      title: const Text('Subtitle shift'),
       contentPadding: _dialogPadding,
-      children: [
-        Form(
-          key: _formKey,
-          child: TextFormField(
-            controller: _shiftController,
-            keyboardType: TextInputType.number,
-            validator: (value) => _numberInputValidator(value, -10, 10),
-            autofocus: true,
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              final shift = int.parse(_shiftController.text);
-              addHaptic(() => Navigator.pop(context, shift));
-            }
-          },
-          child: const Text('Submit'),
-        ),
-      ],
+      children: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+          .map(
+            (shift) => TextButton(
+              onPressed: () =>
+                  addHaptic(() => Navigator.pop(context, shift)),
+              child: PopupSelectionChoice(label: shift.toString()),
+            ),
+          )
+          .toList(),
     );
   }
-}
-
-String? _numberInputValidator(String? value, [int? min, int? max]) {
-  if (value == null || value.isEmpty) {
-    return 'Please enter a number';
-  }
-  final number = int.tryParse(value);
-  if (number == null) {
-    return 'Please enter a valid number';
-  }
-  if (min != null && number < min) {
-    return 'Enter a number greater than $min';
-  }
-  if (max != null && number > max) {
-    return 'Enter a number less than $max';
-  }
-  return null;
 }
 
 class SetOsdPosition extends StatelessWidget {
