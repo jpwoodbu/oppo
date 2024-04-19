@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import 'device_changes.dart';
 import 'oppo.dart' as oppo;
 
-// TODO - This module needs a lot of functions converted into Widget classes.
-
 // TODO - To keep the display height fixed, always show something for each
 // field.
 
@@ -22,20 +20,20 @@ class Display extends StatelessWidget {
           child: Column(
             children: [
               PaddedRow(children: [
-                _title(context),
-                _chapter(context),
+                Title(device: device),
+                Chapter(device: device),
               ]),
               PaddedRow(children: [
-                _audioType(context),
-                _muted(context),
+                AudioType(device: device),
+                Muted(device: device),
               ]),
               PaddedRow(children: [
-                _audioTrack(context),
-                _subtitles(context),
+                AudioTrack(device: device),
+                Subtitles(device: device),
               ]),
               PaddedRow(children: [
-                _contentResolution(context),
-                _outputResolution(context),
+                ContentResolution(device: device),
+                OutputResolution(device: device),
               ]),
             ],
           ),
@@ -43,8 +41,15 @@ class Display extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _title(BuildContext context) {
+class Title extends StatelessWidget {
+  const Title({super.key, required this.device});
+
+  final oppo.Device device;
+
+  @override
+  Widget build(BuildContext context) {
     if (device.position == null || device.position!.title == 0) {
       return SizedBox();
     }
@@ -55,8 +60,14 @@ class Display extends StatelessWidget {
         return Text('Title: ${device.position!.title}');
     }
   }
+}
 
-  Widget _chapter(BuildContext context) {
+class Chapter extends StatelessWidget {
+  const Chapter({super.key, required this.device});
+  final oppo.Device device;
+
+  @override
+  Widget build(BuildContext context) {
     if (device.position == null || device.position!.chapter == 0) {
       return const SizedBox();
     }
@@ -67,8 +78,14 @@ class Display extends StatelessWidget {
         return Text('Chapter: ${device.position!.chapter}');
     }
   }
+}
 
-  Widget _audioTrack(BuildContext context) {
+class AudioTrack extends StatelessWidget {
+  const AudioTrack({super.key, required this.device});
+  final oppo.Device device;
+
+  @override
+  Widget build(BuildContext context) {
     if (device.currentAudioTrack == null || device.currentAudioTrack == 0) {
       return const SizedBox();
     }
@@ -76,8 +93,14 @@ class Display extends StatelessWidget {
     return Text('Audio: ${device.currentAudioTrack}/'
         '${device.availableAudioTracks} ${language ?? ""}');
   }
+}
 
-  Widget _audioType(BuildContext context) {
+class AudioType extends StatelessWidget {
+  const AudioType({super.key, required this.device});
+  final oppo.Device device;
+
+  @override
+  Widget build(BuildContext context) {
     if (device.audioType == oppo.AudioType.unknown) {
       return const SizedBox();
     }
@@ -86,23 +109,41 @@ class Display extends StatelessWidget {
         '${channels ?? ""} '
         '${device.audioExtraInfo ?? ""}');
   }
+}
 
-  Widget _muted(BuildContext context) {
+class Muted extends StatelessWidget {
+  const Muted({super.key, required this.device});
+  final oppo.Device device;
+
+  @override
+  Widget build(BuildContext context) {
     if (device.muted ?? false) {
       return const Text('Muted');
     }
     return SizedBox();
   }
+}
 
-  Widget _subtitles(BuildContext context) {
+class Subtitles extends StatelessWidget {
+  const Subtitles({super.key, required this.device});
+  final oppo.Device device;
+
+  @override
+  Widget build(BuildContext context) {
     if (device.currentSubtitleTrack == null) {
       return const SizedBox();
     }
     return Text('Subtitles: ${device.currentSubtitleTrack}/'
         '${device.availableSubtitleTracks} ${device.subtitleLanguage}');
   }
+}
 
-  Widget _contentResolution(BuildContext context) {
+class ContentResolution extends StatelessWidget {
+  const ContentResolution({super.key, required this.device});
+  final oppo.Device device;
+
+  @override
+  Widget build(BuildContext context) {
     if (device.contentResolution == null) {
       return SizedBox();
     }
@@ -111,8 +152,14 @@ class Display extends StatelessWidget {
         : device.aspectRatioSetting!.ratio.displayName;
     return Text('In: ${device.contentResolution!.displayName} $aspectRatio');
   }
+}
 
-  Widget _outputResolution(BuildContext context) {
+class OutputResolution extends StatelessWidget {
+  const OutputResolution({super.key, required this.device});
+  final oppo.Device device;
+
+  @override
+  Widget build(BuildContext context) {
     if (device.outputResolution == null) {
       return SizedBox();
     }
