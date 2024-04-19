@@ -24,6 +24,7 @@ class DeviceChanges with ChangeNotifier {
   }
 
   StreamSubscription<String> _startListener() {
+    // TODO - cancel on error?
     final subscription = device.stream().listen(
       (event) {
         device.parseEvent(event);
