@@ -46,7 +46,7 @@ class TrackInfo extends StatelessWidget {
             ],
           );
         }
-        return CircularProgressIndicator();
+        return Center(child: CircularProgressIndicator());
       },
     );
   }
