@@ -1145,6 +1145,7 @@ class Device {
           powered = true;
         } else if (parameters == '0') {
           powered = false;
+          playbackStatus = null;
         } else {
           _log.severe('Invalid UPW parameter: $parameters');
         }
