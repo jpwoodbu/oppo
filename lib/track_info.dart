@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 
 import 'oppo.dart' as oppo;
 
-class _FetchInfoResponse {
+class _Responses {
   final String album;
   final String name;
   final String performer;
 
-  const _FetchInfoResponse(this.album, this.name, this.performer);
+  const _Responses(this.album, this.name, this.performer);
 }
 
 // TODO - Is this worth keeping? All the fields are normally truncated.
-class TrackInfo extends StatelessWidget {
+class TrackMetadata extends StatelessWidget {
   final oppo.Device device;
-  const TrackInfo({super.key, required this.device});
+  const TrackMetadata({super.key, required this.device});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class TrackInfo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Error fetching track info.',
+                'Error fetching track metadata.',
                 style: errorStyle,
               ),
               Text(
@@ -52,11 +52,11 @@ class TrackInfo extends StatelessWidget {
     );
   }
 
-  Future<_FetchInfoResponse> _fetchInfo() async {
+  Future<_Responses> _fetchInfo() async {
     final album = await device.queryTrackAlbum();
     final name = await device.queryTrackName();
     final performer = await device.queryTrackPerformer();
-    return _FetchInfoResponse(album, name, performer);
+    return _Responses(album, name, performer);
   }
 }
 

@@ -349,9 +349,9 @@ class _HomePageState extends State<HomePage> {
                           builder: (_) {
                             return SimpleDialog(
                               contentPadding: dialogPadding,
-                              title: const Text('Track info'),
+                              title: const Text('Track metadata'),
                               children: [
-                                TrackInfo(device: device),
+                                TrackMetadata(device: device),
                                 Align(
                                   heightFactor: 1.2,
                                   alignment: Alignment.centerRight,
