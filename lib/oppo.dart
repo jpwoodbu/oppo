@@ -1014,6 +1014,7 @@ class Device {
         _log.warning('Error fetching initial state: $e');
       }
     }
+
     await wrapper(queryPlaybackStatus);
     await wrapper(queryTrackOrTitle);
     await wrapper(queryDiscType);
@@ -1040,7 +1041,7 @@ class Device {
   Stream<String> stream() async* {
     if (_socket == null) {
       throw 'Cannot stream events. Socket disconnected.';
-    } 
+    }
     final socket = _socket;
     if (socket != null) {
       await for (final data in socket) {
@@ -2082,6 +2083,7 @@ class SubtitleTypeResponse {
 
 enum HdrStatus {
   hdr('HDR'),
+
   /// Returned if [HdrSetting] is [HdrSetting.off] or
   /// [HdrSetting.stripMetadata].
   sdr('SDR'),
@@ -2096,4 +2098,44 @@ enum HdrStatus {
     }
     throw 'Unknown HDR status type code: $typeCode';
   }
+}
+
+class FakeDevice extends Device {
+  FakeDevice(super.name, super.address, super.port) {
+    powered = true;
+    firmwareVersion = 'fake-1.0.0';
+    audioType = AudioType.dolbyTrueHD;
+    currentAudioTrack = 1;
+    availableAudioTracks = 2;
+    channels = '7.1';
+    currentSubtitleTrack = 1;
+    availableSubtitleTracks = 5;
+    subtitleLanguage = 'ENG';
+    aspectRatioSetting = AspectRatioSetting(
+      AspectRatio.ratio16x9,
+      AspectRatioMode.wideAuto,
+      AspectRatioPlayback.wide,
+    );
+    contentResolution = VideoResolution.r1080p24;
+    outputResolution = VideoResolution.rUhd24;
+  }
+
+  @override
+  Future<void> connect() async {}
+
+  @override
+  Future<void> close() async {}
+
+  @override
+  Future<void> engage() async {}
+
+  @override
+  Stream<String> stream() async* {
+    await for (final _ in Stream.periodic(const Duration(seconds: 1))) {
+      yield '@UTC 001 002 C 00:01:23';
+    }
+  }
+
+  @override
+  Future<void> _command(String code, {String parameters = ''}) async {}
 }
