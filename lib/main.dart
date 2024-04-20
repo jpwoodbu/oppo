@@ -366,18 +366,6 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                     ),
-                  if (powered ?? false)
-                    ListTile(
-                      leading: Icon(Icons.refresh),
-                      title: const Text('Refresh player info'),
-                      onTap: () {
-                        addHaptic(device.fetchState);
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Refreshing player info...')));
-                      },
-                    ),
                   ListTile(
                     leading: Icon(Icons.sensors),
                     title: const Text('Scan for players'),
