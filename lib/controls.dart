@@ -949,7 +949,7 @@ class ToggleTray extends StatelessWidget {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: () => Navigator.pop(context, true),
+          onPressed: () => addHaptic(() => Navigator.pop(context, true)),
           child: const Text('Proceed'),
         ),
       ],
