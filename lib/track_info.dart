@@ -31,7 +31,8 @@ class TrackInfo extends StatelessWidget {
                 style: errorStyle,
               ),
               Text(
-                'It may not be available in this context.',
+                'Track info may not be available in this context through the '
+                'API.',
                 style: errorStyle,
               ),
             ],
