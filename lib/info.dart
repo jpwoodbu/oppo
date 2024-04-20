@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 20.0);
 
-String help1 = '''
-'''.trim();
+String help1 = 'Placeholder';
 
 const String knownIssuesHeader = "Oppo hasn't sold these players since 2018. They stopped developing the firmware soon thereafter. Unsurprisingly, there are some quirks with using their IP control API, including missing features and stability issues.";
 
