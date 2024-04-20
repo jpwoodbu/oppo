@@ -497,10 +497,10 @@ enum VideoResolution {
 // UDP-205 will accept them, but until I know for sure, I'm going to keep them
 // commented out.
 enum ZoomRatio {
+  oneX('1', 'Off'),
   aspectRatioCorrection('AR', 'Stretch'),
   fullScreen('FS', 'Fullscreen'),
   underScan('US', 'Underscan'),
-  oneX('1', 'Off'),
   onePointTwoX('1.2', '1.2x'),
   onePointThreeX('1.3', '1.3x'),
   onePointFiveX('1.5', '1.5x'),
