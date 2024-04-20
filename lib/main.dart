@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controls.dart';
 import 'display.dart';
@@ -14,6 +15,8 @@ import 'oppo.dart' as oppo;
 import 'position.dart';
 import 'track_info.dart';
 import 'util.dart';
+
+final _log = Logger('main');
 
 void main() {
   Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;
@@ -80,11 +83,19 @@ class Discovery extends StatefulWidget {
 
 class _DiscoveryState extends State<Discovery> {
   late oppo.Discover _discover;
+  final Future<SharedPreferences> _preferences =
+      SharedPreferences.getInstance();
 
   @override
   void initState() {
     super.initState();
     _discover = oppo.Discover();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _discover.close();
   }
 
   @override
@@ -100,11 +111,10 @@ class _DiscoveryState extends State<Discovery> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Device selection',
+                    Text('Device discovery',
                         style: Theme.of(context).textTheme.titleMedium),
                     TextButton(
                       onPressed: () => _connect(
-                          _discover,
                           oppo.OppoBroadcast(
                             InternetAddress('1.2.3.4'),
                             123,
@@ -118,9 +128,7 @@ class _DiscoveryState extends State<Discovery> {
                 SizedBox(height: 25.0),
                 LinearProgressIndicator(),
                 SizedBox(height: 25.0),
-                Column(
-                  children: _devices(discoveryChanges.devices),
-                ),
+                _devices(discoveryChanges.devices),
               ],
             ),
           ),
@@ -129,49 +137,70 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
-  List<Widget> _devices(Set<oppo.OppoBroadcast> broadcasts) {
-    if (broadcasts.isEmpty) {
-      return [
-        const Text('Scanning for players...'),
-        TextButton(
-          onPressed: () => _connect(
-              _discover,
-              oppo.OppoBroadcast(
-                  InternetAddress('192.168.86.59'), 23, 'just connected')),
-          child: const Text('Just connect to mine'),
-        ),
-      ];
-    } else {
-      return broadcasts
-          .map(
-            (e) => Card(
-              child: SizedBox(
-                width: 300,
-                height: 75,
-                child: ListTile(
-                  leading: const Icon(Icons.album),
-                  title: Text(e.name),
-                  subtitle: Text(e.address.address),
-                  onTap: () => _connect(_discover, e),
-                ),
-              ),
-            ),
-          )
-          .toList();
-    }
+  Widget _devices(Set<oppo.OppoBroadcast> broadcasts) {
+    String? lastDeviceAddress;
+    return FutureBuilder(
+      future: _preferences,
+      builder: (_, AsyncSnapshot<SharedPreferences> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          lastDeviceAddress =
+              snapshot.data!.getString('lastDeviceAddress');
+          final lastDeviceName = snapshot.data!.getString('lastDeviceName');
+          final lastDevicePort = snapshot.data!.getInt('lastDevicePort');
+          if (lastDeviceAddress != null &&
+              lastDeviceName != null &&
+              lastDevicePort != null) {
+            broadcasts.add(oppo.OppoBroadcast(
+                InternetAddress(lastDeviceAddress!),
+                lastDevicePort,
+                lastDeviceName));
+          }
+        }
+        if (broadcasts.isEmpty) {
+          return Column(children: []);
+        } else {
+          return Column(
+              children: broadcasts
+                  .map(
+                    (e) => Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.album),
+                        title: Text(e.name),
+                        subtitle: Text(e.address.address),
+                        trailing: e.address.address == lastDeviceAddress
+                            ? Text('Last connected',
+                                style: Theme.of(context).textTheme.bodySmall)
+                            : null,
+                        onTap: () => _connect(e),
+                      ),
+                    ),
+                  )
+                  .toList());
+        }
+      },
+    );
   }
 
-  void _connect(oppo.Discover discover, oppo.OppoBroadcast broadcast,
-      {bool useFake = false}) {
-    discover.close();
+  void _connect(oppo.OppoBroadcast broadcast, {bool useFake = false}) {
     final device = useFake
         ? oppo.FakeDevice(broadcast.name, broadcast.address, broadcast.port)
         : oppo.Device(broadcast.name, broadcast.address, broadcast.port);
+    if (!useFake) _saveLastDevice(broadcast);
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => Connect(device)),
       (Route<dynamic> route) => false,
     );
+  }
+
+  void _saveLastDevice(oppo.OppoBroadcast broadcast) async {
+    final p = await SharedPreferences.getInstance();
+    // TODO - Make these names constants.
+    await p.setString('lastDeviceName', broadcast.name);
+    await p.setString('lastDeviceAddress', broadcast.address.address);
+    await p.setInt('lastDevicePort', broadcast.port);
+    _log.info('Saved last device: ${broadcast.address.address}');
   }
 }
 
