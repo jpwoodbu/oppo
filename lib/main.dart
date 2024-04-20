@@ -97,8 +97,24 @@ class _DiscoveryState extends State<Discovery> {
             body: ListView(
               padding: const EdgeInsets.all(25.0),
               children: [
-                Text('Device selection',
-                    style: Theme.of(context).textTheme.titleMedium),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Device selection',
+                        style: Theme.of(context).textTheme.titleMedium),
+                    TextButton(
+                      onPressed: () => _connect(
+                          _discover,
+                          oppo.OppoBroadcast(
+                            InternetAddress('1.2.3.4'),
+                            123,
+                            'Fake device',
+                          ),
+                          useFake: true),
+                      child: const Text('Demo mode'),
+                    ),
+                  ],
+                ),
                 SizedBox(height: 25.0),
                 LinearProgressIndicator(),
                 SizedBox(height: 25.0),
@@ -121,8 +137,8 @@ class _DiscoveryState extends State<Discovery> {
           onPressed: () => _connect(
               _discover,
               oppo.OppoBroadcast(
-                  InternetAddress('192.168.86.59'), 23, 'Name unknown')),
-          child: const Text('Just connect to mine.'),
+                  InternetAddress('192.168.86.59'), 23, 'just connected')),
+          child: const Text('Just connect to mine'),
         ),
       ];
     } else {
@@ -145,10 +161,12 @@ class _DiscoveryState extends State<Discovery> {
     }
   }
 
-  void _connect(oppo.Discover discover, oppo.OppoBroadcast broadcast) {
+  void _connect(oppo.Discover discover, oppo.OppoBroadcast broadcast,
+      {bool useFake = false}) {
     discover.close();
-    final device =
-        oppo.Device(broadcast.name, broadcast.address, broadcast.port);
+    final device = useFake
+        ? oppo.FakeDevice(broadcast.name, broadcast.address, broadcast.port)
+        : oppo.Device(broadcast.name, broadcast.address, broadcast.port);
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => Connect(device)),
@@ -326,6 +344,7 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text('Oppo Remote'),
+                          Text(device.name, style: smallText),
                           Text(
                               'Firmware: ${device.firmwareVersion ?? 'unknown'}',
                               style: smallText),
