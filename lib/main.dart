@@ -16,7 +16,7 @@ import 'track_info.dart';
 import 'util.dart';
 
 void main() {
-  Logger.root.level = kDebugMode ? Level.INFO : Level.INFO;
+  Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
@@ -45,7 +45,10 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const Discovery(),
+      initialRoute: '/scan',
+      routes: {
+        '/scan': (context) => const Discovery(),
+      },
     );
   }
 }

@@ -1609,8 +1609,6 @@ class Device {
     final ti = TrackInfo.fromString(r.parameters!);
     currentAudioTrack = ti.currentTrack;
     availableAudioTracks = ti.availableTracks;
-    // TODO - Maybe I should break out the fields in Position into the Device
-    // class.
     if (position != null) {
       position!.title = ti.currentTrack;
     }

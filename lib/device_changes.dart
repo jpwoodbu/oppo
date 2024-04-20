@@ -19,12 +19,11 @@ class DeviceChanges with ChangeNotifier {
   @override
   void dispose() {
     _subscription.cancel();
-    _log.info('Listener stopped.');
+    _log.fine('Device changes listener stopped.');
     super.dispose();
   }
 
   StreamSubscription<String> _startListener() {
-    // TODO - cancel on error?
     final subscription = device.stream().listen(
       (event) {
         device.parseEvent(event);
@@ -38,8 +37,9 @@ class DeviceChanges with ChangeNotifier {
         _log.severe(e);
         _reconnect();
       },
+      cancelOnError: true,
     );
-    _log.info('Listener started.');
+    _log.fine('Device changes listener started.');
     return subscription;
   }
 
@@ -51,9 +51,7 @@ class DeviceChanges with ChangeNotifier {
       await Future.delayed(Duration(seconds: 1), device.connect);
     } catch (e) {
       _snackBar('Reconnect error: $e\n', logLevel: Level.SEVERE);
-      _log.severe(e);
-      // TODO - Can we use Navigator to get us back into scanning mode in this
-      // case?
+      _routeToScanner();
       return;
     }
     _snackBar('Reconnected.');
@@ -66,5 +64,9 @@ class DeviceChanges with ChangeNotifier {
     ScaffoldMessenger.of(_context).showSnackBar(
       SnackBar(content: Text(message)),
     );
+  }
+
+  void _routeToScanner() {
+    Navigator.pushNamedAndRemoveUntil(_context, '/scan', (route) => false);
   }
 }
