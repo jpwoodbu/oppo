@@ -91,39 +91,29 @@ class _DiscoveryState extends State<Discovery> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => DiscoveryChanges(_discover),
-      child: _consumer(context),
-    );
-  }
-
-  Widget _consumer(BuildContext context) {
-    return Consumer<DiscoveryChanges>(
-      builder: (context, discoveryChanges, _) =>
-          _page(context, discoveryChanges.devices),
-    );
-  }
-
-  Widget _page(BuildContext context, Set<oppo.OppoBroadcast> broadcasts) {
-    return SafeArea(
-      child: Scaffold(
-        body: ListView(
-          padding: const EdgeInsets.all(25.0),
-          children: [
-            Text('Device selection',
-                style: Theme.of(context).textTheme.titleMedium),
-            SizedBox(height: 25.0),
-            LinearProgressIndicator(),
-            SizedBox(height: 25.0),
-            Column(
-              children: _devices(context, broadcasts),
+      child: Consumer<DiscoveryChanges>(
+        builder: (context, discoveryChanges, _) => SafeArea(
+          child: Scaffold(
+            body: ListView(
+              padding: const EdgeInsets.all(25.0),
+              children: [
+                Text('Device selection',
+                    style: Theme.of(context).textTheme.titleMedium),
+                SizedBox(height: 25.0),
+                LinearProgressIndicator(),
+                SizedBox(height: 25.0),
+                Column(
+                  children: _devices(discoveryChanges.devices),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  List<Widget> _devices(
-      BuildContext context, Set<oppo.OppoBroadcast> broadcasts) {
+  List<Widget> _devices(Set<oppo.OppoBroadcast> broadcasts) {
     if (broadcasts.isEmpty) {
       return [
         const Text('Scanning for players...'),
