@@ -269,7 +269,7 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           }
-          return _build(context);
+          return _build();
         } else {
           return const Scaffold(
             body: Center(
@@ -281,10 +281,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _build(BuildContext context) {
+  Widget _build() {
     Image appIcon = const Image(
       image: AssetImage('assets/hdpi_app_icon.png'),
+      height: 72.0,
+      width: 72.0,
     );
+    final smallText = Theme.of(context).textTheme.bodySmall;
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
@@ -311,82 +314,84 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           drawer: PoweredProvider(
-            builder: (_, powered, __) => Drawer(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  SizedBox(
-                    height: 75.0,
-                    child: DrawerHeader(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Row(children: [
-                          appIcon,
-                          SizedBox(width: 8.0),
+            builder: (_, powered, __) => NavigationDrawer(
+              children: [
+                DrawerHeader(
+                  child: Row(
+                    children: [
+                      appIcon,
+                      SizedBox(width: 8.0),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Text('Oppo Remote'),
-                        ]),
+                          Text(
+                              'Firmware: ${device.firmwareVersion ?? 'unknown'}',
+                              style: smallText),
+                        ],
                       ),
-                    ),
+                    ],
                   ),
-                  if (powered ?? false)
-                    ListTile(
-                      leading: Icon(Icons.info),
-                      title: const Text('Fetch track metadata'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        showDialog(
-                          context: context,
-                          builder: (_) {
-                            return SimpleDialog(
-                              contentPadding: dialogPadding,
-                              title: const Text('Track metadata'),
-                              children: [
-                                TrackMetadata(device: device),
-                                Align(
-                                  heightFactor: 1.2,
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Close'),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    ),
+                ),
+                if (powered ?? false)
                   ListTile(
-                    leading: Icon(Icons.sensors),
-                    title: const Text('Scan for players'),
+                    leading: Icon(Icons.info),
+                    title: const Text('Fetch track metadata'),
                     onTap: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => Discovery()),
-                        (Route<dynamic> route) => false,
+                      Navigator.pop(context);
+                      showDialog(
+                        context: context,
+                        builder: (_) {
+                          return SimpleDialog(
+                            contentPadding: dialogPadding,
+                            title: const Text('Track metadata'),
+                            children: [
+                              TrackMetadata(device: device),
+                              Align(
+                                heightFactor: 1.2,
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
                   ),
-                  ListTile(
-                    leading: Icon(Icons.help),
-                    title: const Text('Help'),
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Help())),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.bug_report),
-                    title: const Text('Known issues'),
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => KnownIssues())),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.article),
-                    title: const Text('Licenses'),
-                    onTap: () => showLicensePage(
-                        context: context, applicationIcon: appIcon),
-                  ),
-                ],
-              ),
+                ListTile(
+                  leading: Icon(Icons.sensors),
+                  title: const Text('Scan for players'),
+                  onTap: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => Discovery()),
+                      (Route<dynamic> route) => false,
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.help),
+                  title: const Text('Help'),
+                  onTap: () => Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => Help())),
+                ),
+                ListTile(
+                  leading: Icon(Icons.bug_report),
+                  title: const Text('Known issues'),
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => KnownIssues())),
+                ),
+                ListTile(
+                  leading: Icon(Icons.article),
+                  title: const Text('Licenses'),
+                  onTap: () => showLicensePage(
+                      context: context, applicationIcon: appIcon),
+                ),
+              ],
             ),
           ),
           body: PoweredProvider(

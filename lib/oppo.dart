@@ -1014,18 +1014,15 @@ class Device {
         _log.warning('Error fetching initial state: $e');
       }
     }
-
     await wrapper(queryPlaybackStatus);
-    // TODO - Query again on chapter/title change? The updates don't update the
-    // audio track fields so the UI gets stale (and wrong) on the next track
-    // change.
     await wrapper(queryTrackOrTitle);
     await wrapper(queryDiscType);
     await wrapper(queryAudioType);
     await wrapper(queryVolume); // also fetches muted state
     await wrapper(querySubtitleType);
-    // Note, there's no query functions that the data that UVO does (in/out HDMI
-    // resolution).
+    await wrapper(queryFirmwareVersion);
+    // Note, there's no query functions that return the data that UVO does
+    // (in/out HDMI resolution).
   }
 
   Future<void> _waitForPowerOn(Duration delay, int attemptsRemaining) async {
