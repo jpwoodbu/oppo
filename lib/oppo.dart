@@ -2137,4 +2137,13 @@ class FakeDevice extends Device {
 
   @override
   Future<void> _command(String code, {String parameters = ''}) async {}
+
+  @override
+  Future<String> queryTrackName() async => 'Piano Man';
+
+  @override
+  Future<String> queryTrackAlbum() async => 'Piano Man';
+
+  @override
+  Future<String> queryTrackPerformer() async  => 'Billy Joel';
 }
