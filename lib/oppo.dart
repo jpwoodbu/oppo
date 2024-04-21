@@ -619,13 +619,13 @@ enum RepeatMode {
 enum HdrSetting {
   auto('Auto', 'Auto'),
   on('On', 'Forced'),
+  // Only documented for the QHR response.
+  stripMetadata('StripMetadata', 'Strip Metadata'),
   // TODO - 'Off' is a documented parameter, but my UDP-203 considers it
   // invalid. The UI offers two settings for "Off": "Off (BT.709)" and "Off
   // (BT.2020)". I should write some code to brute force lots of permutations of
   // parameters that might trigger those modes.
-  // off('Off', 'Off'),
-  // Only documented for the QHR response.
-  stripMetadata('StripMetadata', 'Strip Metadata');
+  off('Off', 'Off');
 
   final String typeCode;
   final String displayName;
