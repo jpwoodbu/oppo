@@ -82,6 +82,9 @@ class Discovery extends StatefulWidget {
 }
 
 class _DiscoveryState extends State<Discovery> {
+  final String _settingLastDeviceName = 'lastDeviceName';
+  final String _settingLastDeviceAddress = 'lastDeviceAddress';
+  final String _settingLastDevicePort = 'lastDevicePort';
   late oppo.Discover _discover;
   final Future<SharedPreferences> _preferences =
       SharedPreferences.getInstance();
@@ -145,9 +148,10 @@ class _DiscoveryState extends State<Discovery> {
         if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData) {
           lastDeviceAddress =
-              snapshot.data!.getString('lastDeviceAddress');
-          final lastDeviceName = snapshot.data!.getString('lastDeviceName');
-          final lastDevicePort = snapshot.data!.getInt('lastDevicePort');
+              snapshot.data!.getString(_settingLastDeviceAddress);
+          final lastDeviceName =
+              snapshot.data!.getString(_settingLastDeviceName);
+          final lastDevicePort = snapshot.data!.getInt(_settingLastDevicePort);
           if (lastDeviceAddress != null &&
               lastDeviceName != null &&
               lastDevicePort != null) {
@@ -196,10 +200,9 @@ class _DiscoveryState extends State<Discovery> {
 
   void _saveLastDevice(oppo.OppoBroadcast broadcast) async {
     final p = await SharedPreferences.getInstance();
-    // TODO - Make these names constants.
-    await p.setString('lastDeviceName', broadcast.name);
-    await p.setString('lastDeviceAddress', broadcast.address.address);
-    await p.setInt('lastDevicePort', broadcast.port);
+    await p.setString(_settingLastDeviceName, broadcast.name);
+    await p.setString(_settingLastDeviceAddress, broadcast.address.address);
+    await p.setInt(_settingLastDevicePort, broadcast.port);
     _log.info('Saved last device: ${broadcast.address.address}');
   }
 }
@@ -420,12 +423,6 @@ class _HomePageState extends State<HomePage> {
                       (Route<dynamic> route) => false,
                     );
                   },
-                ),
-                ListTile(
-                  leading: Icon(Icons.help),
-                  title: const Text('Help'),
-                  onTap: () => Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => Help())),
                 ),
                 ListTile(
                   leading: Icon(Icons.bug_report),

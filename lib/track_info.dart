@@ -10,7 +10,6 @@ class _Responses {
   const _Responses(this.album, this.name, this.performer);
 }
 
-// TODO - Is this worth keeping? All the fields are normally truncated.
 class TrackMetadata extends StatelessWidget {
   final oppo.Device device;
   const TrackMetadata({super.key, required this.device});

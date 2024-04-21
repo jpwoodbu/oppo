@@ -621,10 +621,9 @@ enum HdrSetting {
   on('On', 'Forced'),
   // Only documented for the QHR response.
   stripMetadata('StripMetadata', 'Strip Metadata'),
-  // TODO - 'Off' is a documented parameter, but my UDP-203 considers it
-  // invalid. The UI offers two settings for "Off": "Off (BT.709)" and "Off
-  // (BT.2020)". I should write some code to brute force lots of permutations of
-  // parameters that might trigger those modes.
+  // TODO - Try to brute force find the right parameter. 'Off' is a documented
+  // parameter, but my UDP-203 considers it invalid. The UI offers two settings
+  // for "Off": "Off (BT.709)" and "Off (BT.2020)".
   off('Off', 'Off');
 
   final String typeCode;
@@ -1506,8 +1505,8 @@ class Device {
   Future<void> reset() async => await _command('RST');
 
   Future<void> setSubtitleShift(int shift) async {
-    // TODO - This range follows the API docs, but the player has (while playing
-    // a CD anyway) rejected values below 0.
+    // TODO - Try this with a DVD. This range follows the API docs, but the
+    // player has (while playing a CD anyway) rejected values below 0.
     int sanitizedShift = max(shift, -10);
     sanitizedShift = min(sanitizedShift, 10);
     await _command('SSH', parameters: sanitizedShift.toString());

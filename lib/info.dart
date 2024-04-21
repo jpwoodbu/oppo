@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 20.0);
 
-String help1 = 'Placeholder';
-
 const String knownIssuesHeader =
     "Oppo hasn't sold Blu-ray players in the US since 2018. Firmware updates stopped soon thereafter. Unsurprisingly, there are some quirks with using their network control API, including incomplete functionality and stability issues.";
 
@@ -17,29 +15,6 @@ const String knownIssue4 =
     "4. The API does not provide a way to directly select a directory item. Due to this and the truncation mentioned above, this app does not implement a directory/file viewer.";
 const String knownIssue5 =
     "5. The API often returns \"unknown\" for the audio type even when the OSD will display it.";
-
-class Help extends StatelessWidget {
-  const Help({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Help'),
-        ),
-        body: Padding(
-          padding: padding,
-          child: ListView(
-            children: [
-              Text(help1),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class KnownIssues extends StatelessWidget {
   const KnownIssues({super.key});
