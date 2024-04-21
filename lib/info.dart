@@ -5,15 +5,18 @@ const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 20.0);
 String help1 = 'Placeholder';
 
 const String knownIssuesHeader =
-    "Oppo hasn't sold BD players in the US since 2018. Firmware updates stopped soon thereafter. Unsurprisingly, there are some quirks with using their network control feature, including incomplete functionality and stability issues.";
+    "Oppo hasn't sold Blu-ray players in the US since 2018. Firmware updates stopped soon thereafter. Unsurprisingly, there are some quirks with using their network control API, including incomplete functionality and stability issues.";
 
 const String knownIssue1 =
     "1. Only a single IP remote can be connected to the player at a time.";
-const String knownIssue2 = "2. The API docs don't include how to turn off HDR.";
+const String knownIssue2 =
+    "2. The API always returns an error when trying to turn off HDR.";
 const String knownIssue3 =
     "3. The API severely truncates track metadata. If you see a trailing asterisk on metadata fields, it has been truncated by the player.";
 const String knownIssue4 =
-    "4. The API does not provide a way to directly select a directory item. Due to this and the truncation of directory items, this app does not include a directory viewer.";
+    "4. The API does not provide a way to directly select a directory item. Due to this and the truncation mentioned above, this app does not implement a directory/file viewer.";
+const String knownIssue5 =
+    "5. The API often returns \"unknown\" for the audio type even when the OSD will display it.";
 
 class Help extends StatelessWidget {
   const Help({super.key});
@@ -61,6 +64,8 @@ class KnownIssues extends StatelessWidget {
               Text(knownIssue3),
               const Divider(),
               Text(knownIssue4),
+              const Divider(),
+              Text(knownIssue5),
             ],
           ),
         ),
