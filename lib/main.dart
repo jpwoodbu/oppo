@@ -167,28 +167,28 @@ class _DiscoveryState extends State<Discovery> {
         }
         if (broadcasts.isEmpty) {
           return Column(children: []);
-        } else {
-          return Column(
-              children: broadcasts
-                  .map(
-                    (e) => Semantics(
-                      label: 'discovered device',
-                      child: Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.album),
-                          title: Text(e.name),
-                          subtitle: Text(e.address.address),
-                          trailing: e.address.address == lastDeviceAddress
-                              ? Text('Last connected',
-                                  style: Theme.of(context).textTheme.bodySmall)
-                              : null,
-                          onTap: () => _connect(e),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList());
         }
+        return Column(
+          children: broadcasts
+              .map(
+                (e) => Semantics(
+                  label: 'discovered device',
+                  child: Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.album),
+                      title: Text(e.name),
+                      subtitle: Text(e.address.address),
+                      trailing: e.address.address == lastDeviceAddress
+                          ? Text('Last connected',
+                              style: Theme.of(context).textTheme.bodySmall)
+                          : null,
+                      onTap: () => _connect(e),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        );
       },
     );
   }
