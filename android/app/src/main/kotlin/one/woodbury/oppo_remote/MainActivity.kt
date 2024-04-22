@@ -1,4 +1,4 @@
-package one.woodbury.oppo
+package one.woodbury.oppo_remote
 
 import io.flutter.embedding.android.FlutterActivity
 
