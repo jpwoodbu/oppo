@@ -44,74 +44,81 @@ class NumberPad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius)),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Table(
-          defaultColumnWidth: IntrinsicColumnWidth(),
-          children: [
-            TableRow(
-              children: [
-                NumberPadButton(
-                  onPressed: () => addHaptic(device.goto),
-                  child: VerticalIcon(
-                    icon: Icon(Icons.arrow_downward),
-                    label: 'Goto',
+    return Semantics(
+      label: 'number pad buttons',
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius)),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Table(
+            defaultColumnWidth: IntrinsicColumnWidth(),
+            children: [
+              TableRow(
+                children: [
+                  NumberPadButton(
+                    onPressed: () => addHaptic(device.goto),
+                    child: VerticalIcon(
+                      icon: Icon(Icons.arrow_downward),
+                      label: 'Goto',
+                    ),
                   ),
-                ),
-                NumberPadButton(
-                  onPressed: () => addHaptic(device.clear),
-                  child: VerticalIcon(icon: Icon(Icons.clear), label: 'Clear'),
-                ),
-                IconButton(
-                    alignment: Alignment.topRight,
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close)),
-              ],
-            ),
-            TableRow(
-              children: [
-                NumberButton(onPressed: device.number1, label: '1'),
-                NumberButton(onPressed: device.number2, label: '2'),
-                NumberButton(onPressed: device.number2, label: '3'),
-              ],
-            ),
-            TableRow(
-              children: [
-                NumberButton(onPressed: device.number4, label: '4'),
-                NumberButton(onPressed: device.number5, label: '5'),
-                NumberButton(onPressed: device.number6, label: '6'),
-              ],
-            ),
-            TableRow(
-              children: [
-                NumberButton(onPressed: device.number7, label: '7'),
-                NumberButton(onPressed: device.number8, label: '8'),
-                NumberButton(onPressed: device.number9, label: '9'),
-              ],
-            ),
-            TableRow(
-              children: [
-                NumberPadButton(
-                  onPressed: device.returnToPrevious,
-                  child: VerticalIcon(
-                    icon: Icon(Icons.arrow_back),
-                    label: 'Return',
+                  NumberPadButton(
+                    onPressed: () => addHaptic(device.clear),
+                    child:
+                        VerticalIcon(icon: Icon(Icons.clear), label: 'Clear'),
                   ),
-                ),
-                NumberButton(onPressed: device.number0, label: '0'),
-                NumberPadButton(
-                  onPressed: device.enter,
-                  child: VerticalIcon(
-                    icon: Icon(Icons.keyboard_return),
-                    label: 'Enter',
+                  IconButton(
+                      alignment: Alignment.topRight,
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close,
+                        semanticLabel: 'close number pad',
+                      )),
+                ],
+              ),
+              TableRow(
+                children: [
+                  NumberButton(onPressed: device.number1, label: '1'),
+                  NumberButton(onPressed: device.number2, label: '2'),
+                  NumberButton(onPressed: device.number2, label: '3'),
+                ],
+              ),
+              TableRow(
+                children: [
+                  NumberButton(onPressed: device.number4, label: '4'),
+                  NumberButton(onPressed: device.number5, label: '5'),
+                  NumberButton(onPressed: device.number6, label: '6'),
+                ],
+              ),
+              TableRow(
+                children: [
+                  NumberButton(onPressed: device.number7, label: '7'),
+                  NumberButton(onPressed: device.number8, label: '8'),
+                  NumberButton(onPressed: device.number9, label: '9'),
+                ],
+              ),
+              TableRow(
+                children: [
+                  NumberPadButton(
+                    onPressed: device.returnToPrevious,
+                    child: VerticalIcon(
+                      icon: Icon(Icons.arrow_back),
+                      label: 'Return',
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  NumberButton(onPressed: device.number0, label: '0'),
+                  NumberPadButton(
+                    onPressed: device.enter,
+                    child: VerticalIcon(
+                      icon: Icon(Icons.keyboard_return),
+                      label: 'Enter',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

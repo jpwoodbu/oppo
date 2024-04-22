@@ -17,22 +17,25 @@ class Position extends StatefulWidget {
 class _PositionState extends State<Position> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<DeviceChanges>(
-      builder: (_, deviceChanges, ___) {
-        final device = deviceChanges.device;
-        if (device.powered ?? false) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              PlaybackStatusIcon(),
-              Clock(),
-              SizedBox(width: _iconSize, height: _iconSize),
-            ],
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
+    return Semantics(
+      label: 'playback position, e.g. elapsed track time',
+      child: Consumer<DeviceChanges>(
+        builder: (_, deviceChanges, ___) {
+          final device = deviceChanges.device;
+          if (device.powered ?? false) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                PlaybackStatusIcon(),
+                Clock(),
+                SizedBox(width: _iconSize, height: _iconSize),
+              ],
+            );
+          } else {
+            return const SizedBox();
+          }
+        },
+      ),
     );
   }
 }

@@ -16,25 +16,28 @@ class Display extends StatelessWidget {
       builder: (_, __, ___) {
         return DefaultTextStyle.merge(
           style: Theme.of(context).textTheme.bodySmall,
-          child: Column(
-            children: [
-              PaddedRow(children: [
-                Title(device: device),
-                Chapter(device: device),
-              ]),
-              PaddedRow(children: [
-                AudioType(device: device),
-                Muted(device: device),
-              ]),
-              PaddedRow(children: [
-                AudioTrack(device: device),
-                Subtitles(device: device),
-              ]),
-              PaddedRow(children: [
-                ContentResolution(device: device),
-                OutputResolution(device: device),
-              ]),
-            ],
+          child: Semantics(
+            label: 'display of player information',
+            child: Column(
+              children: [
+                PaddedRow(children: [
+                  Title(device: device),
+                  Chapter(device: device),
+                ]),
+                PaddedRow(children: [
+                  AudioType(device: device),
+                  Muted(device: device),
+                ]),
+                PaddedRow(children: [
+                  AudioTrack(device: device),
+                  Subtitles(device: device),
+                ]),
+                PaddedRow(children: [
+                  ContentResolution(device: device),
+                  OutputResolution(device: device),
+                ]),
+              ],
+            ),
           ),
         );
       },

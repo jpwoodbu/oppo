@@ -22,26 +22,29 @@ class KnownIssues extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Known issues'),
-        ),
-        body: Padding(
-          padding: padding,
-          child: ListView(
-            children: [
-              Text(knownIssuesHeader),
-              const Divider(),
-              Text(knownIssue1),
-              const Divider(),
-              Text(knownIssue2),
-              const Divider(),
-              Text(knownIssue3),
-              const Divider(),
-              Text(knownIssue4),
-              const Divider(),
-              Text(knownIssue5),
-            ],
+      child: Semantics(
+        label: 'list of known issues',
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Known issues'),
+          ),
+          body: Padding(
+            padding: padding,
+            child: ListView(
+              children: [
+                Text(knownIssuesHeader),
+                const Divider(),
+                Text(knownIssue1),
+                const Divider(),
+                Text(knownIssue2),
+                const Divider(),
+                Text(knownIssue3),
+                const Divider(),
+                Text(knownIssue4),
+                const Divider(),
+                Text(knownIssue5),
+              ],
+            ),
           ),
         ),
       ),

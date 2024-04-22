@@ -108,31 +108,35 @@ class _DiscoveryState extends State<Discovery> {
       child: Consumer<DiscoveryChanges>(
         builder: (context, discoveryChanges, _) => SafeArea(
           child: Scaffold(
-            body: ListView(
-              padding: const EdgeInsets.all(25.0),
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Device discovery',
-                        style: Theme.of(context).textTheme.titleMedium),
-                    TextButton(
-                      onPressed: () => _connect(
-                          oppo.OppoBroadcast(
-                            InternetAddress('1.2.3.4'),
-                            123,
-                            'Fake device',
-                          ),
-                          useFake: true),
-                      child: const Text('Demo mode'),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25.0),
-                LinearProgressIndicator(),
-                SizedBox(height: 25.0),
-                _devices(discoveryChanges.devices),
-              ],
+            body: Semantics(
+              label: 'list of discovered devices with '
+                  'option to enter demo mode',
+              child: ListView(
+                padding: const EdgeInsets.all(25.0),
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Device discovery',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      TextButton(
+                        onPressed: () => _connect(
+                            oppo.OppoBroadcast(
+                              InternetAddress('1.2.3.4'),
+                              123,
+                              'Fake device',
+                            ),
+                            useFake: true),
+                        child: const Text('Demo mode'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 25.0),
+                  LinearProgressIndicator(),
+                  SizedBox(height: 25.0),
+                  _devices(discoveryChanges.devices),
+                ],
+              ),
             ),
           ),
         ),
@@ -167,16 +171,19 @@ class _DiscoveryState extends State<Discovery> {
           return Column(
               children: broadcasts
                   .map(
-                    (e) => Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.album),
-                        title: Text(e.name),
-                        subtitle: Text(e.address.address),
-                        trailing: e.address.address == lastDeviceAddress
-                            ? Text('Last connected',
-                                style: Theme.of(context).textTheme.bodySmall)
-                            : null,
-                        onTap: () => _connect(e),
+                    (e) => Semantics(
+                      label: 'discovered device',
+                      child: Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.album),
+                          title: Text(e.name),
+                          subtitle: Text(e.address.address),
+                          trailing: e.address.address == lastDeviceAddress
+                              ? Text('Last connected',
+                                  style: Theme.of(context).textTheme.bodySmall)
+                              : null,
+                          onTap: () => _connect(e),
+                        ),
                       ),
                     ),
                   )
@@ -356,7 +363,10 @@ class _HomePageState extends State<HomePage> {
                                   NumberPad(device),
                             );
                           },
-                          icon: Icon(Icons.dialpad),
+                          icon: Icon(
+                            Icons.dialpad,
+                            semanticLabel: 'open number pad',
+                          ),
                         )
                       : const SizedBox();
                 },
@@ -486,22 +496,26 @@ class Buttons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      child: ListView(
-        children: [
-          Display(device),
-          SizedBox(height: 4.0),
-          Divider(),
-          HomeRow(device),
-          Arrows(device),
-          PlayControls(device),
-          PositionControls(device),
-          BottomGrid(device),
-          Divider(),
-          ExtraControls(device),
-          SizedBox(height: 4.0),
-        ],
+    return Semantics(
+      label: 'scrollable area with information display and '
+          'remote control buttons',
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        child: ListView(
+          children: [
+            Display(device),
+            SizedBox(height: 4.0),
+            Divider(),
+            HomeRow(device),
+            Arrows(device),
+            PlayControls(device),
+            PositionControls(device),
+            BottomGrid(device),
+            Divider(),
+            ExtraControls(device),
+            SizedBox(height: 4.0),
+          ],
+        ),
       ),
     );
   }

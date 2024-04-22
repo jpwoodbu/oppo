@@ -224,17 +224,25 @@ class PositionControls extends StatelessWidget {
 class ColorButton extends StatelessWidget {
   final Function onPressed;
   final Color color;
-  const ColorButton({super.key, required this.onPressed, required this.color});
+  final String semanticLabel;
+  const ColorButton(
+      {super.key,
+      required this.onPressed,
+      required this.color,
+      required this.semanticLabel});
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton(
-      onPressed: () => addHaptic(onPressed),
-      style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(color),
-          shape: MaterialStateProperty.all(RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius)))),
-      child: SizedBox(),
+    return Semantics(
+      label: semanticLabel,
+      child: FilledButton(
+        onPressed: () => addHaptic(onPressed),
+        style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(color),
+            shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius)))),
+        child: SizedBox(),
+      ),
     );
   }
 }
@@ -281,19 +289,33 @@ class BottomGrid extends StatelessWidget {
       children: <TableRow>[
         TableRow(children: [
           TableCellPadded(
-              child: ColorButton(
-                  onPressed: () => addHaptic(device.red), color: Colors.red)),
+            child: ColorButton(
+              onPressed: () => addHaptic(device.red),
+              color: Colors.red,
+              semanticLabel: 'red button',
+            ),
+          ),
           TableCellPadded(
-              child: ColorButton(
-                  onPressed: () => addHaptic(device.green),
-                  color: Colors.green)),
+            child: ColorButton(
+              onPressed: () => addHaptic(device.green),
+              color: Colors.green,
+              semanticLabel: 'green button',
+            ),
+          ),
           TableCellPadded(
-              child: ColorButton(
-                  onPressed: () => addHaptic(device.blue), color: Colors.blue)),
+            child: ColorButton(
+              onPressed: () => addHaptic(device.blue),
+              color: Colors.blue,
+              semanticLabel: 'blue button',
+            ),
+          ),
           TableCellPadded(
-              child: ColorButton(
-                  onPressed: () => addHaptic(device.yellow),
-                  color: Colors.yellow)),
+            child: ColorButton(
+              onPressed: () => addHaptic(device.yellow),
+              color: Colors.yellow,
+              semanticLabel: 'yellow button',
+            ),
+          ),
         ]),
         TableRow(children: [
           TableCellPadded(
