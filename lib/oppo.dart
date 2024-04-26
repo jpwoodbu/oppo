@@ -2117,6 +2117,7 @@ class FakeDevice extends Device {
     );
     contentResolution = VideoResolution.r1080p24;
     outputResolution = VideoResolution.rUhd24;
+    playbackStatus = PlaybackStatus.playbackStarted;
   }
 
   @override
