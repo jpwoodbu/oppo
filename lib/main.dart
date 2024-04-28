@@ -302,7 +302,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
-      future: _engage,
+      // Show the waiting message for at least 1s while we perform the
+      // background work.
+      future: Future.wait([Future.delayed(Duration(seconds: 1)), _engage]),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
