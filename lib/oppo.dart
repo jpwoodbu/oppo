@@ -2100,24 +2100,73 @@ enum HdrStatus {
 }
 
 class FakeDevice extends Device {
+  final _fakeStream = StreamController<String>();
+  Duration _fakeClock = Duration.zero;
+  final AudioType _fakeAudioType = AudioType.dolbyTrueHD;
+  final int _fakeCurrentAudioTrack = 1;
+  final int _fakeAvailableAudioTracks = 2;
+  final String _fakeChannels = '7.1';
+  final int _fakeCurrentSubtitleTrack = 1;
+  final int _fakeAvailableSubtitleTracks = 5;
+  final String _fakeSubtitleLanguage = 'ENG';
+  final AspectRatioSetting _fakeAspectRatioSetting = AspectRatioSetting(
+    AspectRatio.ratio16x9,
+    AspectRatioMode.wideAuto,
+    AspectRatioPlayback.wide,
+  );
+  final VideoResolution _fakeContentResolution = VideoResolution.r1080p24;
+  final VideoResolution _fakeOutputResolution = VideoResolution.rUhd24;
+
   FakeDevice(super.name, super.address, super.port) {
     powered = true;
     firmwareVersion = 'fake-1.0.0';
-    audioType = AudioType.dolbyTrueHD;
-    currentAudioTrack = 1;
-    availableAudioTracks = 2;
-    channels = '7.1';
-    currentSubtitleTrack = 1;
-    availableSubtitleTracks = 5;
-    subtitleLanguage = 'ENG';
-    aspectRatioSetting = AspectRatioSetting(
-      AspectRatio.ratio16x9,
-      AspectRatioMode.wideAuto,
-      AspectRatioPlayback.wide,
-    );
-    contentResolution = VideoResolution.r1080p24;
-    outputResolution = VideoResolution.rUhd24;
+    audioType = _fakeAudioType;
+    currentAudioTrack = _fakeCurrentAudioTrack;
+    availableAudioTracks = _fakeAvailableAudioTracks;
+    channels = _fakeChannels;
+    currentSubtitleTrack = _fakeCurrentSubtitleTrack;
+    availableSubtitleTracks = _fakeAvailableSubtitleTracks;
+    subtitleLanguage = _fakeSubtitleLanguage; 
+    aspectRatioSetting = _fakeAspectRatioSetting;
+    contentResolution = _fakeContentResolution;
+    outputResolution = _fakeOutputResolution;
     playbackStatus = PlaybackStatus.playbackStarted;
+    setupPositionUpdates();
+  }
+
+  void setupPositionUpdates() async {
+    await for (final _ in Stream.periodic(const Duration(seconds: 1))) {
+      if (playbackStatus == PlaybackStatus.playbackStarted) {
+        _fakeClock += const Duration(seconds: 1);
+
+        // Restore the fake values for things which get cleared when playback is
+        // stopped.
+        audioType = _fakeAudioType;
+        currentAudioTrack = _fakeCurrentAudioTrack;
+        availableAudioTracks = _fakeAvailableAudioTracks;
+        channels = _fakeChannels;
+        currentSubtitleTrack = _fakeCurrentSubtitleTrack;
+        availableSubtitleTracks = _fakeAvailableSubtitleTracks;
+        subtitleLanguage = _fakeSubtitleLanguage;
+        aspectRatioSetting = _fakeAspectRatioSetting;
+        contentResolution = _fakeContentResolution;
+        outputResolution = _fakeOutputResolution;
+
+
+        final paddedCurrentAudioTrack =
+            currentAudioTrack.toString().padLeft(3, '0');
+        final paddedAvailableAudioTracks =
+            availableAudioTracks.toString().padLeft(3, '0');
+        final paddedHours = _fakeClock.inHours.toString().padLeft(2, '0');
+        final paddedMinutes =
+            (_fakeClock.inMinutes % 60).toString().padLeft(2, '0');
+        final paddedSeconds =
+            (_fakeClock.inSeconds % 60).toString().padLeft(2, '0');
+        _fakeStream
+            .add('@UTC $paddedCurrentAudioTrack $paddedAvailableAudioTracks C '
+                '$paddedHours:$paddedMinutes:$paddedSeconds');
+      }
+    }
   }
 
   @override
@@ -2131,8 +2180,8 @@ class FakeDevice extends Device {
 
   @override
   Stream<String> stream() async* {
-    await for (final _ in Stream.periodic(const Duration(seconds: 1))) {
-      yield '@UTC 001 002 C 00:01:23';
+    await for (final event in _fakeStream.stream) {
+      yield event;
     }
   }
 
@@ -2146,5 +2195,38 @@ class FakeDevice extends Device {
   Future<String> queryTrackAlbum() async => 'Piano Man';
 
   @override
-  Future<String> queryTrackPerformer() async  => 'Billy Joel';
+  Future<String> queryTrackPerformer() async => 'Billy Joel';
+
+  @override
+  Future<void> play() async => _fakeStream.add('@UPL PLAY');
+
+  @override
+  Future<void> pause() async {
+    if (playbackStatus == PlaybackStatus.playbackStarted) {
+      _fakeStream.add('@UPL PAUS');
+    } else if (playbackStatus == PlaybackStatus.playbackPaused) {
+      _fakeStream.add('@UPL PLAY');
+    }
+  }
+
+  @override
+  Future<void> stop() async {
+    _fakeStream.add('@UPL STOP');
+    _fakeClock = Duration.zero;
+  }
+
+  @override
+  Future<void> powerOn() async {
+    _fakeStream.add('@UPW 1');
+    // Yes, stopped. This is so the UI will display some playback status icon.
+    playbackStatus = PlaybackStatus.playbackStopped;
+  }
+
+  @override
+  Future<void> powerOff() async {
+    _fakeStream.add('@UPW 0');
+    playbackStatus = PlaybackStatus.playbackStopped;
+    _fakeClock = Duration.zero;
+    position = null;
+  }
 }
