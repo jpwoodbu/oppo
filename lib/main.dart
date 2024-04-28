@@ -503,20 +503,32 @@ class Buttons extends StatelessWidget {
           'remote control buttons',
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: ListView(
-          children: [
-            Display(device),
-            SizedBox(height: 4.0),
-            Divider(),
-            HomeRow(device),
-            Arrows(device),
-            PlayControls(device),
-            PositionControls(device),
-            BottomGrid(device),
-            Divider(),
-            ExtraControls(device),
-            SizedBox(height: 4.0),
-          ],
+        // Add a small fade to the bottom of the ListView to provide a hint that
+        // the area is scrollable.
+        child: ShaderMask(
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.white, Colors.transparent.withOpacity(0.5)],
+              stops: [0.85, 1.0],
+            ).createShader(bounds);
+          },
+          child: ListView(
+            children: [
+              Display(device),
+              SizedBox(height: 4.0),
+              Divider(),
+              HomeRow(device),
+              Arrows(device),
+              PlayControls(device),
+              PositionControls(device),
+              BottomGrid(device),
+              Divider(),
+              ExtraControls(device),
+              SizedBox(height: 4.0),
+            ],
+          ),
         ),
       ),
     );
