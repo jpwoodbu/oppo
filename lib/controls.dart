@@ -719,15 +719,20 @@ class SetSubtitleShift extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Subtitle shift'),
-      contentPadding: dialogPadding,
-      children: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-          .map(
-            (shift) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, shift)),
-              child: PopupSelectionChoice(label: shift.toString()),
-            ),
-          )
-          .toList(),
+      children: [
+        Wrap(
+            children: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                .map(
+                  (shift) => IntrinsicWidth(
+                    child: TextButton(
+                      onPressed: () =>
+                          addHaptic(() => Navigator.pop(context, shift)),
+                      child: Text(shift.toString()),
+                    ),
+                  ),
+                )
+                .toList())
+      ],
     );
   }
 }
@@ -740,15 +745,17 @@ class SetOsdPosition extends StatelessWidget {
     return SimpleDialog(
       title: const Text('OSD margin'),
       contentPadding: dialogPadding,
-      children: [0, 1, 2, 3, 4, 5]
+      children: [Wrap(children: [0, 1, 2, 3, 4, 5]
           .map(
-            (position) => TextButton(
-              onPressed: () =>
-                  addHaptic(() => Navigator.pop(context, position)),
-              child: PopupSelectionChoice(label: position.toString()),
+            (position) => IntrinsicWidth(
+              child: TextButton(
+                onPressed: () =>
+                    addHaptic(() => Navigator.pop(context, position)),
+                child: Text(position.toString()),
+              ),
             ),
           )
-          .toList(),
+          .toList())],
     );
   }
 }
