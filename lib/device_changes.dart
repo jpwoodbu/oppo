@@ -48,22 +48,15 @@ class DeviceChanges with ChangeNotifier {
     // Don't attempt to reconnect more than once per second to avoid storming
     // the network.
     try {
-      await Future.delayed(Duration(seconds: 1), device.connect);
+      await Future.delayed(const Duration(seconds: 1), device.connect);
     } catch (e) {
-      _snackBar('Reconnect error: $e\n', logLevel: Level.SEVERE);
+      _log.severe('Reconnect error: $e');
       _routeToScanner();
       return;
     }
-    _snackBar('Reconnected.');
+    _log.info('Reconnected.');
     _subscription = _startListener();
     await device.fetchState();
-  }
-
-  void _snackBar(String message, {logLevel = Level.INFO}) {
-    _log.log(logLevel, message);
-    ScaffoldMessenger.of(_context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
   }
 
   void _routeToScanner() {
