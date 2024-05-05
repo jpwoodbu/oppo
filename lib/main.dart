@@ -308,31 +308,35 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return Scaffold(
-              body: Center(
-                child: Column(
-                  children: [
-                    Text('Error while waiting on device to power up.'),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Discovery()),
-                            (Route<dynamic> route) => false);
-                      },
-                      child: const Text('Scan for players'),
-                    ),
-                  ],
+            return SafeArea(
+              child: Scaffold(
+                body: Center(
+                  child: Column(
+                    children: [
+                      Text('Error while waiting on device to power up.'),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Discovery()),
+                              (Route<dynamic> route) => false);
+                        },
+                        child: const Text('Scan for players'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
           }
           return _build();
         } else {
-          return const Scaffold(
-            body: Center(
-              child: Text('Powering on and setting up communication...'),
+          return const SafeArea(
+            child: Scaffold(
+              body: Center(
+                child: Text('Powering on and setting up communication...'),
+              ),
             ),
           );
         }
@@ -349,112 +353,112 @@ class _HomePageState extends State<HomePage> {
     final smallText = Theme.of(context).textTheme.bodySmall;
     return SafeArea(
       child: Scaffold(
-          appBar: AppBar(
-            title: Position(),
-            centerTitle: true,
-            titleSpacing: 0.0,
-            actions: [
-              PoweredProvider(
-                builder: (_, powered, __) {
-                  return powered ?? false
-                      ? IconButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) =>
-                                  NumberPad(device),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.dialpad,
-                            semanticLabel: 'open number pad',
-                          ),
-                        )
-                      : const SizedBox();
-                },
-              ),
-            ],
-          ),
-          drawer: PoweredProvider(
-            builder: (_, powered, __) => NavigationDrawer(
-              children: [
-                DrawerHeader(
-                  child: Row(
-                    children: [
-                      appIcon,
-                      SizedBox(width: 8.0),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Oppo Remote'),
-                          Text(device.name, style: smallText),
-                          Text(
-                              'Firmware: ${device.firmwareVersion ?? 'unknown'}',
-                              style: smallText),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                if (powered ?? false)
-                  ListTile(
-                    leading: Icon(Icons.info),
-                    title: const Text('Fetch track metadata'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (_) {
-                          return SimpleDialog(
-                            contentPadding: dialogPadding,
-                            title: const Text('Track metadata'),
-                            children: [
-                              TrackMetadata(device: device),
-                              Align(
-                                heightFactor: 1.2,
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Close'),
-                                ),
-                              ),
-                            ],
+        appBar: AppBar(
+          title: Position(),
+          centerTitle: true,
+          titleSpacing: 0.0,
+          actions: [
+            PoweredProvider(
+              builder: (_, powered, __) {
+                return powered ?? false
+                    ? IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                NumberPad(device),
                           );
                         },
-                      );
-                    },
-                  ),
+                        icon: Icon(
+                          Icons.dialpad,
+                          semanticLabel: 'open number pad',
+                        ),
+                      )
+                    : const SizedBox();
+              },
+            ),
+          ],
+        ),
+        drawer: PoweredProvider(
+          builder: (_, powered, __) => NavigationDrawer(
+            children: [
+              DrawerHeader(
+                child: Row(
+                  children: [
+                    appIcon,
+                    SizedBox(width: 8.0),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Oppo Remote'),
+                        Text(device.name, style: smallText),
+                        Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
+                            style: smallText),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (powered ?? false)
                 ListTile(
-                  leading: Icon(Icons.sensors),
-                  title: const Text('Scan for players'),
+                  leading: Icon(Icons.info),
+                  title: const Text('Fetch track metadata'),
                   onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => Discovery()),
-                      (Route<dynamic> route) => false,
+                    Navigator.pop(context);
+                    showDialog(
+                      context: context,
+                      builder: (_) {
+                        return SimpleDialog(
+                          contentPadding: dialogPadding,
+                          title: const Text('Track metadata'),
+                          children: [
+                            TrackMetadata(device: device),
+                            Align(
+                              heightFactor: 1.2,
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Close'),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                 ),
-                ListTile(
-                  leading: Icon(Icons.bug_report),
-                  title: const Text('Known issues'),
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => KnownIssues())),
-                ),
-                ListTile(
-                  leading: Icon(Icons.article),
-                  title: const Text('Licenses'),
-                  onTap: () => showLicensePage(
-                      context: context, applicationIcon: appIcon),
-                ),
-              ],
-            ),
+              ListTile(
+                leading: Icon(Icons.sensors),
+                title: const Text('Scan for players'),
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => Discovery()),
+                    (Route<dynamic> route) => false,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.bug_report),
+                title: const Text('Known issues'),
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => KnownIssues())),
+              ),
+              ListTile(
+                leading: Icon(Icons.article),
+                title: const Text('Licenses'),
+                onTap: () =>
+                    showLicensePage(context: context, applicationIcon: appIcon),
+              ),
+            ],
           ),
-          body: PoweredProvider(
-            builder: (_, powered, __) =>
-                powered ?? false ? Buttons(device) : NotPoweredOn(device),
-          )),
+        ),
+        body: PoweredProvider(
+          builder: (_, powered, __) =>
+              powered ?? false ? Buttons(device) : NotPoweredOn(device),
+        ),
+      ),
     );
   }
 }
@@ -503,32 +507,20 @@ class Buttons extends StatelessWidget {
           'remote control buttons',
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        // Add a small fade to the bottom of the ListView to provide a hint that
-        // the area is scrollable.
-        child: ShaderMask(
-          shaderCallback: (bounds) {
-            return LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.white, Colors.transparent.withOpacity(0.5)],
-              stops: [0.85, 1.0],
-            ).createShader(bounds);
-          },
-          child: ListView(
-            children: [
-              Display(device),
-              SizedBox(height: 4.0),
-              Divider(),
-              HomeRow(device),
-              Arrows(device),
-              PlayControls(device),
-              PositionControls(device),
-              BottomGrid(device),
-              Divider(),
-              ExtraControls(device),
-              SizedBox(height: 48.0),
-            ],
-          ),
+        child: ListView(
+          children: [
+            Display(device),
+            SizedBox(height: 4.0),
+            Divider(),
+            HomeRow(device),
+            Arrows(device),
+            PlayControls(device),
+            PositionControls(device),
+            BottomGrid(device),
+            Divider(),
+            ExtraControls(device),
+            const SizedBox(height: 4.0),
+          ],
         ),
       ),
     );

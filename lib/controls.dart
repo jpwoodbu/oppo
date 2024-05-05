@@ -241,7 +241,7 @@ class ColorButton extends StatelessWidget {
             backgroundColor: MaterialStateProperty.all(color),
             shape: MaterialStateProperty.all(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(borderRadius)))),
-        child: SizedBox(),
+        child: const SizedBox(),
       ),
     );
   }
