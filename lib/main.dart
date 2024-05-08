@@ -58,8 +58,8 @@ class MyApp extends StatelessWidget {
 
 class DiscoveryChanges with ChangeNotifier {
   final oppo.Discover discover;
-  late Stream<oppo.OppoBroadcast> _stream;
-  Set<oppo.OppoBroadcast> devices = {};
+  late Stream<oppo.OppoID> _stream;
+  Set<oppo.OppoID> devices = {};
 
   DiscoveryChanges(this.discover) {
     _stream = discover.listen();
@@ -121,7 +121,7 @@ class _DiscoveryState extends State<Discovery> {
                           style: Theme.of(context).textTheme.titleMedium),
                       TextButton(
                         onPressed: () => _connect(
-                            oppo.OppoBroadcast(
+                            oppo.OppoID(
                               InternetAddress('1.2.3.4'),
                               123,
                               'Fake device',
@@ -144,7 +144,7 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
-  Widget _devices(Set<oppo.OppoBroadcast> broadcasts) {
+  Widget _devices(Set<oppo.OppoID> ids) {
     String? lastDeviceAddress;
     return FutureBuilder(
       future: _preferences,
@@ -159,17 +159,17 @@ class _DiscoveryState extends State<Discovery> {
           if (lastDeviceAddress != null &&
               lastDeviceName != null &&
               lastDevicePort != null) {
-            broadcasts.add(oppo.OppoBroadcast(
+            ids.add(oppo.OppoID(
                 InternetAddress(lastDeviceAddress!),
                 lastDevicePort,
                 lastDeviceName));
           }
         }
-        if (broadcasts.isEmpty) {
+        if (ids.isEmpty) {
           return Column(children: []);
         }
         return Column(
-          children: broadcasts
+          children: ids
               .map(
                 (e) => Semantics(
                   label: 'discovered device',
@@ -193,11 +193,11 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
-  void _connect(oppo.OppoBroadcast broadcast, {bool useFake = false}) {
+  void _connect(oppo.OppoID id, {bool useFake = false}) {
     final device = useFake
-        ? oppo.FakeDevice(broadcast.name, broadcast.address, broadcast.port)
-        : oppo.Device(broadcast.name, broadcast.address, broadcast.port);
-    if (!useFake) _saveLastDevice(broadcast);
+        ? oppo.FakeDevice(id.name, id.address, id.port)
+        : oppo.Device(id.name, id.address, id.port);
+    if (!useFake) _saveLastDevice(id);
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => Connect(device)),
@@ -205,12 +205,12 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
-  void _saveLastDevice(oppo.OppoBroadcast broadcast) async {
+  void _saveLastDevice(oppo.OppoID id) async {
     final p = await SharedPreferences.getInstance();
-    await p.setString(_settingLastDeviceName, broadcast.name);
-    await p.setString(_settingLastDeviceAddress, broadcast.address.address);
-    await p.setInt(_settingLastDevicePort, broadcast.port);
-    _log.info('Saved last device: ${broadcast.address.address}');
+    await p.setString(_settingLastDeviceName, id.name);
+    await p.setString(_settingLastDeviceAddress, id.address.address);
+    await p.setInt(_settingLastDevicePort, id.port);
+    _log.info('Saved last device: ${id.address.address}');
   }
 }
 

@@ -5,34 +5,40 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 
+// This port number seems to be used for two purposes.
+// 1) The player broadcasts its existance every 10s to this destination port.
+// 2) It's the source and destination port for the "OREMOTE LOGIN" call and
+// responses initiated by the Oppo made MediaControl app.
 const int _broadcastPort = 7624;
+const int _httpPort = 436;
+const int _serialPort = 23;
 const Duration _responseTimeout = Duration(seconds: 10);
 
 final _log = Logger('oppo');
 
 void main() async {
-  Set<OppoBroadcast> devices = {};
-  Logger.root.level = Level.INFO;
+  Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
-  // Uncomment if you want to exercise the discovery feature. Also comment out
-  // the devices.add() call below. While testing on WSL, it's convenient to skip
-  // discovery.
-  /*
-  final d = Discover();
-  _log.info('Scanning for Oppo UDP-20X players...');
-  await for (final info in d.listen()) {
-    _log.info('Found Oppo device at ${info.address.address}');
-    d.close();
-    devices.add(info);
-  }
-  */
-  devices.add(OppoBroadcast(InternetAddress('192.168.86.59'), 23, 'unknown'));
 
-  if (devices.isNotEmpty) {
-    var info = devices.first;
+  Set<OppoID> ids = {};
+  // Uncomment if you want to exercise the discovery feature. Also comment out
+  // the ids.add() call below. While testing on WSL, it's convenient to skip
+  // discovery.
+  // final d = Discover();
+  // final d = ActiveDiscover();
+  // _log.info('Scanning for Oppo UDP-20X players...');
+  // await for (final info in d.listen()) {
+  //   _log.info('Found Oppo device at ${info.address.address}');
+  //   d.close();
+  //   ids.add(info);
+  // }
+  ids.add(OppoID(InternetAddress('192.168.86.139'), _serialPort, 'unknown'));
+
+  if (ids.isNotEmpty) {
+    var info = ids.first;
     final device = Device(info.name, info.address, info.port);
     await device.connect();
     await device.startListener();
@@ -40,12 +46,12 @@ void main() async {
   }
 }
 
-class OppoBroadcast {
+class OppoID {
   InternetAddress address;
   int port;
   String name;
 
-  OppoBroadcast(this.address, this.port, this.name);
+  OppoID(this.address, this.port, this.name);
 
   @override
   int get hashCode => address.address.hashCode ^ port.hashCode;
@@ -53,12 +59,13 @@ class OppoBroadcast {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is OppoBroadcast &&
+        other is OppoID &&
             address.address == other.address.address &&
             port == other.port;
   }
 
-  factory OppoBroadcast.fromDatagram(Datagram datagram) {
+  /// Parses the becon packet sent by the player every 10s.
+  factory OppoID.fromBeacon(Datagram datagram) {
     InternetAddress? address;
     int? port;
     String name = '';
@@ -89,7 +96,25 @@ class OppoBroadcast {
     }
     if (address == null) throw 'failed to find IP address';
     if (port == null) throw 'failed to find port';
-    return OppoBroadcast(address, port, name);
+    return OppoID(address, port, name);
+  }
+
+  factory OppoID.fromOremoteLoginResponse(Datagram datagram) {
+    InternetAddress? address;
+    String name = '';
+    final decoded = ascii.decode(datagram.data);
+    final parts = decoded.split(' ');
+    if (parts.length != 7) {
+      throw 'failed to parse OREMOTE LOGIN response: $decoded';
+    }
+    name = parts[0].replaceAll('_', ' ');
+    final addressAndPort = parts[6].split(':');
+    address = InternetAddress(addressAndPort[0]);
+    // The port in the response packet seems to always be 19999. I don't know
+    // what that is. I can't conntect to it with TCP. We'll be connecting to the
+    // known ports [_serialPort] and [_httpPort]. _serialPort is used here since
+    // its the port used for the documented API.
+    return OppoID(address, _serialPort, name);
   }
 }
 
@@ -99,23 +124,80 @@ class Discover {
   void close() {
     if (_socket != null) {
       _socket!.close();
-      _log.info('No longer listening for Oppo broadcast packets.');
+      _log.fine('No longer listening for Oppo beacon packets.');
     }
   }
 
-  Stream<OppoBroadcast> listen() async* {
+  Stream<OppoID> listen() async* {
     _socket =
         await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
     _socket!.writeEventsEnabled = false;
-    _log.info('Listening for Oppo broadcast packets.');
+    _log.info('Listening for Oppo beacon packets.');
     await for (final event in _socket!) {
       if (event == RawSocketEvent.read) {
         final datagram = _socket!.receive();
         if (datagram == null) continue;
         try {
-          yield OppoBroadcast.fromDatagram(datagram);
+          yield OppoID.fromBeacon(datagram);
         } catch (e) {
-          _log.warning('Failed to parse broadcast packet: $e');
+          _log.warning('Failed to parse beacon packet: $e');
+        }
+      }
+    }
+  }
+}
+
+/// Call and response way to discover Oppo players.
+///
+/// This uses an undocumented process. Importantly, it seems necessary to send
+/// the "call" message at least once after the player powers up from being
+/// completely off or else the HTTP service on port 436 will not be reachable.
+/// Aside from that benefit, this process should generally be able to discover
+/// players more quickly than the documented discovery process, which listens
+/// for a beacon packet sent by the player every 10s.
+class ActiveDiscover {
+  RawDatagramSocket? _socket;
+  static const _pingMessage = 'NOTIFY OREMOTE LOGIN';
+
+  void close() {
+    if (_socket != null) {
+      _socket!.close();
+      _log.fine('No longer listening for Oppo OREMOTE LOGIN packets.');
+    }
+  }
+
+  /// Sends the "call" part of the call and response.
+  /// 
+  /// This could be useful to call without listening for a repsonse if you
+  /// already know the address of the player but you only want to make the HTTP
+  /// service on port 436 reachable.
+  void ping() {
+    final bytesSent = _socket!.send(_pingMessage.codeUnits,
+        InternetAddress('255.255.255.255'), _broadcastPort);
+    if (bytesSent == 0) {
+      _log.warning('Failed to send OREMOTE LOGIN packet.');
+    } else {
+      _log.fine('Sent: $_pingMessage');
+    }
+  }
+
+  Stream<OppoID> listen() async* {
+    _socket =
+        await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
+    _socket!.broadcastEnabled = true;
+    ping();
+    await for (final event in _socket!) {
+      if (event == RawSocketEvent.read) {
+        final datagram = _socket!.receive();
+        if (datagram == null) continue;
+        // Since we broadcast the ping on the same port we listen for the
+        // response, we're going to see our own ping message. We meed to ignore
+        // it.
+        if (ascii.decode(datagram.data) == _pingMessage) continue;
+        try {
+          yield OppoID.fromOremoteLoginResponse(datagram);
+        } catch (e) {
+          _log.warning('Failed to parse OREMOTE LOGIN response packet: $e');
         }
       }
     }
@@ -2126,7 +2208,7 @@ class FakeDevice extends Device {
     channels = _fakeChannels;
     currentSubtitleTrack = _fakeCurrentSubtitleTrack;
     availableSubtitleTracks = _fakeAvailableSubtitleTracks;
-    subtitleLanguage = _fakeSubtitleLanguage; 
+    subtitleLanguage = _fakeSubtitleLanguage;
     aspectRatioSetting = _fakeAspectRatioSetting;
     contentResolution = _fakeContentResolution;
     outputResolution = _fakeOutputResolution;
@@ -2151,7 +2233,6 @@ class FakeDevice extends Device {
         aspectRatioSetting = _fakeAspectRatioSetting;
         contentResolution = _fakeContentResolution;
         outputResolution = _fakeOutputResolution;
-
 
         final paddedCurrentAudioTrack =
             currentAudioTrack.toString().padLeft(3, '0');
