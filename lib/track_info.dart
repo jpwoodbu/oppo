@@ -2,14 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'oppo.dart' as oppo;
 
-class _Responses {
-  final String album;
-  final String name;
-  final String performer;
-
-  const _Responses(this.album, this.name, this.performer);
-}
-
 class TrackMetadata extends StatelessWidget {
   final oppo.Device device;
   const TrackMetadata({super.key, required this.device});
@@ -19,7 +11,7 @@ class TrackMetadata extends StatelessWidget {
     final errorColor = Theme.of(context).colorScheme.error;
     final errorStyle = TextStyle(color: errorColor);
     return FutureBuilder(
-      future: _fetchInfo(),
+      future: device.getMusicPlayInfo(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Column(
@@ -38,24 +30,23 @@ class TrackMetadata extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
+          final id3Info = snapshot.data!;
           return Column(
             children: [
-              InfoRow(header: 'Performer', value: snapshot.data!.performer),
-              InfoRow(header: 'Album', value: snapshot.data!.album),
-              InfoRow(header: 'Track', value: snapshot.data!.name),
+              if (id3Info.artist.isNotEmpty)
+                InfoRow(header: 'Artist', value: id3Info.artist),
+              if (id3Info.album.isNotEmpty)
+                InfoRow(header: 'Album', value: id3Info.album),
+              if (id3Info.title.isNotEmpty)
+                InfoRow(header: 'Title', value: id3Info.title),
+              if (id3Info.year.isNotEmpty)
+                InfoRow(header: 'Year', value: id3Info.year),
             ],
           );
         }
         return Center(child: CircularProgressIndicator());
       },
     );
-  }
-
-  Future<_Responses> _fetchInfo() async {
-    final album = await device.queryTrackAlbum();
-    final name = await device.queryTrackName();
-    final performer = await device.queryTrackPerformer();
-    return _Responses(album, name, performer);
   }
 }
 

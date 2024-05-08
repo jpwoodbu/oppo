@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
 // This port number seems to be used for two purposes.
@@ -159,6 +160,18 @@ class ActiveDiscover {
   RawDatagramSocket? _socket;
   static const _pingMessage = 'NOTIFY OREMOTE LOGIN';
 
+  Future<void> _open() async {
+    if (_socket == null) {
+      try {
+        _socket = await RawDatagramSocket.bind(
+            InternetAddress.anyIPv4, _broadcastPort);
+        _socket!.broadcastEnabled = true;
+      } catch (e) {
+        _log.severe('Unable to bind socket for ActiveDiscover: $e');
+      }
+    }
+  }
+
   void close() {
     if (_socket != null) {
       _socket!.close();
@@ -167,11 +180,12 @@ class ActiveDiscover {
   }
 
   /// Sends the "call" part of the call and response.
-  /// 
+  ///
   /// This could be useful to call without listening for a repsonse if you
   /// already know the address of the player but you only want to make the HTTP
   /// service on port 436 reachable.
-  void ping() {
+  Future<void> ping() async {
+    await _open();
     final bytesSent = _socket!.send(_pingMessage.codeUnits,
         InternetAddress('255.255.255.255'), _broadcastPort);
     if (bytesSent == 0) {
@@ -182,10 +196,7 @@ class ActiveDiscover {
   }
 
   Stream<OppoID> listen() async* {
-    _socket =
-        await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
-    _socket!.broadcastEnabled = true;
-    ping();
+    await ping(); // [ping] also creates the socket.
     await for (final event in _socket!) {
       if (event == RawSocketEvent.read) {
         final datagram = _socket!.receive();
@@ -1083,6 +1094,11 @@ class Device {
       await powerOn();
       await _waitForPowerOn(Duration(seconds: 1), 10);
     }
+    // Send an ActiveDiscover ping to ensure the HTTP service is enabled on the
+    // player.
+    final d = ActiveDiscover();
+    d.ping();
+    d.close();
     await setVerboseMode(VerboseMode.detailed);
     await fetchState();
   }
@@ -1939,6 +1955,28 @@ class Device {
     }
     return items;
   }
+
+  String get _httpAuthority => '${address.address}:$_httpPort';
+  Uri _uri(String path) => Uri.http(_httpAuthority, path);
+
+  Future<Id3Info> getMusicPlayInfo() async {
+    final response = await http.get(_uri('getmusicplayinfo'));
+    if (response.statusCode != 200) {
+      throw 'Failed to get music play info: ${response.statusCode}';
+    }
+    final data = jsonDecode(response.body);
+    if (!data['success']) {
+      _log.warning('JSON response reports failure: ${response.body}');
+      throw 'JSON response reports failure.';
+    }
+    final id3info = data['id3info'];
+    return Id3Info(
+      title: id3info['title'],
+      artist: id3info['artist'],
+      album: id3info['album'],
+      year: id3info['year'],
+    );
+  }
 }
 
 class _AudioTypeUpdate {
@@ -2179,6 +2217,15 @@ enum HdrStatus {
     }
     throw 'Unknown HDR status type code: $typeCode';
   }
+}
+
+class Id3Info {
+  final String title;
+  final String artist;
+  final String album;
+  final String year;
+
+  Id3Info({this.title = '', this.artist = '', this.album = '', this.year = ''});
 }
 
 class FakeDevice extends Device {

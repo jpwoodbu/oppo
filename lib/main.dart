@@ -159,10 +159,13 @@ class _DiscoveryState extends State<Discovery> {
           if (lastDeviceAddress != null &&
               lastDeviceName != null &&
               lastDevicePort != null) {
-            ids.add(oppo.OppoID(
+            ids.add(
+              oppo.OppoID(
                 InternetAddress(lastDeviceAddress!),
                 lastDevicePort,
-                lastDeviceName));
+                lastDeviceName,
+              ),
+            );
           }
         }
         if (ids.isEmpty) {
