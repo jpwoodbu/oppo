@@ -1687,6 +1687,12 @@ class Device {
     return vr;
   }
 
+  /// Queries the current HDMI resolution setting.
+  /// 
+  /// This is distinct from what data is provided by the UVO update packet. UVO
+  /// updates tell what the resolution of the content is as well as the current
+  /// HDMI output resolution. This function might return something like the HDMI
+  /// resolution setting is set to match whatever the source is.
   Future<HdmiResolution> queryHdmiResolution() async {
     final r = await _rpc('QHD');
     return HdmiResolution.fromTypeCode(r.parameters!);
