@@ -1297,7 +1297,29 @@ class Device {
           _log.severe(e);
           break;
         }
+
+        // Workaround the serial API returning the wrong audio type when it's
+        // Dolby TrueHD. The HTTP API can provide the correct audio type. But
+        // the HTTP API doesn't work in many cases, so we're only using it for
+        // this workaround.
         audioType = update.type;
+        if (audioType == AudioType.dolbyDigital) {
+          try {
+            final audioTracks = await getAudioMenuList();
+            for (final track in audioTracks) {
+              if (track.selected) {
+                if (track.name.contains('Dolby TrueHD')) {
+                  audioType = AudioType.dolbyTrueHD;
+                }
+              } else {
+                continue;
+              }
+            }
+          } catch (e) {
+            _log.warning('Failed to apply the bad audio type workaround: $e');
+          }
+        }
+
         currentAudioTrack = update.currentTrack;
         availableAudioTracks = update.availableTracks;
         audioLanguage = update.language;
@@ -1688,7 +1710,7 @@ class Device {
   }
 
   /// Queries the current HDMI resolution setting.
-  /// 
+  ///
   /// This is distinct from what data is provided by the UVO update packet. UVO
   /// updates tell what the resolution of the content is as well as the current
   /// HDMI output resolution. This function might return something like the HDMI
@@ -1965,16 +1987,22 @@ class Device {
   String get _httpAuthority => '${address.address}:$_httpPort';
   Uri _uri(String path) => Uri.http(_httpAuthority, path);
 
-  Future<Id3Info> getMusicPlayInfo() async {
-    final response = await http.get(_uri('getmusicplayinfo'));
+  dynamic _httpRpc(String path) async {
+    final response = await http.get(_uri(path));
     if (response.statusCode != 200) {
-      throw 'Failed to get music play info: ${response.statusCode}';
+      throw 'Error response for $path: ${response.statusCode}';
     }
     final data = jsonDecode(response.body);
     if (!data['success']) {
       _log.warning('JSON response reports failure: ${response.body}');
       throw 'JSON response reports failure.';
     }
+    return jsonDecode(response.body);
+  }
+
+  Future<Id3Info> getMusicPlayInfo() async {
+    // TODO - should I be using /getmusiclocalid3info?
+    final data = await _httpRpc('getmusicplayinfo');
     final id3info = data['id3info'];
     return Id3Info(
       title: id3info['title'],
@@ -1982,6 +2010,15 @@ class Device {
       album: id3info['album'],
       year: id3info['year'],
     );
+  }
+
+  Future<List<AudioTrack>> getAudioMenuList() async {
+    final data = await _httpRpc('getaudiomenulist');
+    List<AudioTrack> ret = [];
+    for (final a in data['audio_list']) {
+      ret.add(AudioTrack(a['name'], a['index'], a['selected']));
+    }
+    return ret;
   }
 }
 
@@ -2232,6 +2269,14 @@ class Id3Info {
   final String year;
 
   Id3Info({this.title = '', this.artist = '', this.album = '', this.year = ''});
+}
+
+class AudioTrack {
+  final String name;
+  final int index;
+  final bool selected;
+
+  AudioTrack(this.name, this.index, this.selected);
 }
 
 class FakeDevice extends Device {
