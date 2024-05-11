@@ -1055,6 +1055,24 @@ class Device {
 
   Device(this.name, this.address, this.port);
 
+  /// Clear fields except [playbackStatus].
+  ///
+  /// This function is used both when [playbackStatus] is
+  /// [PlaybackStatus.playbackStopped] and when the player is powered off.
+  void _clearFields() {
+    audioType = AudioType.unknown;
+    currentAudioTrack = null;
+    availableAudioTracks = null;
+    position = null;
+    audioLanguage = null;
+    channels = null;
+    subtitleLanguage = null;
+    currentSubtitleTrack = null;
+    availableSubtitleTracks = null;
+    contentResolution = null;
+    outputResolution = null;
+  }
+
   /// Estasblishes a socket to the Oppo player.
   ///
   /// If a connection has already been established, this method does nothing but
@@ -1241,6 +1259,7 @@ class Device {
         } else if (parameters == '0') {
           powered = false;
           playbackStatus = null;
+          _clearFields();
         } else {
           _log.severe('Invalid UPW parameter: $parameters');
         }
@@ -1255,17 +1274,7 @@ class Device {
           discType = DiscType.unknown;
         }
         if (playbackStatus == PlaybackStatus.playbackStopped) {
-          audioType = AudioType.unknown;
-          currentAudioTrack = null;
-          availableAudioTracks = null;
-          position = null;
-          audioLanguage = null;
-          channels = null;
-          subtitleLanguage = null;
-          currentSubtitleTrack = null;
-          availableSubtitleTracks = null;
-          contentResolution = null;
-          outputResolution = null;
+          _clearFields();
         }
         break;
       case 'UVL':
