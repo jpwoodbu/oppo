@@ -1298,28 +1298,7 @@ class Device {
           break;
         }
 
-        // Workaround the serial API returning the wrong audio type when it's
-        // Dolby TrueHD. The HTTP API can provide the correct audio type. But
-        // the HTTP API doesn't work in many cases, so we're only using it for
-        // this workaround.
-        audioType = update.type;
-        if (audioType == AudioType.dolbyDigital) {
-          try {
-            final audioTracks = await getAudioMenuList();
-            for (final track in audioTracks) {
-              if (track.selected) {
-                if (track.name.contains('Dolby TrueHD')) {
-                  audioType = AudioType.dolbyTrueHD;
-                }
-              } else {
-                continue;
-              }
-            }
-          } catch (e) {
-            _log.warning('Failed to apply the bad audio type workaround: $e');
-          }
-        }
-
+        audioType = await _correctAudioType(update.type);
         currentAudioTrack = update.currentTrack;
         availableAudioTracks = update.availableTracks;
         audioLanguage = update.language;
@@ -1793,7 +1772,7 @@ class Device {
       return AudioTypeResponse(AudioType.unknown);
     }
     final audioTypeResponse = AudioTypeResponse.fromString(r.parameters!);
-    audioType = audioTypeResponse.type;
+    audioType = await _correctAudioType(audioTypeResponse.type);
     // Permit the response to set these values to null. That might be valid.
     currentAudioTrack = audioTypeResponse.currentTrack;
     availableAudioTracks = audioTypeResponse.availableTracks;
@@ -2019,6 +1998,37 @@ class Device {
       ret.add(AudioTrack(a['name'], a['index'], a['selected']));
     }
     return ret;
+  }
+
+  /// Workaround getting the wrong [AudioType] from the serial API.
+  /// 
+  /// Workaround the serial API returning the wrong audio type when it's
+  /// Dolby TrueHD. The HTTP API can provide the correct audio type. But
+  /// the HTTP API doesn't work in many cases, so we're only using it for
+  /// this workaround.
+  Future<AudioType> _correctAudioType(AudioType audioType) async {
+
+    if (audioType == AudioType.dolbyDigital) {
+      _log.fine('AudioType is DD.');
+      try {
+        final audioTracks = await getAudioMenuList();
+        _log.fine('Fetched audio menu list.');
+        for (final track in audioTracks) {
+          if (track.selected) {
+            _log.fine('Found selected track.');
+            if (track.name.contains('Dolby TrueHD')) {
+              _log.info('Corrected audio type with HTTP API.');
+              return AudioType.dolbyTrueHD;
+            }
+          } else {
+            continue;
+          }
+        }
+      } catch (e) {
+        _log.warning('Failed to apply bad audio type workaround: $e');
+      }
+    }
+    return audioType;
   }
 }
 
