@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:logging_flutter/logging_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,6 +25,21 @@ void main() {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
+  // Set up in-app log viewing.
+  Flogger.init(
+    config: FloggerConfig(
+      printClassName: true,
+      printMethodName: true,
+      showDateTime: true,
+      showDebugLogs: true,
+    ),
+  );
+  Flogger.registerListener(
+    (record) => LogConsole.add(
+      OutputEvent(record.level, [record.printable()]),
+      bufferSize: 1000,
+    ),
+  );
   runApp(const MyApp());
 }
 
@@ -431,6 +447,11 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Known issues'),
                 onTap: () => Navigator.push(context,
                     MaterialPageRoute(builder: (context) => KnownIssues())),
+              ),
+              ListTile(
+                leading: Icon(Icons.feedback),
+                title: const Text('Debug logs'),
+                onTap: () => LogConsole.open(context),
               ),
               ListTile(
                 leading: Icon(Icons.article),
