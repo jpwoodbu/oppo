@@ -1203,7 +1203,9 @@ class Device {
   }
 
   void _parseMessage(String message) {
-    _log.fine('Received message: $message');
+    // The time code updates are very noisy.
+    final level = message.startsWith('@UTC') ? Level.FINE: Level.INFO;
+    _log.log(level, 'Received message: $message');
     final parts = message.split(' ');
     ResultCode resultCode;
     String commandCode;
