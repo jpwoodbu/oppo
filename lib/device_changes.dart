@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
+import 'package:retry/retry.dart';
 
 import 'oppo.dart';
 
@@ -45,10 +47,13 @@ class DeviceChanges with ChangeNotifier {
 
   void _reconnect() async {
     await device.close();
-    // Don't attempt to reconnect more than once per second to avoid storming
-    // the network.
     try {
-      await Future.delayed(const Duration(seconds: 1), device.connect);
+      final r = RetryOptions(maxAttempts: 3);
+      await r.retry(
+        device.connect,
+        retryIf: (e) => e is SocketException || e is TimeoutException,
+        onRetry: (_) => _snackBar('Reconnecting...'),
+      );
     } catch (e) {
       _log.severe('Reconnect error: $e');
       _routeToScanner();
@@ -61,5 +66,12 @@ class DeviceChanges with ChangeNotifier {
 
   void _routeToScanner() {
     Navigator.pushNamedAndRemoveUntil(_context, '/scan', (route) => false);
+  }
+
+  void _snackBar(String message) {
+    _log.warning(message);
+    ScaffoldMessenger.of(_context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }
