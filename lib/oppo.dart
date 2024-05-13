@@ -1203,7 +1203,7 @@ class Device {
   }
 
   void _parseMessage(String message) {
-    _log.info('Received message: $message');
+    _log.fine('Received message: $message');
     final parts = message.split(' ');
     ResultCode resultCode;
     String commandCode;
