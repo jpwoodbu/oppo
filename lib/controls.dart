@@ -448,14 +448,9 @@ class BottomGrid extends StatelessWidget {
           ),
           TableCellPadded(
             child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.HdrSetting>(
-                    context: context, builder: (context) => SetHdrMode());
-                if (selection != null) {
-                  await device.setHdrSetting(selection);
-                }
-              },
+              // setHdrSetting is not being used here because the API for it
+              // mostly doesn't work.
+              onPressed: () => addHaptic(device.hdrMenu),
               child: VerticalIcon(icon: Icon(Icons.hdr_strong), label: 'HDR'),
             ),
           ),
