@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:oppo/util.dart';
+import 'package:logging/logging.dart';
 
 import 'oppo.dart' as oppo;
+import 'util.dart';
+
+final _log = Logger('track_info');
 
 class TrackMetadata extends StatelessWidget {
   final oppo.Device device;
@@ -18,6 +21,7 @@ class TrackMetadata extends StatelessWidget {
           future: device.getMusicLocalId3Info(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
+              _log.warning('Error fetching track metadata: ${snapshot.error}');
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -41,7 +45,7 @@ class TrackMetadata extends StatelessWidget {
                   if (id3Info.artist.isNotEmpty) Text(id3Info.artist),
                   if (id3Info.album.isNotEmpty) Text(id3Info.album),
                   if (id3Info.title.isNotEmpty) Text(id3Info.title),
-                  if (id3Info.year.isNotEmpty) Text(id3Info.year),
+                  if (id3Info.year != null) Text('${id3Info.year}'),
                 ],
               );
             }

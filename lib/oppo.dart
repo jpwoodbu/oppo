@@ -275,6 +275,9 @@ enum PlaybackStatus {
 
   factory PlaybackStatus.fromTypeCode(String typeCode) {
     try {
+      // 'CLOSE' is undocumented but observed. It's so close to 'CLOS' it likely
+      // means the same thing.
+      if (typeCode == 'CLOSE') return PlaybackStatus.closingTray;
       return PlaybackStatus.values
           .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
@@ -1377,6 +1380,13 @@ class Device {
           } catch (e) {
             // Log and move on. Logging happens inside the call.
           }
+          // Workaround not getting track info updates when playback starts in
+          // some cases.
+          try {
+            await queryTrackOrTitle();
+          } catch (e) {
+            // log
+          }
         }
         break;
       case 'UVO':
@@ -1512,7 +1522,17 @@ class Device {
   Future<void> green() async => await _command('GRN');
   Future<void> blue() async => await _command('BLU');
   Future<void> yellow() async => await _command('YLW');
-  Future<void> stop() async => await _command('STP');
+
+  Future<void> stop() async {
+    final response = await _rpc('STP');
+    // It's been observed that in some cases, when a FULL STOP response is
+    // returned, there's no update regarding playback status having changed.
+    if (response.parameters == 'FULL STOP') {
+      playbackStatus = PlaybackStatus.playbackStopped;
+      _clearFields();
+    }
+  }
+
   Future<void> play() async => await _command('PLA');
   Future<void> pause() async => await _command('PAU');
   Future<void> previous() async => await _command('PRE');
@@ -1729,7 +1749,16 @@ class Device {
 
   Future<PlaybackStatus> queryPlaybackStatus() async {
     final r = await _rpc('QPL');
-    final p = PlaybackStatus.fromQueryResponse(r.parameters!);
+    var p = PlaybackStatus.fromQueryResponse(r.parameters!);
+    // Workaround the playback status sometimes returning that the tray is
+    // closing continuously.
+    if (p == PlaybackStatus.closingTray) {
+      final g = await getGlobalInfo();
+      if (g.somethingIsPlaying()) {
+        p = PlaybackStatus.playbackStarted;
+        _log.info('Corrected playback status with HTTP API.');
+      }
+    }
     playbackStatus = p;
     return p;
   }
@@ -1739,9 +1768,6 @@ class Device {
     final ti = TrackInfo.fromString(r.parameters!);
     currentAudioTrack = ti.currentTrack;
     availableAudioTracks = ti.availableTracks;
-    if (position != null) {
-      position!.title = ti.currentTrack;
-    }
     return ti;
   }
 
@@ -2034,6 +2060,17 @@ class Device {
       ret.add(AudioTrack(a['name'], a['index'], a['selected']));
     }
     return ret;
+  }
+
+  Future<GlobalInfo> getGlobalInfo() async {
+    final data = await _httpRpc('getglobalinfo');
+    return GlobalInfo(
+      isAudioPlaying: data['is_audio_playing'],
+      isPicPlaying: data['is_pic_playing'],
+      isVideoPlaying: data['is_video_playing'],
+      isBdmvPlaying: data['is_bdmv_playing'],
+      isDiscPlaying: data['is_disc_playing'],
+    );
   }
 
   /// Workaround getting the wrong [AudioType] from the serial API.
@@ -2344,9 +2381,10 @@ class Id3Info {
   final String title;
   final String artist;
   final String album;
-  final String year;
+  final int? year;
 
-  Id3Info({this.title = '', this.artist = '', this.album = '', this.year = ''});
+  const Id3Info(
+      {this.title = '', this.artist = '', this.album = '', this.year});
 }
 
 class AudioTrack {
@@ -2354,7 +2392,33 @@ class AudioTrack {
   final int index;
   final bool selected;
 
-  AudioTrack(this.name, this.index, this.selected);
+  const AudioTrack(this.name, this.index, this.selected);
+}
+
+class GlobalInfo {
+  final bool isAudioPlaying;
+  final bool isPicPlaying;
+  final bool isVideoPlaying;
+  final bool isBdmvPlaying;
+  final bool isDiscPlaying;
+
+  const GlobalInfo({
+    required this.isAudioPlaying,
+    required this.isPicPlaying,
+    required this.isVideoPlaying,
+    required this.isBdmvPlaying,
+    required this.isDiscPlaying,
+  });
+
+  bool somethingIsPlaying() {
+    return [
+      isAudioPlaying,
+      isPicPlaying,
+      isVideoPlaying,
+      isBdmvPlaying,
+      isDiscPlaying,
+    ].any((element) => element == true);
+  }
 }
 
 class FakeDevice extends Device {
