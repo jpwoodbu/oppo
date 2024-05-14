@@ -55,6 +55,7 @@ class DeviceChanges with ChangeNotifier {
         onRetry: (_) => _snackBar('Reconnecting...'),
       );
     } catch (e) {
+      _snackBar('Failed to reconnect.');
       _log.severe('Reconnect error: $e');
       _routeToScanner();
       return;
