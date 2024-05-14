@@ -1766,8 +1766,12 @@ class Device {
   Future<TrackInfo> queryTrackOrTitle() async {
     final r = await _rpc('QTK');
     final ti = TrackInfo.fromString(r.parameters!);
-    currentAudioTrack = ti.currentTrack;
-    availableAudioTracks = ti.availableTracks;
+    // Only update the cached value if the returned data appears valid.
+    // Sometimes the returned data is 00/00.
+    if (ti.currentTrack != 0) {
+      currentAudioTrack = ti.currentTrack;
+      availableAudioTracks = ti.availableTracks;
+    }
     return ti;
   }
 
