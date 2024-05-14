@@ -1652,8 +1652,6 @@ class Device {
   Future<void> reset() async => await _command('RST');
 
   Future<void> setSubtitleShift(int shift) async {
-    // TODO - Try this with a DVD. This range follows the API docs, but the
-    // player has (while playing a CD anyway) rejected values below 0.
     int sanitizedShift = max(shift, -10);
     sanitizedShift = min(sanitizedShift, 10);
     await _command('SSH', parameters: sanitizedShift.toString());
