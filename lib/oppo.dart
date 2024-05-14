@@ -943,8 +943,10 @@ enum AudioType {
   mpegAudio('MP', 'MPEG Audio'),
   cd('CD', 'CD Audio'),
   ac('AC', 'AAC'), // Not documented, but observed.
-  dsd('DSD', 'DSD'), // Not documted, but observed.
-  flac('FLAC', 'FLAC'), // Not documentd, not observed.
+  dsd('DSD', 'DSD'), // Not documented, but observed.
+  flac('FLAC', 'FLAC'), // Not documented, but observed.
+  // Meridian Lossless Packing
+  mlp('MLP', 'MLP'), // Not documented, but observed (only via HTTP).
   unknown('UN', 'Unknown');
 
   final String typeCode;
@@ -953,6 +955,8 @@ enum AudioType {
 
   factory AudioType.fromTypeCode(String typeCode) {
     try {
+      // Sometimes the player uses DDP instead of DP. :|
+      if (typeCode == 'DDP') return AudioType.dolbyDigitalPlus;
       return AudioType.values
           .firstWhere((element) => element.typeCode == typeCode);
     } on StateError {
@@ -1204,7 +1208,7 @@ class Device {
 
   void _parseMessage(String message) {
     // The time code updates are very noisy.
-    final level = message.startsWith('@UTC') ? Level.FINE: Level.INFO;
+    final level = message.startsWith('@UTC') ? Level.FINE : Level.INFO;
     _log.log(level, 'Received message: $message');
     final parts = message.split(' ');
     ResultCode resultCode;
@@ -1982,7 +1986,7 @@ class Device {
   // nad throw makes it seem like there's a layering violation someplace.
   void _logAndThrow(String message, [Level level = Level.WARNING]) {
     _log.log(level, message);
-    throw(message);
+    throw (message);
   }
 
   dynamic _httpRpc(String path) async {
@@ -2020,15 +2024,16 @@ class Device {
   }
 
   /// Workaround getting the wrong [AudioType] from the serial API.
-  /// 
+  ///
   /// Workaround the serial API returning the wrong audio type when it's
   /// Dolby TrueHD. The HTTP API can provide the correct audio type. But
   /// the HTTP API doesn't work in many cases, so we're only using it for
   /// this workaround.
   Future<AudioType> _correctAudioType(AudioType audioType) async {
-
-    if (audioType == AudioType.dolbyDigital) {
-      _log.fine('AudioType is DD.');
+    _log.fine('Reported AudioType is ${audioType.displayName}');
+    if (audioType == AudioType.dolbyDigital ||
+        audioType == AudioType.unknown ||
+        audioType == AudioType.dtsHdHighResolution) {
       try {
         final audioTracks = await getAudioMenuList();
         _log.fine('Fetched audio menu list.');
@@ -2036,8 +2041,20 @@ class Device {
           if (track.selected) {
             _log.fine('Found selected track.');
             if (track.name.contains('Dolby TrueHD')) {
-              _log.info('Corrected audio type with HTTP API.');
+              _log.info('Corrected audio type to Dolby TrueHD.');
               return AudioType.dolbyTrueHD;
+            }
+            if (track.name.contains('MLP')) {
+              _log.info('Corrected audio type to MLP.');
+              return AudioType.mlp;
+            }
+            if (track.name.contains('DTS-HD MA')) {
+              _log.info('Corrected audio type to DTS-HD MA.');
+              return AudioType.dtsHdMasterAudio;
+            }
+            if (track.name.contains('FLAC')) {
+              _log.info('Corrected audio type to FLAC.');
+              return AudioType.flac;
             }
           } else {
             continue;
@@ -2223,10 +2240,12 @@ class AudioTypeResponse {
   AudioTypeResponse(this.type);
 
   factory AudioTypeResponse.fromString(String parameters) {
+    _log.fine('Audio type response paramaters: $parameters');
     final parts = parameters.split(' ');
-    final r = AudioTypeResponse(AudioType.fromQueryResponse(parts[0]));
+    var r = AudioTypeResponse(AudioType.unknown);
     TrackInfo? trackInfo;
     if (parts.length > 1) {
+      r = AudioTypeResponse(AudioType.fromQueryResponse(parts[0]));
       try {
         trackInfo = TrackInfo.fromString(parts[1].trim());
         r.currentTrack = trackInfo.currentTrack;
@@ -2241,6 +2260,23 @@ class AudioTypeResponse {
         _log.info('Audio type response did not include track info. '
             'Asigning given parameters to "extraInfo".');
         r.extraInfo = parts.sublist(1).join(' ');
+      }
+    } else {
+      final parameter = parts[0].trim();
+      // Getting a single parameter back might mean we only got track info.
+      try {
+        trackInfo = TrackInfo.fromString(parameter);
+        r.currentTrack = trackInfo.currentTrack;
+        r.availableTracks = trackInfo.availableTracks;
+      } catch (_) {
+        // Move on to the next way to parse.
+      }
+
+      // Sometimes we only get back the audio type itself.
+      try {
+        r = AudioTypeResponse(AudioType.fromTypeCode(parameter));
+      } catch (_) {
+        // Move on to the next way to parse.
       }
     }
     return r;
