@@ -1056,6 +1056,7 @@ class Device {
   AspectRatioSetting? aspectRatioSetting;
   VideoResolution? contentResolution;
   VideoResolution? outputResolution;
+  bool? usbIn; // Whether a USB storage device is connected.
 
   Device(this.name, this.address, this.port);
 
@@ -1389,6 +1390,18 @@ class Device {
         contentResolution = update.contentResolution;
         outputResolution = update.outputResolution;
         break;
+      case 'USB':
+        switch (parameters) {
+          case 'IN':
+            usbIn = true;
+            break;
+          case 'OU':
+            usbIn = false;
+            break;
+          default:
+            usbIn = null;
+            break;
+        }
       default:
         _log.severe('[U] Unsupported command code: $commandCode');
         break;
