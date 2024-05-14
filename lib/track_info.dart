@@ -15,7 +15,7 @@ class TrackMetadata extends StatelessWidget {
       contentPadding: dialogPadding,
       children: [
         FutureBuilder(
-          future: device.getMusicPlayInfo(),
+          future: device.getMusicLocalId3Info(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Column(

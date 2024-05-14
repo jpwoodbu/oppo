@@ -1990,10 +1990,9 @@ class Device {
     return jsonDecode(response.body);
   }
 
-  Future<Id3Info> getMusicPlayInfo() async {
-    // TODO - should I be using /getmusiclocalid3info?
-    final data = await _httpRpc('getmusicplayinfo');
-    final id3info = data['id3info'];
+  Future<Id3Info> getMusicLocalId3Info() async {
+    final data = await _httpRpc('getmusiclocalid3info');
+    final id3info = data['userdata'];
     return Id3Info(
       title: id3info['title'],
       artist: id3info['artist'],
