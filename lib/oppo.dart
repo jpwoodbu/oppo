@@ -1977,15 +1977,24 @@ class Device {
   String get _httpAuthority => '${address.address}:$_httpPort';
   Uri _uri(String path) => Uri.http(_httpAuthority, path);
 
+  // TODO - This is likely an anti-pattern. The logger might not print which
+  // class/method really logged the message. And generally having to both log
+  // nad throw makes it seem like there's a layering violation someplace.
+  void _logAndThrow(String message, [Level level = Level.WARNING]) {
+    _log.log(level, message);
+    throw(message);
+  }
+
   dynamic _httpRpc(String path) async {
+    _log.info('Making HTTP RPC to $path');
     final response = await http.get(_uri(path));
     if (response.statusCode != 200) {
-      throw 'Error response for $path: ${response.statusCode}';
+      _logAndThrow('Received HTTP status: ${response.statusCode}');
     }
     final data = jsonDecode(response.body);
+    _log.info('HTTP response: ${response.body}');
     if (!data['success']) {
-      _log.warning('JSON response reports failure: ${response.body}');
-      throw 'JSON response reports failure.';
+      _logAndThrow('JSON response reports failure.');
     }
     return jsonDecode(response.body);
   }
