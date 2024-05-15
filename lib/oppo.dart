@@ -1090,13 +1090,11 @@ class Device {
     }
     _socket = await Socket.connect(address, port,
         timeout: const Duration(seconds: 3));
-    final socket = _socket;
-    if (socket != null) {
-      _log.info('Connected to device at ${address.address}.');
-      // Sets encoding for writing strings.
-      socket.encoding = const AsciiCodec();
-      socket.setOption(SocketOption.tcpNoDelay, true);
-    }
+    _log.info('Connected to device at ${address.address}.');
+    _socket!.setOption(SocketOption.tcpNoDelay, true);
+    // Sets encoding for writing strings.
+    _socket!.encoding = const AsciiCodec();
+    _log.config('encoding is ${_socket!.encoding}');
   }
 
   Future<void> close() async {
@@ -1107,6 +1105,13 @@ class Device {
       _socket = null;
       _log.info('Closed connection.');
     }
+  }
+
+  Stream<String> stream() {
+    if (_socket == null) {
+      throw 'Cannot return stream. Socket disconnected.';
+    }
+    return _socket!.transform(ascii.decoder.cast());
   }
 
   /// Set up the player for communication.
@@ -1156,21 +1161,6 @@ class Device {
           delay, () => _waitForPowerOn(delay, attemptsRemaining));
     } else {
       throw TimeoutException('Timed out waiting for device to power on.');
-    }
-  }
-
-  Stream<String> stream() async* {
-    if (_socket == null) {
-      throw 'Cannot stream events. Socket disconnected.';
-    }
-    final socket = _socket;
-    if (socket != null) {
-      await for (final data in socket) {
-        final decoded = ascii.decode(data);
-        _log.finer('Socket received: $decoded');
-        yield decoded;
-      }
-      _log.fine('Listener has stopped.');
     }
   }
 
