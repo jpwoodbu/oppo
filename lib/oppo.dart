@@ -1094,7 +1094,6 @@ class Device {
     _socket!.setOption(SocketOption.tcpNoDelay, true);
     // Sets encoding for writing strings.
     _socket!.encoding = const AsciiCodec();
-    _log.config('encoding is ${_socket!.encoding}');
   }
 
   void disconnect() {
