@@ -2510,13 +2510,14 @@ class FakeDevice extends Device {
   Future<void> _command(String code, {String parameters = ''}) async {}
 
   @override
-  Future<String> queryTrackName() async => 'Piano Man';
-
-  @override
-  Future<String> queryTrackAlbum() async => 'Piano Man';
-
-  @override
-  Future<String> queryTrackPerformer() async => 'Billy Joel';
+  Future<Id3Info> getMusicLocalId3Info() async {
+    return Id3Info(
+      album: 'Piano Man',
+      artist: 'Billy Joel',
+      title: 'Piano Man',
+      year: 1974,
+    );
+  }
 
   @override
   Future<void> play() async => _fakeStream.add('@UPL PLAY');
