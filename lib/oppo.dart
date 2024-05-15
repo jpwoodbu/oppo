@@ -2386,6 +2386,10 @@ class Id3Info {
 
   const Id3Info(
       {this.title = '', this.artist = '', this.album = '', this.year = ''});
+
+  bool get isEmpty {
+    return [title, artist, album, year].every((element) => element.isEmpty);
+  }
 }
 
 class AudioTrack {

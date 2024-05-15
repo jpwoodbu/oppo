@@ -39,6 +39,9 @@ class TrackMetadata extends StatelessWidget {
             }
             if (snapshot.hasData) {
               final id3Info = snapshot.data!;
+              if (id3Info.isEmpty) {
+                return const Text('Metadata not available.');
+              }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
