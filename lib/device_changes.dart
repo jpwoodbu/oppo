@@ -13,18 +13,25 @@ class DeviceChanges with ChangeNotifier {
   final Device device;
   final BuildContext _context;
   late StreamSubscription<String> _subscription;
+  var _connected = true;
   late final AppLifecycleListener _lifecycleListener;
+  AppLifecycleState _state = AppLifecycleState.detached;
 
   DeviceChanges(this.device, this._context) {
     _subscription = _startListener();
     _lifecycleListener = AppLifecycleListener(
-      onStateChange: (value) => _log.info('State change: $value'),
+      onStateChange: (value) {
+        _state = value;
+        _log.info('State change: $value');
+      },
+      onRestart: _reconnect,
     );
   }
 
   @override
   void dispose() {
     _subscription.cancel();
+    _lifecycleListener.dispose();
     _log.fine('Device changes listener stopped.');
     super.dispose();
   }
@@ -37,11 +44,16 @@ class DeviceChanges with ChangeNotifier {
       },
       onDone: () {
         _log.info('disconnected.');
-        _reconnect();
+        _connected = false;
       },
       onError: (e) {
         _log.severe(e);
-        _reconnect();
+        _connected = false;
+        // Reconnection attempts have been observed (somehow) when the app is
+        // paused. They, of course, fail.
+        if (_state != AppLifecycleState.paused) {
+          _reconnect();
+        }
       },
       cancelOnError: true,
     );
@@ -50,6 +62,7 @@ class DeviceChanges with ChangeNotifier {
   }
 
   void _reconnect() async {
+    if (_connected) return;
     await device.close();
     try {
       final r = RetryOptions(maxAttempts: 3);
@@ -64,6 +77,7 @@ class DeviceChanges with ChangeNotifier {
       _routeToScanner();
       return;
     }
+    _connected = true;
     _log.info('Reconnected.');
     _subscription = _startListener();
     await device.fetchState();
