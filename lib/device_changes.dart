@@ -13,9 +13,13 @@ class DeviceChanges with ChangeNotifier {
   final Device device;
   final BuildContext _context;
   late StreamSubscription<String> _subscription;
+  late final AppLifecycleListener _lifecycleListener;
 
   DeviceChanges(this.device, this._context) {
     _subscription = _startListener();
+    _lifecycleListener = AppLifecycleListener(
+      onStateChange: (value) => _log.info('State change: $value'),
+    );
   }
 
   @override
