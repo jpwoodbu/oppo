@@ -2049,7 +2049,8 @@ class Device {
       title: id3info['title'],
       artist: id3info['artist'],
       album: id3info['album'],
-      year: id3info['year'],
+      // 'year' is sometimes an int, sometimes a String.
+      year: id3info['year'].toString(),
     );
   }
 
@@ -2381,10 +2382,10 @@ class Id3Info {
   final String title;
   final String artist;
   final String album;
-  final int? year;
+  final String year;
 
   const Id3Info(
-      {this.title = '', this.artist = '', this.album = '', this.year});
+      {this.title = '', this.artist = '', this.album = '', this.year = ''});
 }
 
 class AudioTrack {
@@ -2515,7 +2516,7 @@ class FakeDevice extends Device {
       album: 'Piano Man',
       artist: 'Billy Joel',
       title: 'Piano Man',
-      year: 1974,
+      year: '1974',
     );
   }
 

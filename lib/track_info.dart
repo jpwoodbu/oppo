@@ -45,7 +45,7 @@ class TrackMetadata extends StatelessWidget {
                   if (id3Info.artist.isNotEmpty) Text(id3Info.artist),
                   if (id3Info.album.isNotEmpty) Text(id3Info.album),
                   if (id3Info.title.isNotEmpty) Text(id3Info.title),
-                  if (id3Info.year != null) Text('${id3Info.year}'),
+                  if (id3Info.year.isNotEmpty) Text(id3Info.year),
                 ],
               );
             }
