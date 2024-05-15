@@ -22,7 +22,7 @@ class DeviceChanges with ChangeNotifier {
         _state = value;
         _log.info('State change: $value');
       },
-      onRestart: _reconnect,
+      onResume: _reconnect,
     );
   }
 
@@ -47,10 +47,12 @@ class DeviceChanges with ChangeNotifier {
       onError: (e) {
         _log.severe(e);
         _connected = false;
-        // Reconnection attempts have been observed (somehow) when the app is
-        // paused. They, of course, fail.
-        if (_state != AppLifecycleState.paused) {
-          _reconnect();
+        // If we lose the connection with the app in the foreground, jump to the
+        // device discovery page.
+        if (_state == AppLifecycleState.resumed) {
+          _log.warning(
+            'Disconnected with app in foreground. Opening device scanner.');
+          _routeToScanner();
         }
       },
       cancelOnError: true,
@@ -65,7 +67,7 @@ class DeviceChanges with ChangeNotifier {
     _log.info('Trying to reconnect.');
     await device.close();
     try {
-        await device.connect();
+      await device.connect();
     } catch (e) {
       _log.severe('Reconnect error: $e');
       _snackBar('Failed to reconnect.');
