@@ -6,13 +6,11 @@ const String knownIssuesHeader =
     "Oppo hasn't sold Blu-ray players in the US since 2018. Firmware updates stopped soon thereafter. Unsurprisingly, there are some quirks with using their network control API, including incomplete functionality and stability issues.";
 
 const String knownIssue1 =
-    "1. Only a single IP remote can be connected to the player at a time.";
+    "1. The API does not provide a way to directly select a directory item. This app does not implement a directory/file viewer, since without item selection, it wouldn't be sufficiently useful.";
 const String knownIssue2 =
-    "2. The API always returns an error when trying to turn off HDR.";
+    "2. The API often returns \"unknown\" for the audio type even when the OSD will display it.";
 const String knownIssue3 =
-    "3. The API does not provide a way to directly select a directory item. Due to this and the truncation mentioned above, this app does not implement a directory/file viewer.";
-const String knownIssue4 =
-    "4. The API often returns \"unknown\" for the audio type even when the OSD will display it.";
+    "3. Only a single IP remote can be connected to the player at a time.";
 
 class KnownIssues extends StatelessWidget {
   const KnownIssues({super.key});
@@ -37,8 +35,6 @@ class KnownIssues extends StatelessWidget {
                 Text(knownIssue2),
                 const Divider(),
                 Text(knownIssue3),
-                const Divider(),
-                Text(knownIssue4),
               ],
             ),
           ),
