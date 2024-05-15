@@ -1097,13 +1097,11 @@ class Device {
     _log.config('encoding is ${_socket!.encoding}');
   }
 
-  Future<void> close() async {
-    final socket = _socket;
-    if (socket != null) {
-      await socket.flush();
-      await socket.close();
+  void disconnect() {
+    if (_socket != null) {
+      _socket!.destroy();
       _socket = null;
-      _log.info('Closed connection.');
+      _log.info('Socket destroyed.');
     }
   }
 
@@ -2489,7 +2487,7 @@ class FakeDevice extends Device {
   Future<void> connect() async {}
 
   @override
-  Future<void> close() async {}
+  Future<void> disconnect() async {}
 
   @override
   Future<void> engage() async {}

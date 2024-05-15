@@ -64,7 +64,7 @@ class DeviceChanges with ChangeNotifier {
   void _reconnect() async {
     _log.info('_reconnect called. _connected is $_connected');
     if (_connected) return;
-    await device.close();
+    device.disconnect();
     _log.info('Closed old connection.');
     try {
       _log.info('Trying to reconnect.');
