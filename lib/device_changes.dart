@@ -62,6 +62,7 @@ class DeviceChanges with ChangeNotifier {
   }
 
   void _reconnect() async {
+    _log.info('_reconnect called.');
     if (_connected) return;
     await device.close();
     try {
