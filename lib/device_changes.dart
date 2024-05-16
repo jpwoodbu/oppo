@@ -11,14 +11,26 @@ class DeviceChanges with ChangeNotifier {
   final Device device;
   final BuildContext _context;
   late StreamSubscription<String> _subscription;
+  bool _connected = true;
+  late final AppLifecycleListener _lifecycleListener;
+  AppLifecycleState _state = AppLifecycleState.detached;
 
   DeviceChanges(this.device, this._context) {
     _subscription = _startListener();
+    _lifecycleListener = AppLifecycleListener(
+      onStateChange: (value) {
+        _state = value;
+      },
+      // Check if we need to reconnect when resumed. Simply reconnecting on
+      // stream errors results in weird timeouts.
+      onResume: _reconnect,
+    );
   }
 
   @override
   void dispose() {
     _subscription.cancel();
+    _lifecycleListener.dispose();
     _log.fine('Device changes listener stopped.');
     super.dispose();
   }
@@ -31,10 +43,18 @@ class DeviceChanges with ChangeNotifier {
       },
       onDone: () {
         _log.info('disconnected.');
+        _connected = false;
       },
       onError: (e) {
         _log.severe(e);
-        _reconnect();
+        _connected = false;
+        // If we lose the connection with the app in the foreground, jump to the
+        // device discovery page.
+        if (_state == AppLifecycleState.resumed) {
+          _log.warning(
+            'Disconnected with app in foreground. Opening device scanner.');
+          _routeToScanner();
+        }
       },
       cancelOnError: true,
     );
@@ -43,6 +63,7 @@ class DeviceChanges with ChangeNotifier {
   }
 
   void _reconnect() async {
+    if (_connected) return;
     device.disconnect();
     try {
       await device.connect();
@@ -52,6 +73,7 @@ class DeviceChanges with ChangeNotifier {
       _routeToScanner();
       return;
     }
+    _connected = true;
     _log.info('Reconnected.');
     _subscription = _startListener();
     await device.fetchState();
