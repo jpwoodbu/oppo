@@ -65,8 +65,8 @@ class NumberPad extends StatelessWidget {
                   ),
                   NumberPadButton(
                     onPressed: () => addHaptic(device.clear),
-                    child:
-                        const VerticalIcon(icon: Icon(Icons.clear), label: 'Clear'),
+                    child: const VerticalIcon(
+                        icon: Icon(Icons.clear), label: 'Clear'),
                   ),
                   IconButton(
                       alignment: Alignment.topRight,

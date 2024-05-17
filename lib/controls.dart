@@ -117,8 +117,8 @@ class Arrows extends StatelessWidget {
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.option),
-                child:
-                    const VerticalIcon(icon: Icon(Icons.emergency), label: 'Option'),
+                child: const VerticalIcon(
+                    icon: Icon(Icons.emergency), label: 'Option'),
               ),
             ),
             IconButton(
@@ -370,7 +370,8 @@ class BottomGrid extends StatelessWidget {
                 style: dialogButtonStyle(context),
                 onPressed: () async {
                   final selection = await showDialog<oppo.ZoomRatio>(
-                      context: context, builder: (context) => const SetZoomRatio());
+                      context: context,
+                      builder: (context) => const SetZoomRatio());
                   if (selection != null) {
                     await device.setZoomRatio(selection);
                   }
@@ -408,7 +409,8 @@ class BottomGrid extends StatelessWidget {
               style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.RepeatMode>(
-                    context: context, builder: (context) => const SetRepeatMode());
+                    context: context,
+                    builder: (context) => const SetRepeatMode());
                 if (selection != null) {
                   await device.setRepeatMode(selection);
                 }
@@ -510,7 +512,8 @@ class ExtraControls extends StatelessWidget {
               style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.InputSource>(
-                    context: context, builder: (context) => const SetInputSource());
+                    context: context,
+                    builder: (context) => const SetInputSource());
                 if (selection != null) {
                   await device.setInputSource(selection);
                 }
@@ -539,7 +542,8 @@ class ExtraControls extends StatelessWidget {
               style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.TimeInformation>(
-                    context: context, builder: (context) => const SetTimeMode());
+                    context: context,
+                    builder: (context) => const SetTimeMode());
                 if (selection != null) {
                   await device.setTimeInformationDisplay(selection);
                 }
@@ -553,7 +557,8 @@ class ExtraControls extends StatelessWidget {
               style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<int>(
-                    context: context, builder: (context) => const SetSubtitleShift());
+                    context: context,
+                    builder: (context) => const SetSubtitleShift());
                 if (selection != null) {
                   await device.setSubtitleShift(selection);
                 }
@@ -569,7 +574,8 @@ class ExtraControls extends StatelessWidget {
               style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<int>(
-                    context: context, builder: (context) => const SetOsdPosition());
+                    context: context,
+                    builder: (context) => const SetOsdPosition());
                 if (selection != null) {
                   await device.setOsdPosition(selection);
                 }
@@ -598,7 +604,8 @@ class ExtraControls extends StatelessWidget {
               style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.ScreenSaverSetting>(
-                    context: context, builder: (context) => const SetScreenSaver());
+                    context: context,
+                    builder: (context) => const SetScreenSaver());
                 if (selection != null) {
                   await device.setScreenSaver(selection);
                 }
@@ -612,7 +619,8 @@ class ExtraControls extends StatelessWidget {
               style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.SacdPriority>(
-                    context: context, builder: (context) => const SetSacdPriority());
+                    context: context,
+                    builder: (context) => const SetSacdPriority());
                 if (selection != null) {
                   await device.setSacdPriority(selection);
                 }

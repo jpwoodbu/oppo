@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 const double borderRadius = 4.0;
 const dialogPadding = EdgeInsets.all(12.0);
 
-
 dynamic addHaptic(Function function) {
   HapticFeedback.lightImpact();
   return function();

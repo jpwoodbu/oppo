@@ -52,7 +52,7 @@ class DeviceChanges with ChangeNotifier {
         // device discovery page.
         if (_state == AppLifecycleState.resumed) {
           _log.warning(
-            'Disconnected with app in foreground. Opening device scanner.');
+              'Disconnected with app in foreground. Opening device scanner.');
           _routeToScanner();
         }
       },

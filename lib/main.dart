@@ -323,7 +323,8 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder<void>(
       // Show the waiting message for at least 1s while we perform the
       // background work.
-      future: Future.wait([Future.delayed(const Duration(seconds: 1)), _engage]),
+      future:
+          Future.wait([Future.delayed(const Duration(seconds: 1)), _engage]),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
@@ -445,8 +446,10 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 leading: const Icon(Icons.bug_report),
                 title: const Text('Known issues'),
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const KnownIssues())),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const KnownIssues())),
               ),
               ListTile(
                 leading: const Icon(Icons.feedback),
