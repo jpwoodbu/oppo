@@ -3,6 +3,28 @@ import 'package:flutter/material.dart';
 import 'oppo.dart' as oppo;
 import 'util.dart';
 
+class NumberRangeButtons extends StatelessWidget {
+  const NumberRangeButtons({super.key, required this.range});
+
+  final List<int> range;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+        children: range
+            .map(
+              (position) => IntrinsicWidth(
+                child: TextButton(
+                  onPressed: () =>
+                      addHaptic(() => Navigator.pop(context, position)),
+                  child: Text(position.toString()),
+                ),
+              ),
+            )
+            .toList());
+  }
+}
+
 class HomeRow extends StatelessWidget {
   final oppo.Device device;
   const HomeRow(this.device, {super.key});
@@ -558,7 +580,7 @@ class ExtraControls extends StatelessWidget {
               onPressed: () async {
                 final selection = await showDialog<int>(
                     context: context,
-                    builder: (context) => const SetSubtitleShift());
+                    builder: (context) => SetSubtitleShift(device: device));
                 if (selection != null) {
                   await device.setSubtitleShift(selection);
                 }
@@ -575,7 +597,7 @@ class ExtraControls extends StatelessWidget {
               onPressed: () async {
                 final selection = await showDialog<int>(
                     context: context,
-                    builder: (context) => const SetOsdPosition());
+                    builder: (context) => SetOsdPosition(device: device));
                 if (selection != null) {
                   await device.setOsdPosition(selection);
                 }
@@ -728,54 +750,96 @@ class SetRepeatMode extends StatelessWidget {
 }
 
 class SetSubtitleShift extends StatelessWidget {
-  const SetSubtitleShift({super.key});
+  final oppo.Device device;
+  const SetSubtitleShift({super.key, required this.device});
 
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Subtitle shift'),
       children: [
-        Wrap(
-            children: [
-          -10,
-          -9,
-          -8,
-          -7,
-          -6,
-          -5,
-          -4,
-          -3,
-          -2,
-          -1,
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-        ]
-                .map(
-                  (shift) => IntrinsicWidth(
-                    child: TextButton(
-                      onPressed: () =>
-                          addHaptic(() => Navigator.pop(context, shift)),
-                      child: Text(shift.toString()),
-                    ),
-                  ),
-                )
-                .toList())
+        FutureBuilder(
+          future: device.querySubtitleShift(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return const NumberRangeButtons(range: [
+                -10,
+                -9,
+                -8,
+                -7,
+                -6,
+                -5,
+                -4,
+                -3,
+                -2,
+                -1,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ]);
+            }
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            }
+            return SubtitleShiftSlider(
+                device: device, initialShift: snapshot.data!);
+          },
+        )
       ],
     );
   }
 }
 
+class SubtitleShiftSlider extends StatefulWidget {
+  const SubtitleShiftSlider({
+    super.key,
+    required this.device,
+    required this.initialShift,
+  });
+
+  final oppo.Device device;
+  final int initialShift;
+
+  @override
+  State<SubtitleShiftSlider> createState() => _SubtitleShiftSliderState();
+}
+
+class _SubtitleShiftSliderState extends State<SubtitleShiftSlider> {
+  late double _shift;
+
+  @override
+  void initState() {
+    super.initState();
+    _shift = widget.initialShift.toDouble();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Slider(
+      value: _shift,
+      onChanged: (value) => setState(() => _shift = value),
+      onChangeEnd: (value) => addHaptic(
+        () => widget.device.setSubtitleShift(value.toInt()),
+      ),
+      min: -10,
+      max: 10,
+      label: _shift.toInt().toString(),
+      divisions: 20,
+    );
+  }
+}
+
 class SetOsdPosition extends StatelessWidget {
-  const SetOsdPosition({super.key});
+  final oppo.Device device;
+  const SetOsdPosition({super.key, required this.device});
 
   @override
   Widget build(BuildContext context) {
@@ -783,19 +847,59 @@ class SetOsdPosition extends StatelessWidget {
       title: const Text('OSD margin'),
       contentPadding: dialogPadding,
       children: [
-        Wrap(
-            children: [0, 1, 2, 3, 4, 5]
-                .map(
-                  (position) => IntrinsicWidth(
-                    child: TextButton(
-                      onPressed: () =>
-                          addHaptic(() => Navigator.pop(context, position)),
-                      child: Text(position.toString()),
-                    ),
-                  ),
-                )
-                .toList())
+        FutureBuilder(
+          future: device.queryOsdPosition(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return const NumberRangeButtons(range: [0, 1, 2, 3, 4, 5]);
+            }
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            }
+            return OsdMarginSlider(
+                device: device, initialMargin: snapshot.data!);
+          },
+        )
       ],
+    );
+  }
+}
+
+class OsdMarginSlider extends StatefulWidget {
+  const OsdMarginSlider({
+    super.key,
+    required this.device,
+    required this.initialMargin,
+  });
+
+  final oppo.Device device;
+  final int initialMargin;
+
+  @override
+  State<OsdMarginSlider> createState() => _OsdMarginSliderState();
+}
+
+class _OsdMarginSliderState extends State<OsdMarginSlider> {
+  late double _margin;
+
+  @override
+  void initState() {
+    super.initState();
+    _margin = widget.initialMargin.toDouble();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Slider(
+      value: _margin,
+      onChanged: (value) => setState(() => _margin = value),
+      onChangeEnd: (value) => addHaptic(
+        () => widget.device.setOsdPosition(value.toInt()),
+      ),
+      min: 0,
+      max: 5,
+      label: _margin.toInt().toString(),
+      divisions: 5,
     );
   }
 }
