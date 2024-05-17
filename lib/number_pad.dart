@@ -52,13 +52,13 @@ class NumberPad extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Table(
-            defaultColumnWidth: IntrinsicColumnWidth(),
+            defaultColumnWidth: const IntrinsicColumnWidth(),
             children: [
               TableRow(
                 children: [
                   NumberPadButton(
                     onPressed: () => addHaptic(device.goto),
-                    child: VerticalIcon(
+                    child: const VerticalIcon(
                       icon: Icon(Icons.arrow_downward),
                       label: 'Goto',
                     ),
@@ -66,12 +66,12 @@ class NumberPad extends StatelessWidget {
                   NumberPadButton(
                     onPressed: () => addHaptic(device.clear),
                     child:
-                        VerticalIcon(icon: Icon(Icons.clear), label: 'Clear'),
+                        const VerticalIcon(icon: Icon(Icons.clear), label: 'Clear'),
                   ),
                   IconButton(
                       alignment: Alignment.topRight,
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.close,
                         semanticLabel: 'close number pad',
                       )),
@@ -102,7 +102,7 @@ class NumberPad extends StatelessWidget {
                 children: [
                   NumberPadButton(
                     onPressed: device.returnToPrevious,
-                    child: VerticalIcon(
+                    child: const VerticalIcon(
                       icon: Icon(Icons.arrow_back),
                       label: 'Return',
                     ),
@@ -110,7 +110,7 @@ class NumberPad extends StatelessWidget {
                   NumberButton(onPressed: device.number0, label: '0'),
                   NumberPadButton(
                     onPressed: device.enter,
-                    child: VerticalIcon(
+                    child: const VerticalIcon(
                       icon: Icon(Icons.keyboard_return),
                       label: 'Enter',
                     ),

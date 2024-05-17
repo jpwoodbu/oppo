@@ -27,13 +27,13 @@ class KnownIssues extends StatelessWidget {
           body: Padding(
             padding: padding,
             child: ListView(
-              children: [
+              children: const [
                 Text(knownIssuesHeader),
-                const Divider(),
+                Divider(),
                 Text(knownIssue1),
-                const Divider(),
+                Divider(),
                 Text(knownIssue2),
-                const Divider(),
+                Divider(),
                 Text(knownIssue3),
               ],
             ),

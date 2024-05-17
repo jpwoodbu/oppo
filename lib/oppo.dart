@@ -1118,7 +1118,7 @@ class Device {
   Future<void> engage() async {
     if (!await queryPowerStatus()) {
       await powerOn();
-      await _waitForPowerOn(Duration(seconds: 1), 10);
+      await _waitForPowerOn(const Duration(seconds: 1), 10);
     }
     // Send an ActiveDiscover ping to ensure the HTTP service is enabled on the
     // player.
@@ -1417,7 +1417,7 @@ class Device {
   Future<void> _command(String code, {String parameters = ''}) async {
     if (_lastCommandTimestamp != null) {
       final waiting = DateTime.now().difference(_lastCommandTimestamp!);
-      if (waiting > Duration(seconds: 10)) {
+      if (waiting > const Duration(seconds: 10)) {
         _log.severe(
             'Giving up on getting a response for the previous command.');
         _lastCommandTimestamp = null;
@@ -1447,7 +1447,7 @@ class Device {
   /// This method blocks until a response is received for the command or until a
   /// preset timeout is reached, in which case an exception is thrown.
   Future<Response> _rpc(String code, {String parameters = ''}) async {
-    Response response = Response();
+    Response response = const Response();
     // Because with verboseMode.detailed, we might get unsoliticed responses, we
     // need to check all responses in a loop until we get a response to our last
     // command, or we timeout.
@@ -2503,7 +2503,7 @@ class FakeDevice extends Device {
 
   @override
   Future<Id3Info> getMusicLocalId3Info() async {
-    return Id3Info(
+    return const Id3Info(
       album: 'Piano Man',
       artist: 'Billy Joel',
       title: 'Piano Man',

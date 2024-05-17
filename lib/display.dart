@@ -122,7 +122,7 @@ class Muted extends StatelessWidget {
     if (device.muted ?? false) {
       return const Text('Muted');
     }
-    return SizedBox();
+    return const SizedBox();
   }
 }
 

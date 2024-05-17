@@ -27,7 +27,7 @@ void main() {
   });
   // Set up in-app log viewing.
   Flogger.init(
-    config: FloggerConfig(
+    config: const FloggerConfig(
       printClassName: true,
       printMethodName: true,
       showDateTime: true,
@@ -147,9 +147,9 @@ class _DiscoveryState extends State<Discovery> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 25.0),
-                  LinearProgressIndicator(),
-                  SizedBox(height: 25.0),
+                  const SizedBox(height: 25.0),
+                  const LinearProgressIndicator(),
+                  const SizedBox(height: 25.0),
                   _devices(discoveryChanges.devices),
                 ],
               ),
@@ -185,7 +185,7 @@ class _DiscoveryState extends State<Discovery> {
           }
         }
         if (ids.isEmpty) {
-          return Column(children: []);
+          return const Column(children: []);
         }
         return Column(
           children: ids
@@ -265,13 +265,13 @@ class _ConnectState extends State<Connect> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Error connecting to device.'),
+                    const Text('Error connecting to device.'),
                     TextButton(
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => Discovery()),
+                                builder: (context) => const Discovery()),
                             (Route<dynamic> route) => false);
                       },
                       child: const Text('Scan for players'),
@@ -298,7 +298,7 @@ class _ConnectState extends State<Connect> {
 
 class HomePage extends StatefulWidget {
   final oppo.Device device;
-  HomePage(this.device, {super.key});
+  const HomePage(this.device, {super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -323,7 +323,7 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder<void>(
       // Show the waiting message for at least 1s while we perform the
       // background work.
-      future: Future.wait([Future.delayed(Duration(seconds: 1)), _engage]),
+      future: Future.wait([Future.delayed(const Duration(seconds: 1)), _engage]),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
@@ -332,13 +332,13 @@ class _HomePageState extends State<HomePage> {
                 body: Center(
                   child: Column(
                     children: [
-                      Text('Error while waiting on device to power up.'),
+                      const Text('Error while waiting on device to power up.'),
                       TextButton(
                         onPressed: () {
                           Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Discovery()),
+                                  builder: (context) => const Discovery()),
                               (Route<dynamic> route) => false);
                         },
                         child: const Text('Scan for players'),
@@ -373,7 +373,7 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Position(),
+          title: const Position(),
           centerTitle: true,
           titleSpacing: 0.0,
           actions: [
@@ -388,7 +388,7 @@ class _HomePageState extends State<HomePage> {
                                 NumberPad(device),
                           );
                         },
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.dialpad,
                           semanticLabel: 'open number pad',
                         ),
@@ -405,12 +405,12 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   children: [
                     appIcon,
-                    SizedBox(width: 8.0),
+                    const SizedBox(width: 8.0),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Oppo Remote'),
+                        const Text('Oppo Remote'),
                         Text(device.name, style: smallText),
                         Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
                             style: smallText),
@@ -421,7 +421,7 @@ class _HomePageState extends State<HomePage> {
               ),
               if (powered ?? false)
                 ListTile(
-                  leading: Icon(Icons.info),
+                  leading: const Icon(Icons.info),
                   title: const Text('Fetch track metadata'),
                   onTap: () {
                     Navigator.pop(context);
@@ -432,29 +432,29 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               ListTile(
-                leading: Icon(Icons.sensors),
+                leading: const Icon(Icons.sensors),
                 title: const Text('Scan for players'),
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => Discovery()),
+                    MaterialPageRoute(builder: (context) => const Discovery()),
                     (Route<dynamic> route) => false,
                   );
                 },
               ),
               ListTile(
-                leading: Icon(Icons.bug_report),
+                leading: const Icon(Icons.bug_report),
                 title: const Text('Known issues'),
                 onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => KnownIssues())),
+                    MaterialPageRoute(builder: (context) => const KnownIssues())),
               ),
               ListTile(
-                leading: Icon(Icons.feedback),
+                leading: const Icon(Icons.feedback),
                 title: const Text('Debug logs'),
                 onTap: () => LogConsole.open(context),
               ),
               ListTile(
-                leading: Icon(Icons.article),
+                leading: const Icon(Icons.article),
                 title: const Text('Licenses'),
                 onTap: () =>
                     showLicensePage(context: context, applicationIcon: appIcon),
@@ -518,7 +518,7 @@ class Buttons extends StatelessWidget {
         child: ListView(
           children: [
             Display(device),
-            SizedBox(height: 4.0),
+            const SizedBox(height: 4.0),
             const Divider(),
             HomeRow(device),
             Arrows(device),

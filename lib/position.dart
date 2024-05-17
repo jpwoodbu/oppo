@@ -23,7 +23,7 @@ class _PositionState extends State<Position> {
         builder: (_, deviceChanges, ___) {
           final device = deviceChanges.device;
           if (device.powered ?? false) {
-            return Row(
+            return const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 PlaybackStatusIcon(),
@@ -60,14 +60,14 @@ class Clock extends StatelessWidget {
       builder: (_, deviceChanges, ___) {
         final p = deviceChanges.device.position;
         if (p == null) {
-          return SizedBox(height: _iconSize, width: _iconSize);
+          return const SizedBox(height: _iconSize, width: _iconSize);
         }
         return Row(
           children: [
-            Rewind(),
+            const Rewind(),
             Text('${p.timeInformation.displayName}: ${p.clock}',
                 style: Theme.of(context).textTheme.bodySmall),
-            FastForward(),
+            const FastForward(),
           ],
         );
       },
@@ -95,13 +95,13 @@ class Rewind extends StatelessWidget {
                 oppo.PlaybackStatus.slowReverseEighth ||
                 oppo.PlaybackStatus.slowReverseSixteenth ||
                 oppo.PlaybackStatus.slowReverseThirtySecond:
-            return Padding(
-              padding: const EdgeInsets.only(right: _scrubPadding),
+            return const Padding(
+              padding: EdgeInsets.only(right: _scrubPadding),
               child: PositionIcon(icon: Icons.fast_rewind),
             );
           default:
-            return Padding(
-              padding: const EdgeInsets.only(right: _scrubPadding),
+            return const Padding(
+              padding: EdgeInsets.only(right: _scrubPadding),
               child: SizedBox(height: _iconSize, width: _iconSize),
             );
         }
@@ -130,13 +130,13 @@ class FastForward extends StatelessWidget {
                 oppo.PlaybackStatus.slowForwardEighth ||
                 oppo.PlaybackStatus.slowForwardSixteenth ||
                 oppo.PlaybackStatus.slowForwardThirtySecond:
-            return Padding(
-              padding: const EdgeInsets.only(left: _scrubPadding),
+            return const Padding(
+              padding: EdgeInsets.only(left: _scrubPadding),
               child: PositionIcon(icon: Icons.fast_forward),
             );
           default:
-            return Padding(
-              padding: const EdgeInsets.only(left: _scrubPadding),
+            return const Padding(
+              padding: EdgeInsets.only(left: _scrubPadding),
               child: SizedBox(height: _iconSize, width: _iconSize),
             );
         }
@@ -153,33 +153,33 @@ class PlaybackStatusIcon extends StatelessWidget {
     return Selector<DeviceChanges, oppo.PlaybackStatus?>(
       selector: (_, deviceChanges) => deviceChanges.device.playbackStatus,
       builder: (_, playbackStatus, __) {
-        final noIcon = SizedBox(width: _iconSize, height: _iconSize);
+        const noIcon = SizedBox(width: _iconSize, height: _iconSize);
         switch (playbackStatus) {
           case oppo.PlaybackStatus.noDisc:
-            return PositionIcon(icon: Icons.disc_full);
+            return const PositionIcon(icon: Icons.disc_full);
           case oppo.PlaybackStatus.loadingDisc:
-            return PositionIcon(icon: Icons.downloading);
+            return const PositionIcon(icon: Icons.downloading);
           case oppo.PlaybackStatus.openTray:
             return Icon(Icons.eject,
                 size: _iconSize, color: Theme.of(context).colorScheme.tertiary);
           case oppo.PlaybackStatus.closingTray:
-            return PositionIcon(icon: Icons.eject);
+            return const PositionIcon(icon: Icons.eject);
           case oppo.PlaybackStatus.playbackStarted:
-            return PositionIcon(icon: Icons.play_arrow);
+            return const PositionIcon(icon: Icons.play_arrow);
           case oppo.PlaybackStatus.playbackPaused:
-            return PositionIcon(icon: Icons.pause);
+            return const PositionIcon(icon: Icons.pause);
           case oppo.PlaybackStatus.playbackStopped:
-            return PositionIcon(icon: Icons.stop);
+            return const PositionIcon(icon: Icons.stop);
           case oppo.PlaybackStatus.homeMenu:
-            return PositionIcon(icon: Icons.home);
+            return const PositionIcon(icon: Icons.home);
           case oppo.PlaybackStatus.mediaCenter:
-            return PositionIcon(icon: Icons.folder_open);
+            return const PositionIcon(icon: Icons.folder_open);
           case oppo.PlaybackStatus.screenSaver:
-            return PositionIcon(icon: Icons.animation);
+            return const PositionIcon(icon: Icons.animation);
           case oppo.PlaybackStatus.discMenu:
-            return PositionIcon(icon: Icons.menu_book);
+            return const PositionIcon(icon: Icons.menu_book);
           case oppo.PlaybackStatus.dlna:
-            return PositionIcon(icon: Icons.cast);
+            return const PositionIcon(icon: Icons.cast);
           default:
             return noIcon;
         }
