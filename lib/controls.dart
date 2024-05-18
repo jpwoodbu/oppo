@@ -787,13 +787,27 @@ class SetSubtitleShift extends StatelessWidget {
               ]);
             }
             if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
+              return const WaitingOnSlider();
             }
             return SubtitleShiftSlider(
                 device: device, initialShift: snapshot.data!);
           },
         )
       ],
+    );
+  }
+}
+
+class WaitingOnSlider extends StatelessWidget {
+  const WaitingOnSlider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      // This padding makes the progress bar the same height a standard height
+      // slider.
+      padding: EdgeInsets.symmetric(vertical: 22.0),
+      child: LinearProgressIndicator(),
     );
   }
 }
@@ -854,7 +868,7 @@ class SetOsdPosition extends StatelessWidget {
               return const NumberRangeButtons(range: [0, 1, 2, 3, 4, 5]);
             }
             if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
+              return const WaitingOnSlider();
             }
             return OsdMarginSlider(
                 device: device, initialMargin: snapshot.data!);
