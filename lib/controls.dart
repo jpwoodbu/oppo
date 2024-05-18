@@ -3,28 +3,6 @@ import 'package:flutter/material.dart';
 import 'oppo.dart' as oppo;
 import 'util.dart';
 
-class NumberRangeButtons extends StatelessWidget {
-  const NumberRangeButtons({super.key, required this.range});
-
-  final List<int> range;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-        children: range
-            .map(
-              (position) => IntrinsicWidth(
-                child: TextButton(
-                  onPressed: () =>
-                      addHaptic(() => Navigator.pop(context, position)),
-                  child: Text(position.toString()),
-                ),
-              ),
-            )
-            .toList());
-  }
-}
-
 class HomeRow extends StatelessWidget {
   final oppo.Device device;
   const HomeRow(this.device, {super.key});
@@ -762,29 +740,7 @@ class SetSubtitleShift extends StatelessWidget {
           future: device.querySubtitleShift(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return const NumberRangeButtons(range: [
-                -10,
-                -9,
-                -8,
-                -7,
-                -6,
-                -5,
-                -4,
-                -3,
-                -2,
-                -1,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
-              ]);
+              return SubtitleShiftSlider(device: device, initialShift: 0);
             }
             if (!snapshot.hasData) {
               return const WaitingOnSlider();
@@ -865,7 +821,7 @@ class SetOsdPosition extends StatelessWidget {
           future: device.queryOsdPosition(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return const NumberRangeButtons(range: [0, 1, 2, 3, 4, 5]);
+              return OsdMarginSlider(device: device, initialMargin: 0);
             }
             if (!snapshot.hasData) {
               return const WaitingOnSlider();
