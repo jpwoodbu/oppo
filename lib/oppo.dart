@@ -2430,6 +2430,8 @@ class FakeDevice extends Device {
   );
   final VideoResolution _fakeContentResolution = VideoResolution.r1080p24;
   final VideoResolution _fakeOutputResolution = VideoResolution.rUhd24;
+  int _subtitleShift = 0;
+  int _osdPosition = 0;
 
   FakeDevice(super.name, super.address, super.port) {
     powered = true;
@@ -2542,5 +2544,21 @@ class FakeDevice extends Device {
     playbackStatus = PlaybackStatus.playbackStopped;
     _fakeClock = Duration.zero;
     position = null;
+  }
+
+  @override
+  Future<int> querySubtitleShift() async => _subtitleShift;
+
+  @override
+  Future<void> setSubtitleShift(int shift) async {
+    _subtitleShift = shift;
+  }
+
+  @override
+  Future<int> queryOsdPosition() async => _osdPosition;
+
+  @override
+  Future<void> setOsdPosition(int position) async {
+    _osdPosition = position;
   }
 }
