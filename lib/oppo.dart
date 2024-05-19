@@ -1138,6 +1138,7 @@ class Device {
       }
     }
 
+    await wrapper(queryPowerStatus); // Useful when reconnecting.
     await wrapper(queryPlaybackStatus);
     await wrapper(queryTrackOrTitle);
     await wrapper(queryDiscType);
