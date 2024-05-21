@@ -268,7 +268,8 @@ enum PlaybackStatus {
   screenSaver('SCSV'),
   discMenu('MENU'),
   dlna('DLNA'), // undocumented
-  setup('SETUP'); // only documented for the QPL command
+  setup('SETUP'), // only documented for the QPL command
+  unknown('UNKNOW'); // undocumented
 
   final String typeCode;
   const PlaybackStatus(this.typeCode);
@@ -1039,7 +1040,7 @@ class Device {
   String? firmwareVersion;
   Position? position;
   bool threeDimensional = false;
-  PlaybackStatus? playbackStatus;
+  PlaybackStatus playbackStatus = PlaybackStatus.unknown;
   int? volume;
   bool? muted;
   DiscType discType = DiscType.unknown;
@@ -1254,7 +1255,7 @@ class Device {
           powered = true;
         } else if (parameters == '0') {
           powered = false;
-          playbackStatus = null;
+          playbackStatus = PlaybackStatus.unknown;
           _clearFields();
         } else {
           _log.severe('Invalid UPW parameter: $parameters');
