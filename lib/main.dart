@@ -48,13 +48,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.blue,
+      brightness: Brightness.dark,
+    );
     return MaterialApp(
       title: 'Oppo Remote',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        brightness: Brightness.dark,
-        colorSchemeSeed: Colors.blue,
+        colorScheme: colorScheme,
+        // This is a workaround for
+        // https://github.com/flutter/flutter/issues/148849. When upgrading
+        // Flutter from 3.19.6, the backgrounds of dialogs were too dark and had
+        // low contrast with the dimmed background. Note that the default
+        // background color for dialogs is supposed to be surfaceContainerHigh,
+        // but I preferred surfaceContainer when testing this workaround.
+        dialogTheme: DialogTheme(
+          backgroundColor: colorScheme.surfaceContainer,
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
