@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+// TODO - Could this be moved to ThemeData?
 const double borderRadius = 4.0;
 const dialogPadding = EdgeInsets.all(12.0);
 
