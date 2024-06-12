@@ -62,27 +62,7 @@ class MainView extends StatelessWidget {
           title: const Position(),
           centerTitle: true,
           titleSpacing: 0.0,
-          actions: [
-            PoweredProvider(
-              builder: (_, powered, __) {
-                return powered ?? false
-                    ? IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) =>
-                                NumberPad(device),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.dialpad,
-                          semanticLabel: 'open number pad',
-                        ),
-                      )
-                    : const SizedBox();
-              },
-            ),
-          ],
+          actions: const [NumberPadIcon()],
         ),
         drawer: PoweredProvider(
           builder: (_, powered, __) => NavigationDrawer(

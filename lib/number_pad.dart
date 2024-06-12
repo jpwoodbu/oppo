@@ -1,7 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'device_changes.dart';
 import 'oppo.dart' as oppo;
 import 'util.dart';
+
+class NumberPadIcon extends StatelessWidget {
+  const NumberPadIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final powered =
+        context.select((DeviceChanges d) => d.device.powered) ?? false;
+    final device = context.read<DeviceChanges>().device;
+    return powered
+        ? IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                // Passing device is needed since Dialogs appear to get a
+                // context from way up in the tree near the MaterialApp widget
+                // so none of its ancestors have a provider with a
+                // [oppo.Device]. See
+                // https://stackoverflow.com/questions/72925944/flutter-showdialog-not-able-to-access-the-provider-from-context.
+                builder: (_) => NumberPad(device: device),
+              );
+            },
+            icon: const Icon(
+              Icons.dialpad,
+              semanticLabel: 'open number pad',
+            ),
+          )
+        : const SizedBox();
+  }
+}
 
 class NumberPadButton extends StatelessWidget {
   final Function onPressed;
@@ -40,7 +72,7 @@ class NumberButton extends StatelessWidget {
 
 class NumberPad extends StatelessWidget {
   final oppo.Device device;
-  const NumberPad(this.device, {super.key});
+  const NumberPad({super.key, required this.device});
 
   @override
   Widget build(BuildContext context) {
