@@ -2511,7 +2511,9 @@ class FakeDevice extends Device {
   }
 
   @override
-  Future<void> _command(String code, {String parameters = ''}) async {}
+  Future<void> _command(String code, {String parameters = ''}) async {
+    _log.fine('FakeDevice command: $code $parameters');
+  }
 
   @override
   Future<Id3Info> getMusicLocalId3Info() async {
