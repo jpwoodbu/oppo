@@ -13,61 +13,23 @@ import 'position.dart';
 import 'track_info.dart';
 import 'util.dart';
 
-class HomePage extends StatefulWidget {
-  final oppo.Device device;
-  const HomePage(this.device, {super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  // It's important that the "engage" Future is stateful so we don't try to
-  // run it on every widget rebuild or hot reload.
-  late Future<void> _engage;
-  late oppo.Device device;
-
-  @override
-  void initState() {
-    super.initState();
-    _engage = widget.device.engage();
-    // Just a convenience.
-    device = widget.device;
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     return FutureBuilder<void>(
       // Show the waiting message for at least 1s while we perform the
       // background work.
-      future:
-          Future.wait([Future.delayed(const Duration(seconds: 1)), _engage]),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
+      future: Future.wait(
+          [Future.delayed(const Duration(seconds: 1)), device.engage()]),
+      builder: (_, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return SafeArea(
-              child: Scaffold(
-                body: Center(
-                  child: Column(
-                    children: [
-                      const Text('Error while waiting on device to power up.'),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const ScanForDevices()),
-                              (Route<dynamic> route) => false);
-                        },
-                        child: const Text('Scan for players'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
+            return const PowerUpError();
           }
-          return _build();
+          return const MainView();
         } else {
           return const SafeArea(
             child: Scaffold(
@@ -80,8 +42,14 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+}
 
-  Widget _build() {
+class MainView extends StatelessWidget {
+  const MainView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     Image appIcon = const Image(
       image: AssetImage('assets/hdpi_app_icon.png'),
       height: 72.0,
@@ -186,6 +154,36 @@ class _HomePageState extends State<HomePage> {
         body: PoweredProvider(
           builder: (_, powered, __) =>
               powered ?? false ? Buttons(device) : NotPoweredOn(device),
+        ),
+      ),
+    );
+  }
+}
+
+class PowerUpError extends StatelessWidget {
+  const PowerUpError({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            children: [
+              const Text('Error while waiting on device to power up.'),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      ScanForDevices.routeName,
+                      (Route<dynamic> route) => false);
+                },
+                child: const Text('Scan for players'),
+              ),
+            ],
+          ),
         ),
       ),
     );
