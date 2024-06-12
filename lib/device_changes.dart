@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
 
+import 'discovery.dart';
 import 'oppo.dart';
 
 final _log = Logger('DeviceChanges');
@@ -80,7 +81,8 @@ class DeviceChanges with ChangeNotifier {
   }
 
   void _routeToScanner() {
-    Navigator.pushNamedAndRemoveUntil(_context, '/scan', (route) => false);
+    Navigator.pushNamedAndRemoveUntil(
+        _context, ScanForDevices.routeName, (route) => false);
   }
 
   void _snackBar(String message) {

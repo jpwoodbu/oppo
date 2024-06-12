@@ -58,25 +58,7 @@ class _ConnectState extends State<Connect> {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Error connecting to device.'),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            ScanForDevices.routeName,
-                            (Route<dynamic> route) => false);
-                      },
-                      child: const Text('Scan for players'),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            return const ConnectionError();
           }
           return ChangeNotifierProvider<DeviceChanges>(
             create: (_) => DeviceChanges(widget.device, context),
@@ -85,12 +67,35 @@ class _ConnectState extends State<Connect> {
             lazy: false,
             // TODO - See about using read/watch to minimize how many widgets
             // get rebuilt with each device change.
-            child: HomePage(widget.device),
+            child: const HomePage(),
           );
         } else {
           return const Scaffold(body: Center(child: Text('Connecting...')));
         }
       },
+    );
+  }
+}
+
+class ConnectionError extends StatelessWidget {
+  const ConnectionError({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Error connecting to device.'),
+            TextButton(
+              onPressed: () => Navigator.pushNamedAndRemoveUntil(context,
+                  ScanForDevices.routeName, (Route<dynamic> route) => false),
+              child: const Text('Scan for players'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
