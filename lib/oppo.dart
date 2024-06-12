@@ -2454,8 +2454,16 @@ class FakeDevice extends Device {
 
   void setupPositionUpdates() async {
     await for (final _ in Stream.periodic(const Duration(seconds: 1))) {
-      if (playbackStatus == PlaybackStatus.playbackStarted) {
-        _fakeClock += const Duration(seconds: 1);
+      if (playbackStatus == PlaybackStatus.playbackStarted ||
+          playbackStatus == PlaybackStatus.fastForward1 ||
+          playbackStatus == PlaybackStatus.fastReverse1) {
+        if (playbackStatus == PlaybackStatus.fastReverse1) {
+          _fakeClock -= const Duration(seconds: 3);
+        } else if (playbackStatus == PlaybackStatus.fastForward1) {
+          _fakeClock += const Duration(seconds: 3);
+        } else {
+          _fakeClock += const Duration(seconds: 1);
+        }
 
         // Restore the fake values for things which get cleared when playback is
         // stopped.
@@ -2531,6 +2539,16 @@ class FakeDevice extends Device {
   Future<void> stop() async {
     _fakeStream.add('@UPL STOP');
     _fakeClock = Duration.zero;
+  }
+
+  @override
+  Future<void> forward() async {
+    _fakeStream.add('@UPL FFW1');
+  }
+
+  @override
+  Future<void> reverse() async {
+    _fakeStream.add('@UPL FRV1');
   }
 
   @override
