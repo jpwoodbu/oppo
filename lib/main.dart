@@ -13,6 +13,7 @@ import 'device_changes.dart';
 import 'info.dart';
 import 'number_pad.dart';
 import 'oppo.dart' as oppo;
+import 'preferences.dart';
 import 'position.dart';
 import 'track_info.dart';
 import 'util.dart';
@@ -54,7 +55,6 @@ class MyApp extends StatelessWidget {
     );
     return MaterialApp(
       title: 'Oppo Remote',
-      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: colorScheme,
@@ -78,7 +78,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/scan',
       routes: {
-        '/scan': (context) => const Discovery(),
+        '/scan': (context) => const ScanForDevices(),
       },
     );
   }
@@ -87,7 +87,7 @@ class MyApp extends StatelessWidget {
 class DiscoveryChanges with ChangeNotifier {
   final oppo.Discover discover;
   late Stream<oppo.OppoID> _stream;
-  Set<oppo.OppoID> devices = {};
+  final Set<oppo.OppoID> devices = {};
 
   DiscoveryChanges(this.discover) {
     _stream = discover.listen();
@@ -102,19 +102,55 @@ class DiscoveryChanges with ChangeNotifier {
   }
 }
 
-class Discovery extends StatefulWidget {
-  const Discovery({super.key});
+class ScanForDevices extends StatelessWidget {
+  const ScanForDevices({super.key});
 
   @override
-  State<Discovery> createState() => _DiscoveryState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Semantics(
+          label: 'list of discovered devices with '
+              'option to enter demo mode',
+          child: ListView(
+            padding: const EdgeInsets.all(25.0),
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Device discovery',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  TextButton(
+                    onPressed: () => Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const FakeConnect()),
+                        (Route<dynamic> route) => false),
+                    child: const Text('Demo mode'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 25.0),
+              const LinearProgressIndicator(),
+              const SizedBox(height: 25.0),
+              const Devices(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _DiscoveryState extends State<Discovery> {
-  final String _settingLastDeviceName = 'lastDeviceName';
-  final String _settingLastDeviceAddress = 'lastDeviceAddress';
-  final String _settingLastDevicePort = 'lastDevicePort';
+class Devices extends StatefulWidget {
+  const Devices({super.key});
+
+  @override
+  State<Devices> createState() => _DevicesState();
+}
+
+class _DevicesState extends State<Devices> {
   late oppo.Discover _discover;
-  final Future<SharedPreferences> _preferences =
+  final Future<SharedPreferences> _sharedPreferences =
       SharedPreferences.getInstance();
 
   @override
@@ -132,122 +168,91 @@ class _DiscoveryState extends State<Discovery> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DiscoveryChanges(_discover),
-      child: Consumer<DiscoveryChanges>(
-        builder: (context, discoveryChanges, _) => SafeArea(
-          child: Scaffold(
-            body: Semantics(
-              label: 'list of discovered devices with '
-                  'option to enter demo mode',
-              child: ListView(
-                padding: const EdgeInsets.all(25.0),
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Device discovery',
-                          style: Theme.of(context).textTheme.titleMedium),
-                      TextButton(
-                        onPressed: () => _connect(
-                            oppo.OppoID(
-                              InternetAddress('1.2.3.4'),
-                              123,
-                              'Fake device',
-                            ),
-                            useFake: true),
-                        child: const Text('Demo mode'),
+      create: (_) => DiscoveryChanges(_discover),
+      builder: (context, _) {
+        final ids = context.watch<DiscoveryChanges>().devices;
+        return FutureBuilder(
+          future: _sharedPreferences,
+          builder: (_, AsyncSnapshot<SharedPreferences> snapshot) {
+            // [lastDeviceAddress] is also used in the [Column] below to
+            // conditionally mark a device as being the one we connected to
+            // last.
+            String? lastDeviceAddress;
+            if (snapshot.connectionState == ConnectionState.done &&
+                snapshot.hasData) {
+              final p = Preferences(snapshot.data!);
+              lastDeviceAddress = p.lastDeviceAddress;
+              if (lastDeviceAddress != null &&
+                  p.lastDeviceName != null &&
+                  p.lastDevicePort != null) {
+                ids.add(
+                  oppo.OppoID(
+                    InternetAddress(lastDeviceAddress),
+                    p.lastDevicePort!,
+                    p.lastDeviceName!,
+                  ),
+                );
+              }
+            }
+            if (ids.isEmpty) {
+              return const Column(children: []);
+            }
+            return Column(
+              children: ids
+                  .map(
+                    (e) => Semantics(
+                      label: 'discovered device',
+                      child: Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.album),
+                          title: Text(e.name),
+                          subtitle: Text(e.address.address),
+                          trailing: e.address.address == lastDeviceAddress
+                              ? Text('Last connected',
+                                  style: Theme.of(context).textTheme.bodySmall)
+                              : null,
+                          onTap: () => _connect(e),
+                        ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 25.0),
-                  const LinearProgressIndicator(),
-                  const SizedBox(height: 25.0),
-                  _devices(discoveryChanges.devices),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _devices(Set<oppo.OppoID> ids) {
-    String? lastDeviceAddress;
-    return FutureBuilder(
-      future: _preferences,
-      builder: (_, AsyncSnapshot<SharedPreferences> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          lastDeviceAddress =
-              snapshot.data!.getString(_settingLastDeviceAddress);
-          final lastDeviceName =
-              snapshot.data!.getString(_settingLastDeviceName);
-          final lastDevicePort = snapshot.data!.getInt(_settingLastDevicePort);
-          if (lastDeviceAddress != null &&
-              lastDeviceName != null &&
-              lastDevicePort != null) {
-            ids.add(
-              oppo.OppoID(
-                InternetAddress(lastDeviceAddress!),
-                lastDevicePort,
-                lastDeviceName,
-              ),
-            );
-          }
-        }
-        if (ids.isEmpty) {
-          return const Column(children: []);
-        }
-        return Column(
-          children: ids
-              .map(
-                (e) => Semantics(
-                  label: 'discovered device',
-                  child: Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.album),
-                      title: Text(e.name),
-                      subtitle: Text(e.address.address),
-                      trailing: e.address.address == lastDeviceAddress
-                          ? Text('Last connected',
-                              style: Theme.of(context).textTheme.bodySmall)
-                          : null,
-                      onTap: () => _connect(e),
                     ),
-                  ),
-                ),
-              )
-              .toList(),
+                  )
+                  .toList(),
+            );
+          },
         );
       },
     );
   }
 
-  void _connect(oppo.OppoID id, {bool useFake = false}) {
-    final device = useFake
-        ? oppo.FakeDevice(id.name, id.address, id.port)
-        : oppo.Device(id.name, id.address, id.port);
-    if (!useFake) _saveLastDevice(id);
+  void _connect(oppo.OppoID id) {
+    // [saveLastDevice] is an async func but making [_connect] async, causes a
+    // warning when passing [context] to Navigator below.
+    saveLastDevice(id);
+    final device = oppo.Device(id.name, id.address, id.port);
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => Connect(device)),
+      // TODO - If Connect can read device from context, we can definitely move
+      // the discovery code out of main.dart.
+      MaterialPageRoute(builder: (context) => Connect(device: device)),
       (Route<dynamic> route) => false,
     );
   }
+}
 
-  void _saveLastDevice(oppo.OppoID id) async {
-    final p = await SharedPreferences.getInstance();
-    await p.setString(_settingLastDeviceName, id.name);
-    await p.setString(_settingLastDeviceAddress, id.address.address);
-    await p.setInt(_settingLastDevicePort, id.port);
-    _log.info('Saved last device: ${id.address.address}');
+class FakeConnect extends StatelessWidget {
+  const FakeConnect({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Connect(
+      device: oppo.FakeDevice('Fake device', InternetAddress('1.2.3.4'), 123),
+    );
   }
 }
 
 class Connect extends StatefulWidget {
   final oppo.Device device;
-  const Connect(this.device, {super.key});
+  const Connect({required this.device, super.key});
 
   @override
   State<Connect> createState() => _ConnectState();
@@ -283,7 +288,7 @@ class _ConnectState extends State<Connect> {
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Discovery()),
+                                builder: (context) => const ScanForDevices()),
                             (Route<dynamic> route) => false);
                       },
                       child: const Text('Scan for players'),
@@ -353,7 +358,7 @@ class _HomePageState extends State<HomePage> {
                           Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const Discovery()),
+                                  builder: (context) => const ScanForDevices()),
                               (Route<dynamic> route) => false);
                         },
                         child: const Text('Scan for players'),
@@ -452,7 +457,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const Discovery()),
+                    MaterialPageRoute(builder: (context) => const ScanForDevices()),
                     (Route<dynamic> route) => false,
                   );
                 },
