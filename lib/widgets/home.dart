@@ -189,25 +189,24 @@ class Buttons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final device = context.read<DeviceChanges>().device;
     return Semantics(
       label: 'scrollable area with information display and '
           'remote control buttons',
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: ListView(
-          children: [
-            const Display(),
-            const SizedBox(height: 4.0),
-            const Divider(),
-            HomeRow(device),
-            Arrows(device),
-            PlayControls(device),
-            PositionControls(device),
-            BottomGrid(device),
-            const Divider(),
-            ExtraControls(device),
-            const SizedBox(height: 4.0),
+          children: const [
+            Display(),
+            SizedBox(height: 4.0),
+            Divider(),
+            HomeRow(),
+            Arrows(),
+            PlayControls(),
+            PositionControls(),
+            BottomGrid(),
+            Divider(),
+            ExtraControls(),
+            SizedBox(height: 4.0),
           ],
         ),
       ),

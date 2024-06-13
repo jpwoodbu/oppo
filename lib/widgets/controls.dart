@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:oppo/device_changes.dart';
+import 'package:provider/provider.dart';
 
 import '../oppo.dart' as oppo;
 import 'util.dart';
 
 class HomeRow extends StatelessWidget {
-  final oppo.Device device;
-  const HomeRow(this.device, {super.key});
+  const HomeRow({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -50,11 +52,11 @@ class HomeRow extends StatelessWidget {
 }
 
 class Arrows extends StatelessWidget {
-  final oppo.Device device;
-  const Arrows(this.device, {super.key});
+  const Arrows({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     const iconSize = 100.0;
     return Table(
       defaultColumnWidth: const IntrinsicColumnWidth(),
@@ -145,11 +147,11 @@ class Arrows extends StatelessWidget {
 }
 
 class PlayControls extends StatelessWidget {
-  final oppo.Device device;
-  const PlayControls(this.device, {super.key});
+  const PlayControls({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     const iconSize = 85.0;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -181,11 +183,11 @@ class PlayControls extends StatelessWidget {
 }
 
 class PositionControls extends StatelessWidget {
-  final oppo.Device device;
-  const PositionControls(this.device, {super.key});
+  const PositionControls({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     const iconSize = 65.0;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -282,11 +284,11 @@ ButtonStyle alertDialogButtonStyle(BuildContext context) {
 }
 
 class BottomGrid extends StatelessWidget {
-  final oppo.Device device;
-  const BottomGrid(this.device, {super.key});
+  const BottomGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     return Table(
       children: <TableRow>[
         TableRow(children: [
@@ -472,11 +474,11 @@ class BottomGrid extends StatelessWidget {
 }
 
 class ExtraControls extends StatelessWidget {
-  final oppo.Device device;
-  const ExtraControls(this.device, {super.key});
+  const ExtraControls({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     return Table(
       children: [
         TableRow(children: [
