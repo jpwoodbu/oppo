@@ -3,7 +3,6 @@ import 'package:logging_flutter/logging_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../device_changes.dart';
-import '../oppo.dart' as oppo;
 import 'controls.dart';
 import 'discovery.dart';
 import 'display.dart';
@@ -49,13 +48,6 @@ class MainView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final device = context.read<DeviceChanges>().device;
-    Image appIcon = const Image(
-      image: AssetImage('assets/hdpi_app_icon.png'),
-      height: 72.0,
-      width: 72.0,
-    );
-    final smallText = Theme.of(context).textTheme.bodySmall;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -64,86 +56,108 @@ class MainView extends StatelessWidget {
           titleSpacing: 0.0,
           actions: const [NumberPadIcon()],
         ),
-        drawer: PoweredProvider(
-          builder: (_, powered, __) => NavigationDrawer(
-            children: [
-              DrawerHeader(
-                child: Row(
-                  children: [
-                    appIcon,
-                    const SizedBox(width: 8.0),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('Oppo Remote'),
-                        Text(device.name, style: smallText),
-                        Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
-                            style: smallText),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              if (powered ?? false)
-                ListTile(
-                  leading: const Icon(Icons.info),
-                  title: const Text('Fetch track metadata'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    showDialog(
-                      context: context,
-                      builder: (_) => TrackMetadata(device: device),
-                    );
-                  },
-                ),
-              ListTile(
-                leading: const Icon(Icons.sensors),
-                title: const Text('Scan for players'),
-                onTap: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ScanForDevices()),
-                    (Route<dynamic> route) => false,
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.bug_report),
-                title: const Text('Known issues'),
-                onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const KnownIssues())),
-              ),
-              ListTile(
-                leading: const Icon(Icons.feedback),
-                title: const Text('Debug logs'),
-                onTap: () => LogConsole.open(context),
-              ),
-              ListTile(
-                leading: const Icon(Icons.article),
-                title: const Text('Licenses'),
-                onTap: () =>
-                    showLicensePage(context: context, applicationIcon: appIcon),
-              ),
-            ],
-          ),
-        ),
-        body: PoweredProvider(
-          builder: (_, powered, __) =>
-              powered ?? false ? Buttons(device) : NotPoweredOn(device),
-        ),
+        drawer: const Drawer(),
+        body: const Switch(),
       ),
     );
   }
 }
 
+class Switch extends StatelessWidget {
+  const Switch({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final powered =
+        context.select((DeviceChanges d) => d.device.powered ?? false);
+    return powered ? const Buttons() : const NotPoweredOn();
+  }
+}
+
+class Drawer extends StatelessWidget {
+  final appIcon = const Image(
+    image: AssetImage('assets/hdpi_app_icon.png'),
+    height: 72.0,
+    width: 72.0,
+  );
+
+  const Drawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final smallText = Theme.of(context).textTheme.bodySmall;
+    final powered =
+        context.select((DeviceChanges d) => d.device.powered ?? false);
+    final device = context.read<DeviceChanges>().device;
+    return NavigationDrawer(
+      children: [
+        DrawerHeader(
+          child: Row(
+            children: [
+              appIcon,
+              const SizedBox(width: 8.0),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Oppo Remote'),
+                  Text(device.name, style: smallText),
+                  Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
+                      style: smallText),
+                ],
+              ),
+            ],
+          ),
+        ),
+        if (powered)
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text('Fetch track metadata'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO - Refactor so showDialog is inside TrackMetadata so that
+              // device doesn't need to be passed in.
+              showDialog(
+                context: context,
+                builder: (_) => TrackMetadata(device: device),
+              );
+            },
+          ),
+        ListTile(
+          leading: const Icon(Icons.sensors),
+          title: const Text('Scan for players'),
+          onTap: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const ScanForDevices()),
+              (Route<dynamic> route) => false,
+            );
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.bug_report),
+          title: const Text('Known issues'),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const KnownIssues())),
+        ),
+        ListTile(
+          leading: const Icon(Icons.feedback),
+          title: const Text('Debug logs'),
+          onTap: () => LogConsole.open(context),
+        ),
+        ListTile(
+          leading: const Icon(Icons.article),
+          title: const Text('Licenses'),
+          onTap: () =>
+              showLicensePage(context: context, applicationIcon: appIcon),
+        ),
+      ],
+    );
+  }
+}
+
 class PowerUpError extends StatelessWidget {
-  const PowerUpError({
-    super.key,
-  });
+  const PowerUpError({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -170,24 +184,12 @@ class PowerUpError extends StatelessWidget {
   }
 }
 
-class PoweredProvider extends StatelessWidget {
-  final ValueWidgetBuilder builder;
-  const PoweredProvider({super.key, required this.builder});
-
-  @override
-  Widget build(BuildContext context) {
-    return Selector<DeviceChanges, bool?>(
-        selector: (_, deviceChanges) => deviceChanges.device.powered,
-        builder: builder);
-  }
-}
-
 class Buttons extends StatelessWidget {
-  final oppo.Device device;
-  const Buttons(this.device, {super.key});
+  const Buttons({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     return Semantics(
       label: 'scrollable area with information display and '
           'remote control buttons',
@@ -214,11 +216,11 @@ class Buttons extends StatelessWidget {
 }
 
 class NotPoweredOn extends StatelessWidget {
-  final oppo.Device device;
-  const NotPoweredOn(this.device, {super.key});
+  const NotPoweredOn({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final device = context.read<DeviceChanges>().device;
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Center(
