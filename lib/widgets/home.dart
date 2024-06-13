@@ -197,7 +197,7 @@ class Buttons extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: ListView(
           children: [
-            Display(device),
+            const Display(),
             const SizedBox(height: 4.0),
             const Divider(),
             HomeRow(device),
