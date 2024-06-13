@@ -6,11 +6,20 @@ import '../oppo.dart' as oppo;
 
 const String _noInformation = '--';
 
-class Display extends StatelessWidget {
+class Display extends StatefulWidget {
   const Display({super.key});
 
   @override
+  State<Display> createState() => _DisplayState();
+}
+
+class _DisplayState extends State<Display> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return DefaultTextStyle.merge(
       style: Theme.of(context).textTheme.bodySmall,
       child: Semantics(

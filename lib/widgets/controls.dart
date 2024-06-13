@@ -5,11 +5,20 @@ import 'package:provider/provider.dart';
 import '../oppo.dart' as oppo;
 import 'util.dart';
 
-class HomeRow extends StatelessWidget {
+class HomeRow extends StatefulWidget {
   const HomeRow({super.key});
 
   @override
+  State<HomeRow> createState() => _HomeRowState();
+}
+
+class _HomeRowState extends State<HomeRow> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final device = context.read<DeviceChanges>().device;
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
@@ -51,11 +60,20 @@ class HomeRow extends StatelessWidget {
   }
 }
 
-class Arrows extends StatelessWidget {
+class Arrows extends StatefulWidget {
   const Arrows({super.key});
 
   @override
+  State<Arrows> createState() => _ArrowsState();
+}
+
+class _ArrowsState extends State<Arrows> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final device = context.read<DeviceChanges>().device;
     const iconSize = 100.0;
     return Table(
@@ -146,11 +164,21 @@ class Arrows extends StatelessWidget {
   }
 }
 
-class PlayControls extends StatelessWidget {
+class PlayControls extends StatefulWidget {
   const PlayControls({super.key});
 
   @override
+  State<PlayControls> createState() => _PlayControlsState();
+}
+
+class _PlayControlsState extends State<PlayControls>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final device = context.read<DeviceChanges>().device;
     const iconSize = 85.0;
     return Row(
@@ -182,11 +210,21 @@ class PlayControls extends StatelessWidget {
   }
 }
 
-class PositionControls extends StatelessWidget {
+class PositionControls extends StatefulWidget {
   const PositionControls({super.key});
 
   @override
+  State<PositionControls> createState() => _PositionControlsState();
+}
+
+class _PositionControlsState extends State<PositionControls>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final device = context.read<DeviceChanges>().device;
     const iconSize = 65.0;
     return Row(
@@ -283,11 +321,21 @@ ButtonStyle alertDialogButtonStyle(BuildContext context) {
   );
 }
 
-class BottomGrid extends StatelessWidget {
+class BottomGrid extends StatefulWidget {
   const BottomGrid({super.key});
 
   @override
+  State<BottomGrid> createState() => _BottomGridState();
+}
+
+class _BottomGridState extends State<BottomGrid>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final device = context.read<DeviceChanges>().device;
     return Table(
       children: <TableRow>[
@@ -473,11 +521,21 @@ class BottomGrid extends StatelessWidget {
   }
 }
 
-class ExtraControls extends StatelessWidget {
+class ExtraControls extends StatefulWidget {
   const ExtraControls({super.key});
 
   @override
+  State<ExtraControls> createState() => _ExtraControlsState();
+}
+
+class _ExtraControlsState extends State<ExtraControls>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final device = context.read<DeviceChanges>().device;
     return Table(
       children: [
