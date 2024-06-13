@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:logging_flutter/logging_flutter.dart';
 
-import 'connect.dart';
-import 'discovery.dart';
-import 'util.dart';
+import 'widgets/connect.dart';
+import 'widgets/discovery.dart';
+import 'widgets/util.dart';
 
 void main() {
   Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;
@@ -63,7 +63,7 @@ class OppoApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: '/scan',
+      initialRoute: ScanForDevices.routeName,
       routes: {
         ScanForDevices.routeName: (context) => const ScanForDevices(),
         ConnectWrapper.routeName: (context) => const ConnectWrapper(),

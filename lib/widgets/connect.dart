@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'device_changes.dart';
+import '../device_changes.dart';
+import '../oppo.dart' as oppo;
 import 'discovery.dart';
 import 'home.dart';
-import 'oppo.dart' as oppo;
 
 class FakeConnect extends StatelessWidget {
   const FakeConnect({super.key});

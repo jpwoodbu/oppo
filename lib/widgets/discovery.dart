@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../oppo.dart' as oppo;
+import '../preferences.dart';
 import 'connect.dart';
-import 'oppo.dart' as oppo;
-import 'preferences.dart';
 
 class DiscoveryChanges with ChangeNotifier {
   final oppo.Discover discover;

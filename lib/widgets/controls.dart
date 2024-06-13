@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'oppo.dart' as oppo;
+import '../oppo.dart' as oppo;
 import 'util.dart';
 
 class HomeRow extends StatelessWidget {

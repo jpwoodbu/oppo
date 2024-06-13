@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import 'oppo.dart' as oppo;
+import '../oppo.dart' as oppo;
 import 'util.dart';
 
 final _log = Logger('track_info');

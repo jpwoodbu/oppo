@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:logging_flutter/logging_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../device_changes.dart';
+import '../oppo.dart' as oppo;
 import 'controls.dart';
-import 'device_changes.dart';
 import 'discovery.dart';
 import 'display.dart';
 import 'info.dart';
 import 'number_pad.dart';
-import 'oppo.dart' as oppo;
 import 'position.dart';
 import 'track_info.dart';
 import 'util.dart';
