@@ -242,8 +242,8 @@ class ColorButton extends StatelessWidget {
       child: FilledButton(
         onPressed: () => addHaptic(onPressed),
         style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(color),
-            shape: MaterialStateProperty.all(RoundedRectangleBorder(
+            backgroundColor: WidgetStateProperty.all(color),
+            shape: WidgetStateProperty.all(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(borderRadius)))),
         child: const SizedBox(),
       ),
@@ -268,18 +268,18 @@ class TableCellPadded extends StatelessWidget {
 ButtonStyle dialogButtonStyle(BuildContext context) {
   return ButtonStyle(
     backgroundColor:
-        MaterialStatePropertyAll(Theme.of(context).colorScheme.onSecondary),
+        WidgetStatePropertyAll(Theme.of(context).colorScheme.onSecondary),
     foregroundColor:
-        MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary),
+        WidgetStatePropertyAll(Theme.of(context).colorScheme.secondary),
   );
 }
 
 ButtonStyle alertDialogButtonStyle(BuildContext context) {
   return ButtonStyle(
     backgroundColor:
-        MaterialStatePropertyAll(Theme.of(context).colorScheme.onTertiary),
+        WidgetStatePropertyAll(Theme.of(context).colorScheme.onTertiary),
     foregroundColor:
-        MaterialStatePropertyAll(Theme.of(context).colorScheme.tertiary),
+        WidgetStatePropertyAll(Theme.of(context).colorScheme.tertiary),
   );
 }
 
