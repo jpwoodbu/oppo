@@ -65,8 +65,6 @@ class _ConnectState extends State<Connect> {
             // The child Widget depends on [DeviceChanges] being fully set up
             // ahead of time.
             lazy: false,
-            // TODO - See about using read/watch to minimize how many widgets
-            // get rebuilt with each device change.
             child: const HomePage(),
           );
         } else {
