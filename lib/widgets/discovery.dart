@@ -27,7 +27,6 @@ class DiscoveryChanges with ChangeNotifier {
 }
 
 class ScanForDevices extends StatelessWidget {
-  static const routeName = '/scan';
   const ScanForDevices({super.key});
 
   @override
@@ -153,11 +152,14 @@ class _DevicesState extends State<Devices> {
     // [saveLastDevice] is an async func but making [_connect] async, causes a
     // warning when passing [context] to Navigator below.
     saveLastDevice(id);
-    Navigator.pushNamedAndRemoveUntil(
+    Navigator.pushAndRemoveUntil(
       context,
-      ConnectWrapper.routeName,
+      MaterialPageRoute(
+        builder: (_) => Connect(
+          device: oppo.Device(id.name, id.address, id.port),
+        ),
+      ),
       (Route<dynamic> route) => false,
-      arguments: oppo.Device(id.name, id.address, id.port),
     );
   }
 }

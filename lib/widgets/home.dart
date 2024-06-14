@@ -169,9 +169,9 @@ class PowerUpError extends StatelessWidget {
               const Text('Error while waiting on device to power up.'),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamedAndRemoveUntil(
+                  Navigator.pushAndRemoveUntil(
                       context,
-                      ScanForDevices.routeName,
+                      MaterialPageRoute(builder: (_) => const ScanForDevices()),
                       (Route<dynamic> route) => false);
                 },
                 child: const Text('Scan for players'),

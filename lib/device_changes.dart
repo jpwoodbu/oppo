@@ -81,8 +81,10 @@ class DeviceChanges with ChangeNotifier {
   }
 
   void _routeToScanner() {
-    Navigator.pushNamedAndRemoveUntil(
-        _context, ScanForDevices.routeName, (route) => false);
+    Navigator.pushAndRemoveUntil(
+        _context,
+        MaterialPageRoute(builder: (_) => const ScanForDevices()),
+        (route) => false);
   }
 
   void _snackBar(String message) {

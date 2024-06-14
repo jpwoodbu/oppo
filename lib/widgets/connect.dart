@@ -19,17 +19,6 @@ class FakeConnect extends StatelessWidget {
   }
 }
 
-class ConnectWrapper extends StatelessWidget {
-  static const routeName = '/connect';
-  const ConnectWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final device = ModalRoute.of(context)!.settings.arguments as oppo.Device;
-    return Connect(device: device);
-  }
-}
-
 class Connect extends StatefulWidget {
   final oppo.Device device;
 
@@ -87,8 +76,10 @@ class ConnectionError extends StatelessWidget {
           children: [
             const Text('Error connecting to device.'),
             TextButton(
-              onPressed: () => Navigator.pushNamedAndRemoveUntil(context,
-                  ScanForDevices.routeName, (Route<dynamic> route) => false),
+              onPressed: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ScanForDevices()),
+                  (Route<dynamic> route) => false),
               child: const Text('Scan for players'),
             ),
           ],

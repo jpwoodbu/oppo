@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:logging_flutter/logging_flutter.dart';
 
-import 'widgets/connect.dart';
 import 'widgets/discovery.dart';
 import 'widgets/util.dart';
 
@@ -63,11 +62,7 @@ class OppoApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: ScanForDevices.routeName,
-      routes: {
-        ScanForDevices.routeName: (context) => const ScanForDevices(),
-        ConnectWrapper.routeName: (context) => const ConnectWrapper(),
-      },
+      home: const ScanForDevices(),
     );
   }
 }
