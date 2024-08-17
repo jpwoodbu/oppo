@@ -1028,10 +1028,10 @@ class Device {
   /// is for the command last sent.
   String? _lastCommandCode;
 
-  /// A stream of responses from the device which other components to listen to.
+  /// A stream of responses from the device which other components listen to.
   /// This is handy for call and response flows where you want to block until
   /// the response has been received.
-  // Use a broadcast stream so functions can start and stop listening.
+  // A broadcast stream is used here so functions can start and stop listening.
   final StreamController<Response> _responses =
       StreamController<Response>.broadcast();
   Socket? _socket;
