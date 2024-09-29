@@ -807,7 +807,7 @@ enum App {
   disc('DIS', 'Disc'),
   music('MUS', 'Music'),
   photo('PHO', 'Photos'),
-  movie('MOV', 'Movie'),
+  movie('MOV', 'Movies'),
   network('NET', 'Network'),
   setup('SET', 'Setup');
 
