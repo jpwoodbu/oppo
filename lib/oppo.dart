@@ -87,8 +87,8 @@ class OppoID {
           name = value;
           break;
         case 'Notify':
-          // There's is the broadcast packet prefix. It has no data we need. And
-          // it doesn't seem necessary to verify its contents.
+          // This is the broadcast packet prefix. It has no data we need. And it
+          // doesn't seem necessary to verify its contents.
           break;
         default:
           _log.warning('Unrecognized line in broadcast packet: $line');
