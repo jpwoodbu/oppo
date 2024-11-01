@@ -165,6 +165,7 @@ class PowerUpError extends StatelessWidget {
       child: Scaffold(
         body: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text('Error while waiting on device to power up.'),
               TextButton(
@@ -175,6 +176,10 @@ class PowerUpError extends StatelessWidget {
                       (Route<dynamic> route) => false);
                 },
                 child: const Text('Scan for players'),
+              ),
+              TextButton(
+                onPressed: () => LogConsole.open(context),
+                child: const Text('Debug logs'),
               ),
             ],
           ),
