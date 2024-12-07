@@ -9,7 +9,7 @@ const String _settingLastDevicePort = 'lastDevicePort';
 
 final _log = Logger('preferences');
 
-/// Record the last device we connected to local storage.
+/// Record the last device we connected to.
 /// 
 /// This function exists instead of a bunch of setters in the [Preferences]
 /// class because setters can't be async.
