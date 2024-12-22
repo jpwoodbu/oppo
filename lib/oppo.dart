@@ -2530,10 +2530,12 @@ class FakeDevice extends Device {
 
   @override
   Future<void> pause() async {
-    if (playbackStatus == PlaybackStatus.playbackStarted) {
-      _fakeStream.add('@UPL PAUS');
-    } else if (playbackStatus == PlaybackStatus.playbackPaused) {
+    if (playbackStatus == PlaybackStatus.playbackPaused) {
       _fakeStream.add('@UPL PLAY');
+    } else if (playbackStatus == PlaybackStatus.playbackStopped) {
+      // do nothing 
+    } else {
+      _fakeStream.add('@UPL PAUS');
     }
   }
 
