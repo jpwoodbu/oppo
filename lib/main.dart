@@ -56,7 +56,7 @@ class OppoApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(kBorderRadius),
             ),
             padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 20.0),
           ),

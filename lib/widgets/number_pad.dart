@@ -80,7 +80,7 @@ class NumberPad extends StatelessWidget {
       label: 'number pad buttons',
       child: Dialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius)),
+            borderRadius: BorderRadius.circular(kBorderRadius)),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Table(

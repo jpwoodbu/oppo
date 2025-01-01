@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 // TODO - Could this be moved to ThemeData?
-const double borderRadius = 4.0;
-const dialogPadding = EdgeInsets.all(12.0);
+const double kBorderRadius = 4.0;
+const kDialogPadding = EdgeInsets.all(12.0);
+const kMainViewPadding = EdgeInsets.symmetric(horizontal: 4.0);
 
 dynamic addHaptic(Function function) {
   HapticFeedback.lightImpact();
@@ -23,10 +24,13 @@ class VerticalIcon extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.titleSmall,
           textScaler: TextScaler.linear(small ? 0.8 : 1.0),
         ),
-        icon,
+        // Set the default icon size to 24.0. That used to be the default before
+        // it changed in Flutter 3.27. The new default is a tad small for this
+        // use case.
+        IconTheme.merge(data: const IconThemeData(size: 24.0), child: icon),
       ],
     );
   }

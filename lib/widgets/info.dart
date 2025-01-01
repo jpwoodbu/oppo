@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 20.0);
-
 const String knownIssuesHeader =
     "Oppo hasn't sold Blu-ray players in the US since 2018. Firmware updates stopped soon thereafter. Unsurprisingly, there are some quirks with using their network control API, including incomplete functionality and stability issues.";
 
@@ -25,7 +23,7 @@ class KnownIssues extends StatelessWidget {
             title: const Text('Known issues'),
           ),
           body: Padding(
-            padding: padding,
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: ListView(
               children: const [
                 Text(knownIssuesHeader),

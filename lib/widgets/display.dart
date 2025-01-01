@@ -198,9 +198,8 @@ class PaddedRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const alignment = MainAxisAlignment.spaceBetween;
-    const padding = EdgeInsets.symmetric(vertical: 1.0);
     return Padding(
-      padding: padding,
+      padding: const EdgeInsets.symmetric(vertical: 1.0),
       child: Row(
         mainAxisAlignment: alignment,
         children: children,

@@ -282,7 +282,7 @@ class ColorButton extends StatelessWidget {
         style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(color),
             shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(borderRadius)))),
+                borderRadius: BorderRadius.circular(kBorderRadius)))),
         child: const SizedBox(),
       ),
     );
@@ -291,14 +291,13 @@ class ColorButton extends StatelessWidget {
 
 class TableCellPadded extends StatelessWidget {
   final Widget child;
-  static const double padding = 4.0;
   const TableCellPadded({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
-      child: Padding(padding: const EdgeInsets.all(padding), child: child),
+      child: Padding(padding: const EdgeInsets.all(4.0), child: child),
     );
   }
 }
@@ -732,7 +731,7 @@ class SetHdmiResolution extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('HDMI resolution'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.HdmiResolution.values
           .map(
             (mode) => TextButton(
@@ -752,7 +751,7 @@ class SetZoomRatio extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Zoom ratio'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.ZoomRatio.values
           .map(
             (mode) => TextButton(
@@ -772,7 +771,7 @@ class SetRepeatMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Repeat mode'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.RepeatMode.values
           // RepeatMode.one is not available for the SRP command.
           .where((element) => element != oppo.RepeatMode.one)
@@ -875,7 +874,7 @@ class SetOsdPosition extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('OSD margin'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: [
         FutureBuilder(
           future: device.queryOsdPosition(),
@@ -941,7 +940,7 @@ class SetTimeMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Time mode'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.TimeInformation.values
           .map(
             (mode) => TextButton(
@@ -961,7 +960,7 @@ class SetHdrMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('HDR mode'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.HdrSetting.values
           .map(
             (mode) => TextButton(
@@ -981,7 +980,7 @@ class SetInputSource extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Input source'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.InputSource.values
           .map(
             (mode) => TextButton(
@@ -1001,7 +1000,7 @@ class SetScreenSaver extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Screensaver'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.ScreenSaverSetting.values
           .map(
             (mode) => TextButton(
@@ -1021,7 +1020,7 @@ class SelectApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Apps'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.App.values
           .map(
             (mode) => TextButton(
@@ -1041,7 +1040,7 @@ class SetSacdPriority extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('SACD priority'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.SacdPriority.values
           .map(
             (mode) => TextButton(
@@ -1061,7 +1060,7 @@ class SetSacdOutputMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('SACD output mode'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.SacdOutputMode.values
           .map(
             (mode) => TextButton(
@@ -1081,7 +1080,7 @@ class SetForwardPlaybackSpeed extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Forward playback speed'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.PlaybackSpeed.values
           .map(
             (mode) => TextButton(
@@ -1101,7 +1100,7 @@ class SetReversePlaybackSpeed extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Reverse playback speed'),
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: oppo.PlaybackSpeed.values
           .map(
             (mode) => TextButton(

@@ -15,7 +15,7 @@ class TrackMetadata extends StatelessWidget {
     final errorColor = Theme.of(context).colorScheme.error;
     final errorStyle = TextStyle(color: errorColor);
     return SimpleDialog(
-      contentPadding: dialogPadding,
+      contentPadding: kDialogPadding,
       children: [
         FutureBuilder(
           future: device.getMusicLocalId3Info(),
