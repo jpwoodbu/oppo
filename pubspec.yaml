@@ -1,7 +1,10 @@
 name: oppo
 description: "A remote for Oppo UDP-20X Blu-ray players."
 publish_to: 'none'
-version: 1.0.23+2025122902
+# The month value in the version code (right side of +) is the month +12 because
+# the year was accidently incremented in a few releases back and the version
+# code must be an ever increasing int. This workaround can be lifted in 2026 :(.
+version: 1.0.24+2025130101
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
