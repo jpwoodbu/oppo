@@ -26,6 +26,7 @@ class VerticalIcon extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.titleSmall,
           textScaler: TextScaler.linear(small ? 0.8 : 1.0),
+          overflow: TextOverflow.ellipsis,
         ),
         // Set the default icon size to 24.0. That used to be the default before
         // it changed in Flutter 3.27. The new default is a tad small for this
