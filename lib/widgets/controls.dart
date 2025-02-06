@@ -1118,7 +1118,7 @@ class PowerOff extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AlertDialog.adaptive(
       content: const Text('Are you sure you want to power off the player?'),
       actions: [
         TextButton(
@@ -1143,7 +1143,7 @@ class ToggleTray extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AlertDialog.adaptive(
       content: const Text('Are you sure you want to toggle the tray?'),
       actions: [
         TextButton(

@@ -52,7 +52,7 @@ class TrackMetadata extends StatelessWidget {
                 ],
               );
             }
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator.adaptive());
           },
         ),
         Align(
