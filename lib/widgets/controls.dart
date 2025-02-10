@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oppo/device_changes.dart';
 import 'package:provider/provider.dart';
@@ -420,7 +421,9 @@ class _BottomGridState extends State<BottomGrid>
                 onPressed: () async {
                   final selection = await showDialog<oppo.ZoomRatio>(
                       context: context,
-                      builder: (context) => const SetZoomRatio());
+                      builder: (context) => const DialogSelector(
+                          titleText: 'Zoom ratio',
+                          values: oppo.ZoomRatio.values));
                   if (selection != null) {
                     await device.setZoomRatio(selection);
                   }
@@ -459,7 +462,11 @@ class _BottomGridState extends State<BottomGrid>
               onPressed: () async {
                 final selection = await showDialog<oppo.RepeatMode>(
                     context: context,
-                    builder: (context) => const SetRepeatMode());
+                    builder: (context) => DialogSelector(
+                        titleText: 'Repeat mode',
+                        // RepeatMode.one is not available for the SRP command.
+                        values: oppo.RepeatMode.values.where(
+                            (element) => element != oppo.RepeatMode.one)));
                 if (selection != null) {
                   await device.setRepeatMode(selection);
                 }
@@ -482,7 +489,9 @@ class _BottomGridState extends State<BottomGrid>
               onPressed: () async {
                 final selection = await showDialog<oppo.HdmiResolution>(
                     context: context,
-                    builder: (context) => const SetHdmiResolution());
+                    builder: (context) => const DialogSelector(
+                        titleText: 'HDMI resolution',
+                        values: oppo.HdmiResolution.values));
                 if (selection != null) {
                   await device.setHdmiResolution(selection);
                 }
@@ -558,7 +567,9 @@ class _ExtraControlsState extends State<ExtraControls>
               style: dialogButtonStyle(context),
               onPressed: () async {
                 final selection = await showDialog<oppo.App>(
-                    context: context, builder: (context) => const SelectApp());
+                    context: context,
+                    builder: (context) => const DialogSelector(
+                        titleText: 'Apps', values: oppo.App.values));
                 if (selection != null) {
                   await device.runApp(selection);
                 }
@@ -572,7 +583,9 @@ class _ExtraControlsState extends State<ExtraControls>
               onPressed: () async {
                 final selection = await showDialog<oppo.InputSource>(
                     context: context,
-                    builder: (context) => const SetInputSource());
+                    builder: (context) => const DialogSelector(
+                        titleText: 'Input source',
+                        values: oppo.InputSource.values));
                 if (selection != null) {
                   await device.setInputSource(selection);
                 }
@@ -602,7 +615,9 @@ class _ExtraControlsState extends State<ExtraControls>
               onPressed: () async {
                 final selection = await showDialog<oppo.TimeInformation>(
                     context: context,
-                    builder: (context) => const SetTimeMode());
+                    builder: (context) => const DialogSelector(
+                        titleText: 'Time mode',
+                        values: oppo.TimeInformation.values));
                 if (selection != null) {
                   await device.setTimeInformationDisplay(selection);
                 }
@@ -664,7 +679,9 @@ class _ExtraControlsState extends State<ExtraControls>
               onPressed: () async {
                 final selection = await showDialog<oppo.ScreenSaverSetting>(
                     context: context,
-                    builder: (context) => const SetScreenSaver());
+                    builder: (context) => const DialogSelector(
+                        titleText: 'Screensaver',
+                        values: oppo.ScreenSaverSetting.values));
                 if (selection != null) {
                   await device.setScreenSaver(selection);
                 }
@@ -679,7 +696,9 @@ class _ExtraControlsState extends State<ExtraControls>
               onPressed: () async {
                 final selection = await showDialog<oppo.SacdPriority>(
                     context: context,
-                    builder: (context) => const SetSacdPriority());
+                    builder: (context) => const DialogSelector(
+                        titleText: 'SACD priority',
+                        values: oppo.SacdPriority.values));
                 if (selection != null) {
                   await device.setSacdPriority(selection);
                 }
@@ -694,7 +713,9 @@ class _ExtraControlsState extends State<ExtraControls>
               onPressed: () async {
                 final selection = await showDialog<oppo.SacdOutputMode>(
                     context: context,
-                    builder: (context) => const SetSacdOutputMode());
+                    builder: (context) => const DialogSelector(
+                        titleText: 'SACD output mode',
+                        values: oppo.SacdOutputMode.values));
                 if (selection != null) {
                   await device.setSacdOutputMode(selection);
                 }
@@ -724,65 +745,36 @@ class PopupSelectionChoice extends StatelessWidget {
   }
 }
 
-class SetHdmiResolution extends StatelessWidget {
-  const SetHdmiResolution({super.key});
+class DialogSelector extends StatelessWidget {
+  final String titleText;
+  final dynamic values;
+
+  const DialogSelector(
+      {required this.titleText, required this.values, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('HDMI resolution'),
-      contentPadding: kDialogPadding,
-      children: oppo.HdmiResolution.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class SetZoomRatio extends StatelessWidget {
-  const SetZoomRatio({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('Zoom ratio'),
-      contentPadding: kDialogPadding,
-      children: oppo.ZoomRatio.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class SetRepeatMode extends StatelessWidget {
-  const SetRepeatMode({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('Repeat mode'),
-      contentPadding: kDialogPadding,
-      children: oppo.RepeatMode.values
-          // RepeatMode.one is not available for the SRP command.
-          .where((element) => element != oppo.RepeatMode.one)
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
+    final title = Text(titleText);
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      return CupertinoAlertDialog(
+        title: title,
+        actions: values
+            .map<Widget>((value) => CupertinoDialogAction(
+                onPressed: () => addHaptic(() => Navigator.pop(context, value)),
+                child: Text(value.displayName)))
+            .toList(),
+      );
+    } else {
+      return SimpleDialog(
+        title: title,
+        contentPadding: kDialogPadding,
+        children: values
+            .map<Widget>((value) => TextButton(
+                onPressed: () => addHaptic(() => Navigator.pop(context, value)),
+                child: PopupSelectionChoice(label: value.displayName)))
+            .toList(),
+      );
+    }
   }
 }
 
@@ -929,146 +921,6 @@ class _OsdMarginSliderState extends State<OsdMarginSlider> {
       max: 5,
       label: _margin.toInt().toString(),
       divisions: 5,
-    );
-  }
-}
-
-class SetTimeMode extends StatelessWidget {
-  const SetTimeMode({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('Time mode'),
-      contentPadding: kDialogPadding,
-      children: oppo.TimeInformation.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class SetHdrMode extends StatelessWidget {
-  const SetHdrMode({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('HDR mode'),
-      contentPadding: kDialogPadding,
-      children: oppo.HdrSetting.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class SetInputSource extends StatelessWidget {
-  const SetInputSource({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('Input source'),
-      contentPadding: kDialogPadding,
-      children: oppo.InputSource.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class SetScreenSaver extends StatelessWidget {
-  const SetScreenSaver({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('Screensaver'),
-      contentPadding: kDialogPadding,
-      children: oppo.ScreenSaverSetting.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class SelectApp extends StatelessWidget {
-  const SelectApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('Apps'),
-      contentPadding: kDialogPadding,
-      children: oppo.App.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class SetSacdPriority extends StatelessWidget {
-  const SetSacdPriority({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('SACD priority'),
-      contentPadding: kDialogPadding,
-      children: oppo.SacdPriority.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class SetSacdOutputMode extends StatelessWidget {
-  const SetSacdOutputMode({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text('SACD output mode'),
-      contentPadding: kDialogPadding,
-      children: oppo.SacdOutputMode.values
-          .map(
-            (mode) => TextButton(
-              onPressed: () => addHaptic(() => Navigator.pop(context, mode)),
-              child: PopupSelectionChoice(label: mode.displayName),
-            ),
-          )
-          .toList(),
     );
   }
 }
