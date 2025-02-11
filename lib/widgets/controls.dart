@@ -970,22 +970,40 @@ class PowerOff extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> actions =
+        Theme.of(context).platform == TargetPlatform.iOS
+            ? [
+                CupertinoDialogAction(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                CupertinoDialogAction(
+                  isDestructiveAction: true,
+                  onPressed: () {
+                    addHaptic(() => Navigator.pop(context, true));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Waiting for power off signal...')));
+                  },
+                  child: const Text('Proceed'),
+                ),
+              ]
+            : [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    addHaptic(() => Navigator.pop(context, true));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Waiting for power off signal...')));
+                  },
+                  child: const Text('Proceed'),
+                ),
+              ];
     return AlertDialog.adaptive(
       content: const Text('Are you sure you want to power off the player?'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () {
-            addHaptic(() => Navigator.pop(context, true));
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Waiting for power off signal...')));
-          },
-          child: const Text('Proceed'),
-        ),
-      ],
+      actions: actions,
     );
   }
 }
@@ -995,18 +1013,32 @@ class ToggleTray extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> actions = Theme.of(context).platform ==
+            TargetPlatform.iOS
+        ? [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () => addHaptic(() => Navigator.pop(context, true)),
+              child: const Text('Proceed'),
+            ),
+          ]
+        : [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => addHaptic(() => Navigator.pop(context, true)),
+              child: const Text('Proceed'),
+            ),
+          ];
     return AlertDialog.adaptive(
       content: const Text('Are you sure you want to toggle the tray?'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () => addHaptic(() => Navigator.pop(context, true)),
-          child: const Text('Proceed'),
-        ),
-      ],
+      actions: actions,
     );
   }
 }
