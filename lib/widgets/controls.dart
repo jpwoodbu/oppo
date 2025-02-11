@@ -844,7 +844,7 @@ class _SubtitleShiftSliderState extends State<SubtitleShiftSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return Slider(
+    return Slider.adaptive(
       value: _shift,
       onChanged: (value) => setState(() => _shift = value),
       onChangeEnd: (value) => addHaptic(
@@ -911,7 +911,7 @@ class _OsdMarginSliderState extends State<OsdMarginSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return Slider(
+    return Slider.adaptive(
       value: _margin,
       onChanged: (value) => setState(() => _margin = value),
       onChangeEnd: (value) => addHaptic(
