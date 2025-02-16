@@ -91,12 +91,13 @@ class _ArrowsState extends State<Arrows> with AutomaticKeepAliveClientMixin {
               ),
             ),
             IconButton(
-                onPressed: () => addHaptic(device.arrowUp),
-                icon: const Icon(
-                  Icons.keyboard_arrow_up,
-                  size: iconSize,
-                  semanticLabel: 'up',
-                )),
+              onPressed: () => addHaptic(device.arrowUp),
+              icon: const Icon(
+                Icons.keyboard_arrow_up,
+                size: iconSize,
+                semanticLabel: 'up',
+              ),
+            ),
             TableCell(
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: ElevatedButton(
@@ -186,26 +187,29 @@ class _PlayControlsState extends State<PlayControls>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-            onPressed: () => addHaptic(device.stop),
-            icon: const Icon(
-              Icons.stop_circle,
-              size: iconSize,
-              semanticLabel: 'stop',
-            )),
+          onPressed: () => addHaptic(device.stop),
+          icon: const Icon(
+            Icons.stop_circle,
+            size: iconSize,
+            semanticLabel: 'stop',
+          ),
+        ),
         IconButton(
-            onPressed: () => addHaptic(device.play),
-            icon: const Icon(
-              Icons.play_arrow,
-              size: iconSize,
-              semanticLabel: 'play',
-            )),
+          onPressed: () => addHaptic(device.play),
+          icon: const Icon(
+            Icons.play_arrow,
+            size: iconSize,
+            semanticLabel: 'play',
+          ),
+        ),
         IconButton(
-            onPressed: () => addHaptic(device.pause),
-            icon: const Icon(
-              Icons.pause,
-              size: iconSize,
-              semanticLabel: 'pause',
-            )),
+          onPressed: () => addHaptic(device.pause),
+          icon: const Icon(
+            Icons.pause,
+            size: iconSize,
+            semanticLabel: 'pause',
+          ),
+        ),
       ],
     );
   }
@@ -232,33 +236,37 @@ class _PositionControlsState extends State<PositionControls>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-            onPressed: () => addHaptic(device.previous),
-            icon: const Icon(
-              Icons.skip_previous,
-              size: iconSize,
-              semanticLabel: 'previous',
-            )),
+          onPressed: () => addHaptic(device.previous),
+          icon: const Icon(
+            Icons.skip_previous,
+            size: iconSize,
+            semanticLabel: 'previous',
+          ),
+        ),
         IconButton(
-            onPressed: () => addHaptic(device.reverse),
-            icon: const Icon(
-              Icons.fast_rewind,
-              size: iconSize,
-              semanticLabel: 'scan reverse',
-            )),
+          onPressed: () => addHaptic(device.reverse),
+          icon: const Icon(
+            Icons.fast_rewind,
+            size: iconSize,
+            semanticLabel: 'scan reverse',
+          ),
+        ),
         IconButton(
-            onPressed: () => addHaptic(device.forward),
-            icon: const Icon(
-              Icons.fast_forward,
-              size: iconSize,
-              semanticLabel: 'scan forward',
-            )),
+          onPressed: () => addHaptic(device.forward),
+          icon: const Icon(
+            Icons.fast_forward,
+            size: iconSize,
+            semanticLabel: 'scan forward',
+          ),
+        ),
         IconButton(
-            onPressed: () => addHaptic(device.next),
-            icon: const Icon(
-              Icons.skip_next,
-              size: iconSize,
-              semanticLabel: 'next',
-            )),
+          onPressed: () => addHaptic(device.next),
+          icon: const Icon(
+            Icons.skip_next,
+            size: iconSize,
+            semanticLabel: 'next',
+          ),
+        ),
       ],
     );
   }
