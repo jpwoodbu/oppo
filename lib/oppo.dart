@@ -2011,7 +2011,7 @@ class Device {
 
   // TODO - This is likely an anti-pattern. The logger might not print which
   // class/method really logged the message. And generally having to both log
-  // nad throw makes it seem like there's a layering violation someplace.
+  // and throw makes it seem like there's a layering violation someplace.
   void _logAndThrow(String message, [Level level = Level.WARNING]) {
     _log.log(level, message);
     throw (message);
