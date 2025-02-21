@@ -12,6 +12,8 @@ import 'position.dart';
 import 'track_info.dart';
 import 'util.dart';
 
+const kApplicationName = 'Unofficial Oppo Remote';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -100,7 +102,7 @@ class Drawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Unofficial Oppo Remote'),
+                  const Text(kApplicationName),
                   Text(device.name, style: smallText),
                   Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
                       style: smallText),
@@ -148,8 +150,11 @@ class Drawer extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.article),
           title: const Text('Licenses'),
-          onTap: () =>
-              showLicensePage(context: context, applicationIcon: appIcon),
+          onTap: () => showLicensePage(
+            context: context,
+            applicationIcon: appIcon,
+            applicationName: kApplicationName,
+          ),
         ),
       ],
     );
