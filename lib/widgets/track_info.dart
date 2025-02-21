@@ -58,7 +58,7 @@ class TrackMetadata extends StatelessWidget {
       },
     );
 
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
+    if (isApple(context)) {
       return CupertinoAlertDialog(
         content: content,
         actions: [CupertinoDialogAction(child: dialogAction)],

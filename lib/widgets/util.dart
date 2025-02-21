@@ -36,3 +36,12 @@ class VerticalIcon extends StatelessWidget {
     );
   }
 }
+
+bool isApple(BuildContext context) {
+  switch (Theme.of(context).platform) {
+    case TargetPlatform.iOS || TargetPlatform.macOS:
+      return true;
+    default:
+      return false;
+  }
+}
