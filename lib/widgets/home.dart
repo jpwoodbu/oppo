@@ -100,7 +100,7 @@ class Drawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Oppo Remote'),
+                  const Text('Unofficial Oppo Remote'),
                   Text(device.name, style: smallText),
                   Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
                       style: smallText),
