@@ -32,6 +32,34 @@ class ScanForDevices extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog.adaptive(
+                  title: const Text('Manually connect'),
+                  content: const TextField(
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    decoration:
+                        InputDecoration(hintText: 'Enter an IPv4 address'),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text('Connect'),
+                    ),
+                  ],
+                );
+              });
+        },
+      ),
       body: SafeArea(
         child: Semantics(
           label: 'list of discovered devices with '
