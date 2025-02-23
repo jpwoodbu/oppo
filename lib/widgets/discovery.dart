@@ -251,30 +251,36 @@ class _ManuallyConnectState extends State<ManuallyConnect> {
 
   @override
   Widget build(BuildContext context) {
+    final hintText = 'Enter an IPv4 address';
     return AlertDialog.adaptive(
       title: const Text('Manually connect'),
       content: isApple(context)
-          ? CupertinoTextField(
-              controller: _controller,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              // This is a workaround for the text being dark on dark when using
-              // a dark theme (the only theme this app uses).
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              placeholder: 'Enter an IPv4 address',
-              suffix: _errorText == null
-                  ? null
-                  : Text(
-                      _errorText!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
+          ? Column(
+              children: [
+                if (_errorText != null)
+                  Text(
+                    _errorText!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                const SizedBox(height: 12.0),
+                CupertinoTextField(
+                  controller: _controller,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  // This is a workaround for the text being dark on dark when using
+                  // a dark theme (the only theme this app uses).
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  placeholder: hintText,
+                ),
+              ],
             )
           : TextField(
               controller: _controller,
               autofocus: true,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: 'Enter an IPv4 address',
+                hintText: hintText,
                 errorText: _errorText,
               ),
             ),
@@ -290,48 +296,33 @@ class _ManuallyConnectState extends State<ManuallyConnect> {
               ),
         isApple(context)
             ? CupertinoDialogAction(
-                onPressed: () {
-                  oppo.OppoID? id;
-                  final address = _controller.text;
-                  try {
-                    id = oppo.OppoID(
-                        InternetAddress(
-                          address,
-                          type: InternetAddressType.IPv4,
-                        ),
-                        23,
-                        'Manually added');
-                  } catch (e) {
-                    setState(() {
-                      _errorText = 'Invalid address';
-                    });
-                  }
-                  if (id != null) _connect(context, id);
-                },
+                onPressed: () => _onPressedConnect(),
                 child: const Text('Connect'),
               )
             : TextButton(
-                onPressed: () {
-                  oppo.OppoID? id;
-                  final address = _controller.text;
-                  try {
-                    id = oppo.OppoID(
-                        InternetAddress(
-                          address,
-                          type: InternetAddressType.IPv4,
-                        ),
-                        23,
-                        'Manually added');
-                  } catch (e) {
-                    setState(() {
-                      _errorText = 'Invalid address';
-                    });
-                  }
-                  if (id != null) _connect(context, id);
-                },
+                onPressed: () => _onPressedConnect(),
                 child: const Text('Connect'),
               ),
       ],
     );
+  }
+
+  void _onPressedConnect() {
+    oppo.OppoID? id;
+    final address = _controller.text;
+    try {
+      id = oppo.OppoID(
+          InternetAddress(
+            address,
+            type: InternetAddressType.IPv4,
+          ),
+          23,
+          'Manually added');
+    } catch (e) {
+      setState(() {
+        _errorText = 'Invalid address';
+      });
+    }
+    if (id != null) _connect(context, id);
   }
 }
