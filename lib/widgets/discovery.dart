@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../oppo.dart' as oppo;
 import '../preferences.dart';
 import 'connect.dart';
+import 'util.dart';
 
 class DiscoveryChanges with ChangeNotifier {
   final oppo.Discover discover;
@@ -35,29 +37,15 @@ class ScanForDevices extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.input),
         onPressed: () {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog.adaptive(
-                  title: const Text('Manually connect'),
-                  content: const TextField(
-                    autofocus: true,
-                    keyboardType: TextInputType.number,
-                    decoration:
-                        InputDecoration(hintText: 'Enter an IPv4 address'),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text('Connect'),
-                    ),
-                  ],
-                );
-              });
+          if (isApple(context)) {
+            showCupertinoDialog(
+                context: context,
+                builder: (BuildContext context) => const ManuallyConnect());
+          } else {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) => const ManuallyConnect());
+          }
         },
       ),
       body: SafeArea(
@@ -160,10 +148,10 @@ class _DevicesState extends State<Devices> {
                           title: Text(e.name),
                           subtitle: Text(e.address.address),
                           trailing: e.address.address == lastDeviceAddress
-                              ? Text('Last connected',
+                              ? Text('Last used',
                                   style: Theme.of(context).textTheme.bodySmall)
                               : null,
-                          onTap: () => _connect(e),
+                          onTap: () => _connect(context, e),
                         ),
                       ),
                     ),
@@ -175,19 +163,129 @@ class _DevicesState extends State<Devices> {
       },
     );
   }
+}
 
-  void _connect(oppo.OppoID id) {
-    // [saveLastDevice] is an async func but making [_connect] async, causes a
-    // warning when passing [context] to Navigator below.
-    saveLastDevice(id);
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (_) => Connect(
-          device: oppo.Device(id.name, id.address, id.port),
-        ),
+void _connect(BuildContext context, oppo.OppoID id) {
+  // [saveLastDevice] is an async func but making [_connect] async, causes a
+  // warning when passing [context] to Navigator below.
+  saveLastDevice(id);
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(
+      builder: (_) => Connect(
+        device: oppo.Device(id.name, id.address, id.port),
       ),
-      (Route<dynamic> route) => false,
+    ),
+    (Route<dynamic> route) => false,
+  );
+}
+
+class ManuallyConnect extends StatefulWidget {
+  const ManuallyConnect({super.key});
+
+  @override
+  State<ManuallyConnect> createState() => _ManuallyConnectState();
+}
+
+class _ManuallyConnectState extends State<ManuallyConnect> {
+  late TextEditingController _controller;
+  String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog.adaptive(
+      title: const Text('Manually connect'),
+      content: isApple(context)
+          ? CupertinoTextField(
+              controller: _controller,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              // This is a workaround for the text being dark on dark when using
+              // a dark theme (the only theme this app uses).
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              placeholder: 'Enter an IPv4 address',
+              suffix: _errorText == null
+                  ? null
+                  : Text(
+                      _errorText!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+            )
+          : TextField(
+              controller: _controller,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: 'Enter an IPv4 address',
+                errorText: _errorText,
+              ),
+            ),
+      actions: [
+        isApple(context)
+            ? CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              )
+            : TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+        isApple(context)
+            ? CupertinoDialogAction(
+                onPressed: () {
+                  oppo.OppoID? id;
+                  final address = _controller.text;
+                  try {
+                    id = oppo.OppoID(
+                        InternetAddress(
+                          address,
+                          type: InternetAddressType.IPv4,
+                        ),
+                        23,
+                        'Manually added');
+                  } catch (e) {
+                    setState(() {
+                      _errorText = 'Invalid address';
+                    });
+                  }
+                  if (id != null) _connect(context, id);
+                },
+                child: const Text('Connect'),
+              )
+            : TextButton(
+                onPressed: () {
+                  oppo.OppoID? id;
+                  final address = _controller.text;
+                  try {
+                    id = oppo.OppoID(
+                        InternetAddress(
+                          address,
+                          type: InternetAddressType.IPv4,
+                        ),
+                        23,
+                        'Manually added');
+                  } catch (e) {
+                    setState(() {
+                      _errorText = 'Invalid address';
+                    });
+                  }
+                  if (id != null) _connect(context, id);
+                },
+                child: const Text('Connect'),
+              ),
+      ],
     );
   }
 }
