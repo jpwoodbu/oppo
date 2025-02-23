@@ -148,10 +148,56 @@ class _DevicesState extends State<Devices> {
                           title: Text(e.name),
                           subtitle: Text(e.address.address),
                           trailing: e.address.address == lastDeviceAddress
-                              ? Text('Last used',
-                                  style: Theme.of(context).textTheme.bodySmall)
+                              ? Text(
+                                  'Last used',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                )
                               : null,
                           onTap: () => _connect(context, e),
+                          onLongPress: () async {
+                            final result = await showDialog<oppo.OppoID?>(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  AlertDialog.adaptive(
+                                title: const Text('Remove device'),
+                                content: const Text(
+                                    'Remove device from list of discovered devices?'),
+                                actions: [
+                                  isApple(context)
+                                      ? CupertinoDialogAction(
+                                          onPressed: () =>
+                                              Navigator.pop(context, null),
+                                          child: const Text('Cancel'))
+                                      : TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, null),
+                                          child: const Text('Cancel'),
+                                        ),
+                                  isApple(context)
+                                      ? CupertinoDialogAction(
+                                          onPressed: () =>
+                                              Navigator.pop(context, e),
+                                          isDestructiveAction: true,
+                                          child: const Text('Remove'))
+                                      : TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, e),
+                                          child: const Text('Remove'),
+                                        ),
+                                ],
+                              ),
+                            );
+                            if (result != null) {
+                              // If the device to remove is the one saved as the
+                              // last device, clear it.
+                              if (e.address.address == lastDeviceAddress) {
+                                await clearLastDevice();
+                              }
+                              setState(() {
+                                ids.remove(e);
+                              });
+                            }
+                          },
                         ),
                       ),
                     ),

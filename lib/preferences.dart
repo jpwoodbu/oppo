@@ -21,6 +21,11 @@ Future<void> saveLastDevice(oppo.OppoID id) async {
   _log.info('Saved last device: ${id.address.address}');
 }
 
+Future<bool> clearLastDevice() async {
+  final p = await SharedPreferences.getInstance();
+  return await p.clear();
+}
+
 class Preferences {
   final SharedPreferences _sharedPreferences;
 
