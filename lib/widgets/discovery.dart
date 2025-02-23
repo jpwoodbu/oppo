@@ -33,7 +33,7 @@ class ScanForDevices extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.input),
         onPressed: () {
           showDialog(
               context: context,
