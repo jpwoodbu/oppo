@@ -12,7 +12,7 @@ import 'position.dart';
 import 'track_info.dart';
 import 'util.dart';
 
-const kApplicationName = 'Unofficial Oppo Remote';
+const kApplicationName = 'Oppo Remote';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
