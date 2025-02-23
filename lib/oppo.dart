@@ -77,7 +77,8 @@ class OppoID {
       // their beacon packet. They were running the Russian Jailbrake firmware
       // on a UDP-203.
       if (line.toUpperCase() == 'NOTIFY OPPO PLAYER SHUTDOWN') {
-        throw 'player reports IP control is shutdown';
+        throw ('Player reports IP control is shutdown; '
+        'If jailbroken, try setting telnet=0 in config.ini.');
       }
       final segments = line.split(':');
       final key = segments[0].trim();
@@ -2539,7 +2540,7 @@ class FakeDevice extends Device {
     if (playbackStatus == PlaybackStatus.playbackPaused) {
       _fakeStream.add('@UPL PLAY');
     } else if (playbackStatus == PlaybackStatus.playbackStopped) {
-      // do nothing 
+      // do nothing
     } else {
       _fakeStream.add('@UPL PAUS');
     }

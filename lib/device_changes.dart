@@ -48,6 +48,10 @@ class DeviceChanges with ChangeNotifier {
       },
       onError: (e) {
         _log.severe(e);
+        if (e is FormatException) {
+          _log.severe(
+              'If jailbroken, try disabling telnet (telnet=0 in config.ini).');
+        }
         _connected = false;
         // If we lose the connection with the app in the foreground, jump to the
         // device discovery page.
