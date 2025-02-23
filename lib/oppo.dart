@@ -73,6 +73,12 @@ class OppoID {
     final decoded = ascii.decode(datagram.data);
     for (final line in decoded.split('\n')) {
       if (line.isEmpty) continue;
+      // One user provided a packet capture showing this being the contents of
+      // their beacon packet. They were running the Russian Jailbrake firmware
+      // on a UDP-203.
+      if (line.toUpperCase() == 'NOTIFY OPPO PLAYER SHUTDOWN') {
+        throw 'player reports IP control is shutdown';
+      }
       final segments = line.split(':');
       final key = segments[0].trim();
       final value = segments[1].trim();
