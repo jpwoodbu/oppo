@@ -17,36 +17,6 @@ const Duration _responseTimeout = Duration(seconds: 10);
 
 final _log = Logger('oppo');
 
-void main() async {
-  Logger.root.level = Level.ALL;
-  Logger.root.onRecord.listen((record) {
-    // ignore: avoid_print
-    print('${record.level.name}: ${record.time}: ${record.message}');
-  });
-
-  Set<OppoID> ids = {};
-  // Uncomment if you want to exercise the discovery feature. Also comment out
-  // the ids.add() call below. While testing on WSL, it's convenient to skip
-  // discovery.
-  // final d = Discover();
-  // final d = ActiveDiscover();
-  // _log.info('Scanning for Oppo UDP-20X players...');
-  // await for (final info in d.listen()) {
-  //   _log.info('Found Oppo device at ${info.address.address}');
-  //   d.close();
-  //   ids.add(info);
-  // }
-  ids.add(OppoID(InternetAddress('192.168.86.139'), _serialPort, 'unknown'));
-
-  if (ids.isNotEmpty) {
-    var info = ids.first;
-    final device = Device(info.name, info.address, info.port);
-    await device.connect();
-    await device.startListener();
-    await device.engage();
-  }
-}
-
 class OppoID {
   InternetAddress address;
   int port;
