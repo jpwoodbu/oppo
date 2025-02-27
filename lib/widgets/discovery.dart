@@ -266,7 +266,8 @@ class _ManuallyConnectState extends State<ManuallyConnect> {
                 CupertinoTextField(
                   controller: _controller,
                   autofocus: true,
-                  keyboardType: TextInputType.number,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   // This is a workaround for the text being dark on dark when using
                   // a dark theme (the only theme this app uses).
                   style:
