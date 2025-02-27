@@ -64,8 +64,15 @@ class Clock extends StatelessWidget {
     if (p == null) {
       return const SizedBox(height: _iconSize, width: _iconSize);
     }
-    return Text('${p.timeInformation.displayName}: ${p.clock}',
-        style: Theme.of(context).textTheme.bodySmall);
+
+    final style = Theme.of(context).textTheme.bodySmall;
+    // Hide the time information type (e.g. elapsed vs. remaining time) on very
+    // small screens. At 346 logical pixels there's not room for all the widgets
+    // on a single row. We're using MediaQuery here instead of LayoutBuilder
+    // because this widget is wrapped in a Row which has an infinite max width.
+    return MediaQuery.sizeOf(context).width > 346.0
+        ? Text('${p.timeInformation.displayName}: ${p.clock}', style: style)
+        : Text(p.clock, style: style);
   }
 }
 

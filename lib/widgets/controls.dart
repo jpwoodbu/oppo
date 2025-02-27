@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oppo/device_changes.dart';
@@ -75,94 +77,96 @@ class _ArrowsState extends State<Arrows> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final device = context.read<DeviceChanges>().device;
-    const iconSize = 100.0;
-    return Table(
-      defaultColumnWidth: const IntrinsicColumnWidth(),
-      children: <TableRow>[
-        TableRow(
-          children: [
-            TableCell(
-              verticalAlignment: TableCellVerticalAlignment.middle,
-              child: ElevatedButton(
-                onPressed: () => addHaptic(device.topMenu),
-                child: const VerticalIcon(
-                    icon: Icon(Icons.navigation), label: 'Top'),
-              ),
-            ),
-            IconButton(
-              onPressed: () => addHaptic(device.arrowUp),
-              icon: const Icon(
-                Icons.keyboard_arrow_up,
-                size: iconSize,
-                semanticLabel: 'up',
-              ),
-            ),
-            TableCell(
-              verticalAlignment: TableCellVerticalAlignment.middle,
-              child: ElevatedButton(
-                onPressed: () => addHaptic(device.popupMenu),
-                child: const VerticalIcon(
-                    icon: Icon(Icons.article), label: 'Pop-up'),
-              ),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            IconButton(
-                onPressed: () => addHaptic(device.arrowLeft),
-                icon: const Icon(
-                  Icons.keyboard_arrow_left,
-                  size: iconSize,
-                  semanticLabel: 'left',
-                )),
-            IconButton(
-                onPressed: () => addHaptic(device.enter),
-                icon: const Icon(
-                  Icons.circle_outlined,
-                  size: iconSize,
-                  semanticLabel: 'enter',
-                )),
-            IconButton(
-                onPressed: () => addHaptic(device.arrowRight),
-                icon: const Icon(
-                  Icons.keyboard_arrow_right,
-                  size: iconSize,
-                  semanticLabel: 'right',
-                )),
-          ],
-        ),
-        TableRow(
-          children: [
-            TableCell(
-              verticalAlignment: TableCellVerticalAlignment.middle,
-              child: ElevatedButton(
-                onPressed: () => addHaptic(device.option),
-                child: const VerticalIcon(
-                    icon: Icon(Icons.emergency), label: 'Option'),
-              ),
-            ),
-            IconButton(
-                onPressed: () => addHaptic(device.arrowDown),
-                icon: const Icon(
-                  Icons.keyboard_arrow_down,
-                  size: iconSize,
-                  semanticLabel: 'down',
-                )),
-            TableCell(
-              verticalAlignment: TableCellVerticalAlignment.middle,
-              child: ElevatedButton(
-                  onPressed: () => addHaptic(device.returnToPrevious),
+    return LayoutBuilder(builder: (_, constraints) {
+      final device = context.read<DeviceChanges>().device;
+      final iconSize = min<double>(constraints.maxWidth / 4, 100.0);
+      return Table(
+        defaultColumnWidth: const IntrinsicColumnWidth(),
+        children: <TableRow>[
+          TableRow(
+            children: [
+              TableCell(
+                verticalAlignment: TableCellVerticalAlignment.middle,
+                child: ElevatedButton(
+                  onPressed: () => addHaptic(device.topMenu),
                   child: const VerticalIcon(
-                    icon: Icon(Icons.arrow_back),
-                    label: 'Return',
+                      icon: Icon(Icons.navigation), label: 'Top'),
+                ),
+              ),
+              IconButton(
+                onPressed: () => addHaptic(device.arrowUp),
+                icon: Icon(
+                  Icons.keyboard_arrow_up,
+                  size: iconSize,
+                  semanticLabel: 'up',
+                ),
+              ),
+              TableCell(
+                verticalAlignment: TableCellVerticalAlignment.middle,
+                child: ElevatedButton(
+                  onPressed: () => addHaptic(device.popupMenu),
+                  child: const VerticalIcon(
+                      icon: Icon(Icons.article), label: 'Pop-up'),
+                ),
+              ),
+            ],
+          ),
+          TableRow(
+            children: [
+              IconButton(
+                  onPressed: () => addHaptic(device.arrowLeft),
+                  icon: Icon(
+                    Icons.keyboard_arrow_left,
+                    size: iconSize,
+                    semanticLabel: 'left',
                   )),
-            ),
-          ],
-        ),
-      ],
-    );
+              IconButton(
+                  onPressed: () => addHaptic(device.enter),
+                  icon: Icon(
+                    Icons.circle_outlined,
+                    size: iconSize,
+                    semanticLabel: 'enter',
+                  )),
+              IconButton(
+                  onPressed: () => addHaptic(device.arrowRight),
+                  icon: Icon(
+                    Icons.keyboard_arrow_right,
+                    size: iconSize,
+                    semanticLabel: 'right',
+                  )),
+            ],
+          ),
+          TableRow(
+            children: [
+              TableCell(
+                verticalAlignment: TableCellVerticalAlignment.middle,
+                child: ElevatedButton(
+                  onPressed: () => addHaptic(device.option),
+                  child: const VerticalIcon(
+                      icon: Icon(Icons.emergency), label: 'Option'),
+                ),
+              ),
+              IconButton(
+                  onPressed: () => addHaptic(device.arrowDown),
+                  icon: Icon(
+                    Icons.keyboard_arrow_down,
+                    size: iconSize,
+                    semanticLabel: 'down',
+                  )),
+              TableCell(
+                verticalAlignment: TableCellVerticalAlignment.middle,
+                child: ElevatedButton(
+                    onPressed: () => addHaptic(device.returnToPrevious),
+                    child: const VerticalIcon(
+                      icon: Icon(Icons.arrow_back),
+                      label: 'Return',
+                    )),
+              ),
+            ],
+          ),
+        ],
+      );
+    });
   }
 }
 
@@ -181,37 +185,39 @@ class _PlayControlsState extends State<PlayControls>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final device = context.read<DeviceChanges>().device;
-    const iconSize = 85.0;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: () => addHaptic(device.stop),
-          icon: const Icon(
-            Icons.stop_circle,
-            size: iconSize,
-            semanticLabel: 'stop',
+    return LayoutBuilder(builder: (_, constraints) {
+      final device = context.read<DeviceChanges>().device;
+      final iconSize = min<double>(constraints.maxWidth / 4, 85.0);
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: () => addHaptic(device.stop),
+            icon: Icon(
+              Icons.stop_circle,
+              size: iconSize,
+              semanticLabel: 'stop',
+            ),
           ),
-        ),
-        IconButton(
-          onPressed: () => addHaptic(device.play),
-          icon: const Icon(
-            Icons.play_arrow,
-            size: iconSize,
-            semanticLabel: 'play',
+          IconButton(
+            onPressed: () => addHaptic(device.play),
+            icon: Icon(
+              Icons.play_arrow,
+              size: iconSize,
+              semanticLabel: 'play',
+            ),
           ),
-        ),
-        IconButton(
-          onPressed: () => addHaptic(device.pause),
-          icon: const Icon(
-            Icons.pause,
-            size: iconSize,
-            semanticLabel: 'pause',
+          IconButton(
+            onPressed: () => addHaptic(device.pause),
+            icon: Icon(
+              Icons.pause,
+              size: iconSize,
+              semanticLabel: 'pause',
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
 
@@ -230,45 +236,47 @@ class _PositionControlsState extends State<PositionControls>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final device = context.read<DeviceChanges>().device;
-    const iconSize = 65.0;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: () => addHaptic(device.previous),
-          icon: const Icon(
-            Icons.skip_previous,
-            size: iconSize,
-            semanticLabel: 'previous',
+    return LayoutBuilder(builder: (_, constraints) {
+      final device = context.read<DeviceChanges>().device;
+      final iconSize = min<double>(constraints.maxWidth / 6, 65.0);
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: () => addHaptic(device.previous),
+            icon: Icon(
+              Icons.skip_previous,
+              size: iconSize,
+              semanticLabel: 'previous',
+            ),
           ),
-        ),
-        IconButton(
-          onPressed: () => addHaptic(device.reverse),
-          icon: const Icon(
-            Icons.fast_rewind,
-            size: iconSize,
-            semanticLabel: 'scan reverse',
+          IconButton(
+            onPressed: () => addHaptic(device.reverse),
+            icon: Icon(
+              Icons.fast_rewind,
+              size: iconSize,
+              semanticLabel: 'scan reverse',
+            ),
           ),
-        ),
-        IconButton(
-          onPressed: () => addHaptic(device.forward),
-          icon: const Icon(
-            Icons.fast_forward,
-            size: iconSize,
-            semanticLabel: 'scan forward',
+          IconButton(
+            onPressed: () => addHaptic(device.forward),
+            icon: Icon(
+              Icons.fast_forward,
+              size: iconSize,
+              semanticLabel: 'scan forward',
+            ),
           ),
-        ),
-        IconButton(
-          onPressed: () => addHaptic(device.next),
-          icon: const Icon(
-            Icons.skip_next,
-            size: iconSize,
-            semanticLabel: 'next',
+          IconButton(
+            onPressed: () => addHaptic(device.next),
+            icon: Icon(
+              Icons.skip_next,
+              size: iconSize,
+              semanticLabel: 'next',
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
 
