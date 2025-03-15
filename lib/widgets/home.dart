@@ -13,6 +13,8 @@ import 'track_info.dart';
 import 'util.dart';
 
 const kApplicationName = 'Oppo Remote';
+// Apple is complaining about using other's intellectual property.
+const kAppleApplicationName = 'Remote Control';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -102,7 +104,9 @@ class Drawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(kApplicationName),
+                  Text(isApple(context)
+                      ? kAppleApplicationName
+                      : kApplicationName),
                   Text(device.name, style: smallText),
                   Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
                       style: smallText),
@@ -153,7 +157,8 @@ class Drawer extends StatelessWidget {
           onTap: () => showLicensePage(
             context: context,
             applicationIcon: appIcon,
-            applicationName: kApplicationName,
+            applicationName:
+                isApple(context) ? kAppleApplicationName : kApplicationName,
           ),
         ),
       ],
