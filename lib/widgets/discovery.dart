@@ -11,20 +11,16 @@ import 'package:oppo/widgets/connect.dart';
 import 'package:oppo/widgets/util.dart';
 
 class DiscoveryChanges with ChangeNotifier {
-  final oppo.Discover discover;
-  late Stream<oppo.OppoID> _stream;
   final Set<oppo.OppoID> devices = {};
+  final oppo.Discover _discover;
+  late Stream<oppo.OppoID> _stream;
 
-  DiscoveryChanges(this.discover) {
-    _stream = discover.listen();
-    _handleBroadcasts();
-  }
-
-  Future<void> _handleBroadcasts() async {
-    await for (final broadcast in _stream) {
+  DiscoveryChanges(this._discover) {
+    _stream = _discover.stream();
+    _stream.listen((oppo.OppoID broadcast) {
       devices.add(broadcast);
       notifyListeners();
-    }
+    });
   }
 }
 

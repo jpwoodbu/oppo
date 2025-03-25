@@ -17,6 +17,12 @@ const Duration _kResponseTimeout = Duration(seconds: 10);
 
 final _log = Logger('oppo');
 
+/// Data from the discovery broadcast packet sent periodically by the player.
+///
+/// The player broadcasts information about itself every 10s. In particular, the
+/// [port] on which to connect for remote control and its [name]. It tells us
+/// its [address] too, even though that's easily gotten from the IP packet
+/// header.
 class OppoID {
   InternetAddress address;
   int port;
@@ -27,6 +33,9 @@ class OppoID {
   @override
   int get hashCode => address.address.hashCode ^ port.hashCode;
 
+  /// [OppoID]s which are the same object or which have the same IP address and
+  /// port are considered equal. This is done so that [OppoID]s can be added to
+  /// a set for deduplication.
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -56,20 +65,16 @@ class OppoID {
       switch (key) {
         case 'Server IP':
           address = InternetAddress(value);
-          break;
         case 'Server Port':
           port = int.parse(value);
-          break;
         case 'Server Name':
           name = value;
-          break;
         case 'Notify':
           // This is the broadcast packet prefix. It has no data we need. And it
           // doesn't seem necessary to verify its contents.
           break;
         default:
           _log.warning('Unrecognized line in broadcast packet: $line');
-          break;
       }
     }
     if (address == null) throw 'failed to find IP address';
@@ -77,6 +82,7 @@ class OppoID {
     return OppoID(address, port, name);
   }
 
+  /// Parses the OEMOTE LOGIN response. See [ActiveDiscover].
   factory OppoID.fromOremoteLoginResponse(Datagram datagram) {
     InternetAddress? address;
     String name = '';
@@ -96,30 +102,47 @@ class OppoID {
   }
 }
 
+/// Listens for beacon broadcast packets sent by players.
+///
+/// Players are expected to send a beacon broadcast packet every 10s which
+/// describes how to connect to them for remote control.
 class Discover {
   RawDatagramSocket? _socket;
 
+  /// Closes the socket opened by [stream].
+  ///
+  /// Calling [close] is safe at any time. If the socket opened by [stream] is
+  /// not yet opened or has already been closed, this method is a no-op.
   void close() {
-    if (_socket != null) {
-      _socket!.close();
-      _log.fine('No longer listening for Oppo beacon packets.');
-    }
+    if (_socket == null) return;
+    _socket!.close();
   }
 
-  Stream<OppoID> listen() async* {
+  /// Streams [OppoID]s as beacon packets are observed on the network.
+  ///
+  /// Calling [stream] also opens a socket for listening for beacon packets. You
+  /// must call [close] to close that socket.
+  Stream<OppoID> stream() async* {
     _socket =
         await RawDatagramSocket.bind(InternetAddress.anyIPv4, _kBroadcastPort);
     _socket!.writeEventsEnabled = false;
     _log.info('Listening for Oppo beacon packets.');
     await for (final event in _socket!) {
-      if (event == RawSocketEvent.read) {
-        final datagram = _socket!.receive();
-        if (datagram == null) continue;
-        try {
-          yield OppoID.fromBeacon(datagram);
-        } catch (e) {
-          _log.warning('Failed to parse beacon packet: $e');
-        }
+      switch (event) {
+        case RawSocketEvent.read:
+          final datagram = _socket!.receive();
+          if (datagram == null) continue;
+          try {
+            yield OppoID.fromBeacon(datagram);
+          } catch (e) {
+            _log.warning('Failed to parse beacon packet: $e');
+          }
+        case RawSocketEvent.write:
+          continue;
+        case RawSocketEvent.readClosed:
+        case RawSocketEvent.closed:
+          _socket = null;
+          _log.fine('No longer listening for Oppo beacon packets.');
       }
     }
   }
@@ -138,22 +161,23 @@ class ActiveDiscover {
   static const _pingMessage = 'NOTIFY OREMOTE LOGIN';
 
   Future<void> _open() async {
-    if (_socket == null) {
-      try {
-        _socket = await RawDatagramSocket.bind(
-            InternetAddress.anyIPv4, _kBroadcastPort);
-        _socket!.broadcastEnabled = true;
-      } catch (e) {
-        _log.severe('Unable to bind socket for ActiveDiscover: $e');
-      }
+    if (_socket != null) return;
+    try {
+      _socket = await RawDatagramSocket.bind(
+          InternetAddress.anyIPv4, _kBroadcastPort);
+      _socket!.broadcastEnabled = true;
+    } catch (e) {
+      _log.severe('Unable to bind socket for ActiveDiscover: $e');
     }
   }
 
+  /// Closes the socket opened by [stream].
+  ///
+  /// Calling [close] is safe at any time. If the socket opened by [stream] is
+  /// not yet opened or has already been closed, this method is a no-op.
   void close() {
-    if (_socket != null) {
-      _socket!.close();
-      _log.fine('No longer listening for Oppo OREMOTE LOGIN packets.');
-    }
+    if (_socket == null) return;
+    _socket!.close();
   }
 
   /// Sends the "call" part of the call and response.
@@ -172,21 +196,33 @@ class ActiveDiscover {
     }
   }
 
-  Stream<OppoID> listen() async* {
+  /// Streams [OppoID]s as OREMOTE LOGIN responses are received.
+  ///
+  /// A listening socket is created and a [ping] sent when [stream] is called.
+  /// You're welcome to call [ping] as many times as you like after [stream] is
+  /// called, but it's likely unnecessary.
+  Stream<OppoID> stream() async* {
     await ping(); // [ping] also creates the socket.
     await for (final event in _socket!) {
-      if (event == RawSocketEvent.read) {
-        final datagram = _socket!.receive();
-        if (datagram == null) continue;
-        // Since we broadcast the ping on the same port we listen for the
-        // response, we're going to see our own ping message. We meed to ignore
-        // it.
-        if (ascii.decode(datagram.data) == _pingMessage) continue;
-        try {
-          yield OppoID.fromOremoteLoginResponse(datagram);
-        } catch (e) {
-          _log.warning('Failed to parse OREMOTE LOGIN response packet: $e');
-        }
+      switch (event) {
+        case RawSocketEvent.read:
+          final datagram = _socket!.receive();
+          if (datagram == null) continue;
+          // Since we broadcast the ping on the same port we listen for the
+          // response, we're going to see our own ping message. We meed to ignore
+          // it.
+          if (ascii.decode(datagram.data) == _pingMessage) continue;
+          try {
+            yield OppoID.fromOremoteLoginResponse(datagram);
+          } catch (e) {
+            _log.warning('Failed to parse OREMOTE LOGIN response packet: $e');
+          }
+        case RawSocketEvent.write:
+          continue;
+        case RawSocketEvent.readClosed:
+        case RawSocketEvent.closed:
+          _log.fine('No longer listening for Oppo OREMOTE LOGIN packets.');
+          _socket = null;
       }
     }
   }
@@ -1009,8 +1045,7 @@ class Device {
   /// This is handy for call and response flows where you want to block until
   /// the response has been received.
   // A broadcast stream is used here so functions can start and stop listening.
-  final StreamController<Response> _responses =
-      StreamController<Response>.broadcast();
+  final _responses = StreamController<Response>.broadcast();
   Socket? _socket;
   VerboseMode? verboseMode;
   bool? powered;
@@ -1145,8 +1180,8 @@ class Device {
   /// Flutter apps will probably want to implement a function like this inside a
   /// Provider/Consumer system. But for testing this package, it's handy to have
   /// this function.
-  // I don't know why this function needs to be async. But if it's not,
-  // then it seems we might send a command before we start listening for
+  // TODO(jpwoodbu) Figure out why this function needs to be async to avoid the
+  // possibility we send a command before we start listening for
   // responses.
   Future<void> startListener() async {
     stream().listen((event) {
@@ -1163,7 +1198,7 @@ class Device {
     messages.forEach(_parseMessage);
   }
 
-  /// Splits a event off the stream into one or more messages.
+  /// Splits an event off the stream into one or more messages.
   ///
   /// We can sometimes get multiple messages in a single event from the stream.
   /// Especially when a response to a query comes back around the same time as
@@ -1240,7 +1275,6 @@ class Device {
         } else {
           _log.severe('Invalid UPW parameter: $parameters');
         }
-        break;
       case 'UPL':
         try {
           playbackStatus = PlaybackStatus.fromTypeCode(parameters);
@@ -1253,7 +1287,6 @@ class Device {
         if (playbackStatus == PlaybackStatus.playbackStopped) {
           _clearFields();
         }
-        break;
       case 'UVL':
         VolumeResponse r;
         try {
@@ -1264,14 +1297,12 @@ class Device {
         }
         muted = r.muted;
         volume = r.volume;
-        break;
       case 'UDT':
         try {
           discType = DiscType.fromTypeCode(parameters);
         } catch (e) {
           _log.severe(e);
         }
-        break;
       case 'UAT':
         _AudioTypeUpdate update;
         try {
@@ -1289,7 +1320,6 @@ class Device {
         availableAudioTracks = update.availableTracks;
         audioLanguage = update.language;
         channels = update.channels;
-        break;
       case 'UST':
         _SubtitleTypeUpdate update;
         try {
@@ -1301,7 +1331,6 @@ class Device {
         currentSubtitleTrack = update.currentTrack;
         availableSubtitleTracks = update.availableTracks;
         subtitleLanguage = update.language;
-        break;
       case 'UIS':
         _InputSourceUpdate update;
         try {
@@ -1312,14 +1341,12 @@ class Device {
         }
         inputSourceNumber = update.inputSourceNumber;
         inputSourceName = update.inputSourceName;
-        break;
       case 'U3D':
         if (parameters.trim() == '3D') {
           threeDimensional = true;
         } else {
           threeDimensional = false;
         }
-        break;
       case 'UAR':
         try {
           aspectRatioSetting =
@@ -1327,7 +1354,6 @@ class Device {
         } catch (e) {
           _log.severe(e);
         }
-        break;
       case 'UTC':
         position = Position.fromTimeCodeUpdate(parameters);
         if (position?.clock == '00:00:01') {
@@ -1355,7 +1381,6 @@ class Device {
             // log
           }
         }
-        break;
       case 'UVO':
         _VideoResolutionUpdate update;
         try {
@@ -1366,22 +1391,14 @@ class Device {
         }
         contentResolution = update.contentResolution;
         outputResolution = update.outputResolution;
-        break;
       case 'USB':
-        switch (parameters) {
-          case 'IN':
-            usbIn = true;
-            break;
-          case 'OU':
-            usbIn = false;
-            break;
-          default:
-            usbIn = null;
-            break;
-        }
+        usbIn = switch (parameters) {
+          'IN' => true,
+          'OU' => false,
+          _ => null,
+        };
       default:
         _log.severe('[U] Unsupported command code: $commandCode');
-        break;
     }
   }
 
@@ -1397,6 +1414,7 @@ class Device {
   }
 
   Future<void> _command(String code, {String parameters = ''}) async {
+    // Check if we're still waiting on a response from a prior command.
     if (_lastCommandTimestamp != null) {
       final waiting = DateTime.now().difference(_lastCommandTimestamp!);
       if (waiting > const Duration(seconds: 10)) {
@@ -1412,28 +1430,28 @@ class Device {
           () => _command(code, parameters: parameters));
       return;
     }
-    final socket = _socket;
     final c = _formatCommand(code, parameters);
-    if (socket != null) {
+    if (_socket == null) {
+      _log.severe('Socket is not open. Unable to send command code: $code');
+    } else {
       _log.info('Sending command: $c');
-      socket.write(c);
+      _socket!.write(c);
       _lastCommandTimestamp = DateTime.now();
       _lastCommandCode = code;
-    } else {
-      _log.severe('Socket is not open. Unable to send command code: $code');
     }
   }
 
-  /// Wrapper to simulate procedural call symantecs for a command.
+  /// Wrapper to simulate procedural call semantecs for a command.
   ///
-  /// This method blocks until a response is received for the command or until a
-  /// preset timeout is reached, in which case an exception is thrown.
+  /// This Future doesn't complete until a response is received for the command
+  /// or until a preset timeout is reached, in which case an exception is
+  /// thrown.
   Future<Response> _rpc(String code, {String parameters = ''}) async {
-    Response response = const Response();
+    await _command(code, parameters: parameters);
     // Because with verboseMode.detailed, we might get unsoliticed responses, we
     // need to check all responses in a loop until we get a response to our last
     // command, or we timeout.
-    await _command(code, parameters: parameters);
+    var response = const Response();
     await for (final r in _responses.stream.timeout(_kResponseTimeout)) {
       if (r.commandCode == code) {
         response = r;
@@ -1494,7 +1512,7 @@ class Device {
   Future<void> stop() async {
     final response = await _rpc('STP');
     // It's been observed that in some cases, when a FULL STOP response is
-    // returned, there's no update regarding playback status having changed.
+    // returned, there's no update regarding the playback status having changed.
     if (response.parameters == 'FULL STOP') {
       playbackStatus = PlaybackStatus.playbackStopped;
       _clearFields();
@@ -1530,11 +1548,13 @@ class Device {
 
   /// Set A/B repeat play points.
   Future<void> repeatAB() => _command('ATB');
+
   Future<void> repeat() => _command('RPT');
 
   /// Picture-in-picture toggle.
   /// WARNING: Doesn't get a response on my UDP-203.
   Future<void> pipToggle() => _command('PIP');
+
   Future<void> outputResolutionCycle() => _command('HDM');
   // Same as subtitle hold.
   Future<void> subtitleShift() => _command('SUH');
@@ -1546,14 +1566,14 @@ class Device {
 
   /// Show defailed info. The same operation as long pressing the info button.
   Future<void> infoDetailed() => _command('INH');
-  Future<void> audioVideoSyncMenu() => _command('AVS');
 
+  Future<void> audioVideoSyncMenu() => _command('AVS');
   Future<void> inputMenu() => _command('SRC');
 
   /// No operation.
   ///
-  /// This command is documented and therefore included. Probably it's only
-  /// useful for testing.
+  /// This command is in the Oppo API documentation and therefore included.
+  /// It's probably only useful for testing.
   Future<void> noOp() => _command('NOP');
 
   Future<void> setVerboseMode(VerboseMode mode) async {
@@ -1950,16 +1970,15 @@ class Device {
     if (index < 1) throw 'index must be a positive int.';
     final r = await _rpc('QDR', parameters: index.toString());
     final parameters = r.parameters!;
-    DirectoryItemType type;
-    String name;
+    // If no type parameter is provided, it seems we should assume the type is
+    // file.
+    var type = DirectoryItemType.file;
+    var name = parameters.trim();
     try {
       type = DirectoryItemType.fromTypeCode(parameters[0]);
       name = parameters.substring(1).trim();
     } catch (_) {
-      // If no type parameter is provided, it seems we should assume the type is
-      // file.
-      type = DirectoryItemType.file;
-      name = parameters.trim();
+      // Use the default values if there was a parsing error.
     }
     return DirectoryItem(type, name);
   }
@@ -1997,7 +2016,7 @@ class Device {
     throw (message);
   }
 
-  dynamic _httpRpc(String path) async {
+  Future<dynamic> _httpRpc(String path) async {
     _log.info('Making HTTP RPC to $path');
     final response = await http.get(_uri(path));
     if (response.statusCode != 200) {
