@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-const String knownIssuesHeader =
+const String _kKnownIssuesHeader =
     "Oppo hasn't sold Blu-ray players in the US since 2018. Firmware updates stopped soon thereafter. Unsurprisingly, there are some quirks with using their network control API, including incomplete functionality and stability issues.";
 
-const String knownIssue1 =
+const String _kKnownIssue1 =
     "1. The documented API does not provide a way to directly select a directory item. This app does not implement a directory/file viewer, since without item selection, it wouldn't be sufficiently useful.";
-const String knownIssue2 =
+const String _kKnownIssue2 =
     "2. The player often returns \"unknown\" for the audio type even when the OSD will display it.";
-const String knownIssue3 =
+const String _kKnownIssue3 =
     "3. Only a single IP remote can be connected to the player at a time.";
 
 class KnownIssues extends StatelessWidget {
@@ -26,13 +26,13 @@ class KnownIssues extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: ListView(
               children: const [
-                Text(knownIssuesHeader),
+                Text(_kKnownIssuesHeader),
                 Divider(),
-                Text(knownIssue1),
+                Text(_kKnownIssue1),
                 Divider(),
-                Text(knownIssue2),
+                Text(_kKnownIssue2),
                 Divider(),
-                Text(knownIssue3),
+                Text(_kKnownIssue3),
               ],
             ),
           ),

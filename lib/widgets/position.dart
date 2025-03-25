@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:oppo/device_changes.dart';
 import 'package:oppo/oppo.dart' as oppo;
 
-const _iconSize = 20.0;
-const _scrubPadding = 2.0;
+const _kIconSize = 20.0;
+const _kScrubPadding = 2.0;
 
 class Position extends StatelessWidget {
   const Position({super.key});
@@ -21,7 +21,7 @@ class Position extends StatelessWidget {
               children: [
                 PlaybackStatusIcon(),
                 ClockRow(),
-                SizedBox(width: _iconSize, height: _iconSize),
+                SizedBox(width: _kIconSize, height: _kIconSize),
               ],
             )
           : const SizedBox(),
@@ -36,7 +36,7 @@ class PositionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(icon, size: _iconSize);
+    return Icon(icon, size: _kIconSize);
   }
 }
 
@@ -62,7 +62,7 @@ class Clock extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.select((DeviceChanges d) => d.device.position);
     if (p == null) {
-      return const SizedBox(height: _iconSize, width: _iconSize);
+      return const SizedBox(height: _kIconSize, width: _kIconSize);
     }
 
     final style = Theme.of(context).textTheme.bodySmall;
@@ -96,13 +96,13 @@ class Rewind extends StatelessWidget {
             oppo.PlaybackStatus.slowReverseSixteenth ||
             oppo.PlaybackStatus.slowReverseThirtySecond:
         return const Padding(
-          padding: EdgeInsets.only(right: _scrubPadding),
+          padding: EdgeInsets.only(right: _kScrubPadding),
           child: PositionIcon(icon: Icons.fast_rewind),
         );
       default:
         return const Padding(
-          padding: EdgeInsets.only(right: _scrubPadding),
-          child: SizedBox(height: _iconSize, width: _iconSize),
+          padding: EdgeInsets.only(right: _kScrubPadding),
+          child: SizedBox(height: _kIconSize, width: _kIconSize),
         );
     }
   }
@@ -128,13 +128,13 @@ class FastForward extends StatelessWidget {
             oppo.PlaybackStatus.slowForwardSixteenth ||
             oppo.PlaybackStatus.slowForwardThirtySecond:
         return const Padding(
-          padding: EdgeInsets.only(left: _scrubPadding),
+          padding: EdgeInsets.only(left: _kScrubPadding),
           child: PositionIcon(icon: Icons.fast_forward),
         );
       default:
         return const Padding(
-          padding: EdgeInsets.only(left: _scrubPadding),
-          child: SizedBox(height: _iconSize, width: _iconSize),
+          padding: EdgeInsets.only(left: _kScrubPadding),
+          child: SizedBox(height: _kIconSize, width: _kIconSize),
         );
     }
   }
@@ -147,7 +147,7 @@ class PlaybackStatusIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final playbackStatus =
         context.select((DeviceChanges d) => d.device.playbackStatus);
-    const noIcon = SizedBox(width: _iconSize, height: _iconSize);
+    const noIcon = SizedBox(width: _kIconSize, height: _kIconSize);
     switch (playbackStatus) {
       case oppo.PlaybackStatus.noDisc:
         return const PositionIcon(icon: Icons.disc_full);
@@ -155,7 +155,7 @@ class PlaybackStatusIcon extends StatelessWidget {
         return const PositionIcon(icon: Icons.downloading);
       case oppo.PlaybackStatus.openTray:
         return Icon(Icons.eject,
-            size: _iconSize, color: Theme.of(context).colorScheme.tertiary);
+            size: _kIconSize, color: Theme.of(context).colorScheme.tertiary);
       case oppo.PlaybackStatus.closingTray:
         return const PositionIcon(icon: Icons.eject);
       case oppo.PlaybackStatus.playbackStarted:

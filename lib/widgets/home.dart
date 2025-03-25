@@ -12,9 +12,9 @@ import 'package:oppo/widgets/position.dart';
 import 'package:oppo/widgets/track_info.dart';
 import 'package:oppo/widgets/util.dart';
 
-const kApplicationName = 'Oppo Remote';
+const _kApplicationName = 'Oppo Remote';
 // Apple is complaining about using other's intellectual property.
-const kAppleApplicationName = 'Remote Control';
+const _kAppleApplicationName = 'Remote Control';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -105,8 +105,8 @@ class Drawer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(isApple(context)
-                      ? kAppleApplicationName
-                      : kApplicationName),
+                      ? _kAppleApplicationName
+                      : _kApplicationName),
                   Text(device.name, style: smallText),
                   Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
                       style: smallText),
@@ -158,7 +158,7 @@ class Drawer extends StatelessWidget {
             context: context,
             applicationIcon: appIcon,
             applicationName:
-                isApple(context) ? kAppleApplicationName : kApplicationName,
+                isApple(context) ? _kAppleApplicationName : _kApplicationName,
           ),
         ),
       ],
