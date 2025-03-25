@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../device_changes.dart';
-import '../oppo.dart' as oppo;
+import 'package:oppo/device_changes.dart';
+import 'package:oppo/oppo.dart' as oppo;
 
 const String _noInformation = '--';
 

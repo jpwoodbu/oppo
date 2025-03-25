@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:logging_flutter/logging_flutter.dart';
 
-import 'widgets/discovery.dart';
-import 'widgets/util.dart';
+import 'package:oppo/widgets/discovery.dart';
+import 'package:oppo/widgets/util.dart';
 
 void main() {
   Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;

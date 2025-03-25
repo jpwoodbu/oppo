@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:logging_flutter/logging_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../device_changes.dart';
-import 'controls.dart';
-import 'discovery.dart';
-import 'display.dart';
-import 'info.dart';
-import 'number_pad.dart';
-import 'position.dart';
-import 'track_info.dart';
-import 'util.dart';
+import 'package:oppo/device_changes.dart';
+import 'package:oppo/widgets/controls.dart';
+import 'package:oppo/widgets/discovery.dart';
+import 'package:oppo/widgets/display.dart';
+import 'package:oppo/widgets/info.dart';
+import 'package:oppo/widgets/number_pad.dart';
+import 'package:oppo/widgets/position.dart';
+import 'package:oppo/widgets/track_info.dart';
+import 'package:oppo/widgets/util.dart';
 
 const kApplicationName = 'Oppo Remote';
 // Apple is complaining about using other's intellectual property.

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:oppo/device_changes.dart';
 import 'package:provider/provider.dart';
 
-import '../oppo.dart' as oppo;
-import 'util.dart';
+import 'package:oppo/oppo.dart' as oppo;
+import 'package:oppo/widgets/util.dart';
 
 class HomeRow extends StatefulWidget {
   const HomeRow({super.key});

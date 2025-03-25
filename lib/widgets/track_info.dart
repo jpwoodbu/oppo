@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import '../oppo.dart' as oppo;
-import 'util.dart';
+import 'package:oppo/oppo.dart' as oppo;
+import 'package:oppo/widgets/util.dart';
 
 final _log = Logger('track_info');
 

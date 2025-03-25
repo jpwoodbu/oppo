@@ -1,7 +1,7 @@
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'oppo.dart' as oppo;
+import 'package:oppo/oppo.dart' as oppo;
 
 const String _settingLastDeviceName = 'lastDeviceName';
 const String _settingLastDeviceAddress = 'lastDeviceAddress';

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
 
-import 'widgets/discovery.dart';
-import 'oppo.dart';
+import 'package:oppo/widgets/discovery.dart';
+import 'package:oppo/oppo.dart';
 
 final _log = Logger('DeviceChanges');
 
