@@ -77,9 +77,10 @@ class ConnectionError extends StatelessWidget {
             const Text('Error connecting to device.'),
             TextButton(
               onPressed: () => Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ScanForDevices()),
-                  (Route<dynamic> route) => false),
+                context,
+                MaterialPageRoute(builder: (_) => const ScanForDevices()),
+                (Route<dynamic> route) => false,
+              ),
               child: const Text('Scan for players'),
             ),
           ],

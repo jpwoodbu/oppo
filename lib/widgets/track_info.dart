@@ -8,6 +8,10 @@ import 'package:oppo/widgets/util.dart';
 final _log = Logger('track_info');
 
 class TrackMetadata extends StatelessWidget {
+  /// [oppo.Device] is passed rather than looked up via context. This widget is
+  /// called by showDialog() which doesn't share its context with its widget
+  /// builder. Therefore, we can't lookup a reference to [oppo.Device] using the
+  /// provided context.
   final oppo.Device device;
   const TrackMetadata({super.key, required this.device});
 

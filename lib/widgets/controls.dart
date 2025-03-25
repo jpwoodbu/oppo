@@ -737,9 +737,10 @@ class _ExtraControlsState extends State<ExtraControls>
                 }
               },
               child: const VerticalIcon(
-                  icon: Icon(Icons.transform),
-                  label: 'SACD output',
-                  small: true),
+                icon: Icon(Icons.transform),
+                label: 'SACD output',
+                small: true,
+              ),
             ),
           ),
         ]),

@@ -120,9 +120,7 @@ class Drawer extends StatelessWidget {
             leading: const Icon(Icons.info),
             title: const Text('Fetch track metadata'),
             onTap: () {
-              Navigator.pop(context);
-              // TODO - Refactor so showDialog is inside TrackMetadata so that
-              // device doesn't need to be passed in.
+              Navigator.pop(context);  // close the drawer
               showDialog(
                 context: context,
                 builder: (_) => TrackMetadata(device: device),
