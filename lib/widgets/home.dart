@@ -12,10 +12,6 @@ import 'package:oppo/widgets/position.dart';
 import 'package:oppo/widgets/track_info.dart';
 import 'package:oppo/widgets/util.dart';
 
-const _kApplicationName = 'Oppo Remote';
-// Apple is complaining about using other's intellectual property.
-const _kAppleApplicationName = 'Remote Control';
-
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -105,8 +101,8 @@ class Drawer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(isApple(context)
-                      ? _kAppleApplicationName
-                      : _kApplicationName),
+                      ? kAppleApplicationName
+                      : kApplicationName),
                   Text(device.name, style: smallText),
                   Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
                       style: smallText),
@@ -120,7 +116,7 @@ class Drawer extends StatelessWidget {
             leading: const Icon(Icons.info),
             title: const Text('Fetch track metadata'),
             onTap: () {
-              Navigator.pop(context);  // close the drawer
+              Navigator.pop(context); // close the drawer
               showDialog(
                 context: context,
                 builder: (_) => TrackMetadata(device: device),
@@ -144,11 +140,13 @@ class Drawer extends StatelessWidget {
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => const KnownIssues())),
         ),
-        ListTile(
-          leading: const Icon(Icons.feedback),
-          title: const Text('Debug logs'),
-          onTap: () => LogConsole.open(context),
-        ),
+        // Debug logs reference "oppo", which Apple doesn't like.
+        if (!isApple(context))
+          ListTile(
+            leading: const Icon(Icons.feedback),
+            title: const Text('Debug logs'),
+            onTap: () => LogConsole.open(context),
+          ),
         ListTile(
           leading: const Icon(Icons.article),
           title: const Text('Licenses'),
@@ -156,7 +154,7 @@ class Drawer extends StatelessWidget {
             context: context,
             applicationIcon: appIcon,
             applicationName:
-                isApple(context) ? _kAppleApplicationName : _kApplicationName,
+                isApple(context) ? kAppleApplicationName : kApplicationName,
           ),
         ),
       ],
@@ -185,10 +183,12 @@ class PowerUpError extends StatelessWidget {
                 },
                 child: const Text('Scan for players'),
               ),
-              TextButton(
-                onPressed: () => LogConsole.open(context),
-                child: const Text('Debug logs'),
-              ),
+              // Debug logs reference "oppo", which Apple doesn't like.
+              if (!isApple(context))
+                TextButton(
+                  onPressed: () => LogConsole.open(context),
+                  child: const Text('Debug logs'),
+                ),
             ],
           ),
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:oppo/widgets/util.dart';
+
 const String _kKnownIssuesHeader =
     "Oppo hasn't sold Blu-ray players in the US since 2018. Firmware updates stopped soon thereafter. Unsurprisingly, there are some quirks with using their network control API, including incomplete functionality and stability issues.";
 
@@ -25,14 +27,15 @@ class KnownIssues extends StatelessWidget {
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: ListView(
-              children: const [
-                Text(_kKnownIssuesHeader),
-                Divider(),
-                Text(_kKnownIssue1),
-                Divider(),
-                Text(_kKnownIssue2),
-                Divider(),
-                Text(_kKnownIssue3),
+              children: [
+                // Apple doesn't want me to have references to Oppo.
+                if (!isApple(context)) const Text(_kKnownIssuesHeader),
+                if (!isApple(context)) const Divider(),
+                const Text(_kKnownIssue1),
+                const Divider(),
+                const Text(_kKnownIssue2),
+                const Divider(),
+                const Text(_kKnownIssue3),
               ],
             ),
           ),

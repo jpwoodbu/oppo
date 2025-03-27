@@ -40,7 +40,12 @@ class OppoApp extends StatelessWidget {
       brightness: Brightness.dark,
     );
     return MaterialApp(
-      title: 'Oppo Remote',
+      // Based on
+      // https://api.flutter.dev/flutter/material/MaterialApp/title.html, this
+      // field should not be used on iOS, but since Apple is giving me hard time
+      // about using the name "Oppo", I'm going to change this in case I'm
+      // misunderstanding how this is used.
+      title: isApple(context) ? kAppleApplicationName : kApplicationName,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: colorScheme,
@@ -61,6 +66,7 @@ class OppoApp extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 20.0),
           ),
         ),
+        platform: TargetPlatform.iOS,
       ),
       debugShowCheckedModeBanner: false,
       home: const ScanForDevices(),
