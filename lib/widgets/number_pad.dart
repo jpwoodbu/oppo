@@ -113,7 +113,7 @@ class NumberPad extends StatelessWidget {
                 children: [
                   NumberButton(onPressed: device.number1, label: '1'),
                   NumberButton(onPressed: device.number2, label: '2'),
-                  NumberButton(onPressed: device.number2, label: '3'),
+                  NumberButton(onPressed: device.number3, label: '3'),
                 ],
               ),
               TableRow(
