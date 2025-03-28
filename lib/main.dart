@@ -66,7 +66,6 @@ class OppoApp extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 20.0),
           ),
         ),
-        platform: TargetPlatform.iOS,
       ),
       debugShowCheckedModeBanner: false,
       home: const ScanForDevices(),
