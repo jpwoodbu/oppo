@@ -193,6 +193,13 @@ class _PlayControlsState extends State<PlayControls>
         children: [
           IconButton(
             onPressed: () => addHaptic(device.stop),
+            onLongPress: () async {
+              final selection = await showDialog<bool?>(
+                  context: context, builder: (context) => const PowerOff());
+              if (selection != null && selection == true) {
+                await device.powerOff();
+              }
+            },
             icon: Icon(
               Icons.stop_circle,
               size: iconSize,
