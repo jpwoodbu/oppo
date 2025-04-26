@@ -9,7 +9,7 @@ publish_to: 'none'
 # after it will be set to 16400 + an incrementing int. The "day" will be 40
 # until we get to May 2025, when this second mitigation can be lifted and the
 # month portion can advance to 17.
-version: 1.1.4+2025164003
+version: 1.2.0+2025164004
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
