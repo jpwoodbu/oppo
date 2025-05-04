@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:oppo/device_changes.dart';
 import 'package:oppo/oppo.dart' as oppo;
 
-const String _kNoInformation = '--';
+const String _noInformation = '--';
 
 class Display extends StatefulWidget {
   const Display({super.key});
@@ -57,7 +57,7 @@ class Title extends StatelessWidget {
     final position = context.select((DeviceChanges d) => d.device.position);
     final discType = context.select((DeviceChanges d) => d.device.discType);
     if (position == null || position.title == 0) {
-      return const Text('Title: $_kNoInformation');
+      return const Text('Title: $_noInformation');
     }
     switch (discType) {
       case oppo.DiscType.cd || oppo.DiscType.dvdAudio || oppo.DiscType.sacd:
@@ -76,7 +76,7 @@ class Chapter extends StatelessWidget {
     final position = context.select((DeviceChanges d) => d.device.position);
     final discType = context.select((DeviceChanges d) => d.device.discType);
     if (position == null || position.chapter == 0) {
-      return const Text('Chapter: $_kNoInformation');
+      return const Text('Chapter: $_noInformation');
     }
     switch (discType) {
       case oppo.DiscType.cd || oppo.DiscType.dvdAudio || oppo.DiscType.sacd:
@@ -99,7 +99,7 @@ class AudioTrack extends StatelessWidget {
     final audioLanguage =
         context.select((DeviceChanges d) => d.device.audioLanguage);
     if (currentAudioTrack == null || currentAudioTrack == 0) {
-      return const Text('Audio: $_kNoInformation');
+      return const Text('Audio: $_noInformation');
     }
     final language = audioLanguage == 'UNK' ? '' : audioLanguage;
     return Text('Audio: $currentAudioTrack/'
@@ -118,7 +118,7 @@ class AudioType extends StatelessWidget {
     final rawChannels = context.select((DeviceChanges d) => d.device.channels);
     final channels = rawChannels == '0.0' ? '' : rawChannels;
     if (audioType == oppo.AudioType.unknown) {
-      return const Text('Audio stream: $_kNoInformation');
+      return const Text('Audio stream: $_noInformation');
     }
     return Text('${audioType.displayName} '
         '${channels ?? ""} '
@@ -151,7 +151,7 @@ class Subtitles extends StatelessWidget {
     final subtitleLanguage =
         context.select((DeviceChanges d) => d.device.subtitleLanguage);
     if (currentSubtitleTrack == null) {
-      return const Text('Subtitles: $_kNoInformation');
+      return const Text('Subtitles: $_noInformation');
     }
     return Text('Subtitles: $currentSubtitleTrack/'
         '$availableSubtitleTracks $subtitleLanguage');
@@ -168,7 +168,7 @@ class ContentResolution extends StatelessWidget {
     final aspectRatioSetting =
         context.select((DeviceChanges d) => d.device.aspectRatioSetting);
     if (contentResolution == null) {
-      return const Text('In: $_kNoInformation');
+      return const Text('In: $_noInformation');
     }
     final aspectRatio =
         aspectRatioSetting == null ? '' : aspectRatioSetting.ratio.displayName;
@@ -184,7 +184,7 @@ class OutputResolution extends StatelessWidget {
     final outputResolution =
         context.select((DeviceChanges d) => d.device.outputResolution);
     if (outputResolution == null) {
-      return const Text('Out: $_kNoInformation');
+      return const Text('Out: $_noInformation');
     }
     return Text('Out: ${outputResolution.displayName}');
   }

@@ -69,7 +69,7 @@ class TrackMetadata extends StatelessWidget {
       );
     } else {
       return SimpleDialog(
-        contentPadding: kDialogPadding,
+        contentPadding: dialogPadding,
         children: [
           content,
           Align(

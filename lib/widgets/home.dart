@@ -101,8 +101,8 @@ class Drawer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(isApple(context)
-                      ? kAppleApplicationName
-                      : kApplicationName),
+                      ? appleApplicationName
+                      : applicationName),
                   Text(device.name, style: smallText),
                   Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
                       style: smallText),
@@ -154,7 +154,7 @@ class Drawer extends StatelessWidget {
             context: context,
             applicationIcon: appIcon,
             applicationName:
-                isApple(context) ? kAppleApplicationName : kApplicationName,
+                isApple(context) ? appleApplicationName : applicationName,
           ),
         ),
       ],
@@ -206,7 +206,7 @@ class Buttons extends StatelessWidget {
       label: 'scrollable area with information display and '
           'remote control buttons',
       child: Padding(
-        padding: kMainViewPadding,
+        padding: mainViewPadding,
         child: ListView(
           children: const [
             Display(),
@@ -234,7 +234,7 @@ class NotPoweredOn extends StatelessWidget {
   Widget build(BuildContext context) {
     final device = context.read<DeviceChanges>().device;
     return Padding(
-      padding: kMainViewPadding,
+      padding: mainViewPadding,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

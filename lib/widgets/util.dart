@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-const kApplicationName = 'Oppo Remote';
+const applicationName = 'Oppo Remote';
 // Apple is complaining about using other's intellectual property.
-const kAppleApplicationName = 'Remote Control';
+const appleApplicationName = 'Remote Control';
 // TODO - Could this be moved to ThemeData?
-const double kBorderRadius = 4.0;
-const kDialogPadding = EdgeInsets.all(12.0);
-const kMainViewPadding = EdgeInsets.symmetric(horizontal: 4.0);
+const double borderRadius = 4.0;
+const dialogPadding = EdgeInsets.all(12.0);
+const mainViewPadding = EdgeInsets.symmetric(horizontal: 4.0);
 
 dynamic addHaptic(Function function) {
   HapticFeedback.lightImpact();

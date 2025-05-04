@@ -10,10 +10,10 @@ import 'package:logging/logging.dart';
 // 1) The player broadcasts its existance every 10s to this destination port.
 // 2) It's the source and destination port for the "OREMOTE LOGIN" call and
 // responses initiated by the Oppo made MediaControl app.
-const int _kBroadcastPort = 7624;
-const int _kHttpPort = 436;
-const int _kSerialPort = 23;
-const Duration _kResponseTimeout = Duration(seconds: 10);
+const int _broadcastPort = 7624;
+const int _httpPort = 436;
+const int _serialPort = 23;
+const Duration _responseTimeout = Duration(seconds: 10);
 
 final _log = Logger('oppo');
 
@@ -98,7 +98,7 @@ class OppoID {
     // what that is. I can't conntect to it with TCP. We'll be connecting to the
     // known ports [_serialPort] and [_httpPort]. _serialPort is used here since
     // its the port used for the documented API.
-    return OppoID(address, _kSerialPort, name);
+    return OppoID(address, _serialPort, name);
   }
 }
 
@@ -124,7 +124,7 @@ class Discover {
   /// must call [close] to close that socket.
   Stream<OppoID> stream() async* {
     _socket =
-        await RawDatagramSocket.bind(InternetAddress.anyIPv4, _kBroadcastPort);
+        await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
     _socket!.writeEventsEnabled = false;
     _log.info('Listening for Oppo beacon packets.');
     await for (final event in _socket!) {
@@ -164,7 +164,7 @@ class ActiveDiscover {
     if (_socket != null) return;
     try {
       _socket = await RawDatagramSocket.bind(
-          InternetAddress.anyIPv4, _kBroadcastPort);
+          InternetAddress.anyIPv4, _broadcastPort);
       _socket!.broadcastEnabled = true;
     } catch (e) {
       _log.severe('Unable to bind socket for ActiveDiscover: $e');
@@ -188,7 +188,7 @@ class ActiveDiscover {
   Future<void> ping() async {
     await _open();
     final bytesSent = _socket!.send(_pingMessage.codeUnits,
-        InternetAddress('255.255.255.255'), _kBroadcastPort);
+        InternetAddress('255.255.255.255'), _broadcastPort);
     if (bytesSent == 0) {
       _log.warning('Failed to send OREMOTE LOGIN packet.');
     } else {
@@ -1452,7 +1452,7 @@ class Device {
     // need to check all responses in a loop until we get a response to our last
     // command, or we timeout.
     var response = const Response();
-    await for (final r in _responses.stream.timeout(_kResponseTimeout)) {
+    await for (final r in _responses.stream.timeout(_responseTimeout)) {
       if (r.commandCode == code) {
         response = r;
         break;
@@ -2005,7 +2005,7 @@ class Device {
     return items;
   }
 
-  String get _httpAuthority => '${address.address}:$_kHttpPort';
+  String get _httpAuthority => '${address.address}:$_httpPort';
   Uri _uri(String path) => Uri.http(_httpAuthority, path);
 
   // TODO - This is likely an anti-pattern. The logger might not print which

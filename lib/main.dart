@@ -45,7 +45,7 @@ class OppoApp extends StatelessWidget {
       // field should not be used on iOS, but since Apple is giving me hard time
       // about using the name "Oppo", I'm going to change this in case I'm
       // misunderstanding how this is used.
-      title: isApple(context) ? kAppleApplicationName : kApplicationName,
+      title: isApple(context) ? appleApplicationName : applicationName,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: colorScheme,
@@ -61,7 +61,7 @@ class OppoApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
+              borderRadius: BorderRadius.circular(borderRadius),
             ),
             padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 20.0),
           ),

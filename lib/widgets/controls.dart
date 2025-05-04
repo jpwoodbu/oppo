@@ -306,7 +306,7 @@ class ColorButton extends StatelessWidget {
         style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(color),
             shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadius)))),
+                borderRadius: BorderRadius.circular(borderRadius)))),
         child: const SizedBox(),
       ),
     );
@@ -791,7 +791,7 @@ class DialogSelector extends StatelessWidget {
     } else {
       return SimpleDialog(
         title: title,
-        contentPadding: kDialogPadding,
+        contentPadding: dialogPadding,
         children: values
             .map<Widget>((value) => TextButton(
                 onPressed: () => addHaptic(() => Navigator.pop(context, value)),
@@ -890,7 +890,7 @@ class SetOsdPosition extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('OSD margin'),
-      contentPadding: kDialogPadding,
+      contentPadding: dialogPadding,
       children: [
         FutureBuilder(
           future: device.queryOsdPosition(),
@@ -956,7 +956,7 @@ class SetForwardPlaybackSpeed extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Forward playback speed'),
-      contentPadding: kDialogPadding,
+      contentPadding: dialogPadding,
       children: oppo.PlaybackSpeed.values
           .map(
             (mode) => TextButton(
@@ -976,7 +976,7 @@ class SetReversePlaybackSpeed extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Reverse playback speed'),
-      contentPadding: kDialogPadding,
+      contentPadding: dialogPadding,
       children: oppo.PlaybackSpeed.values
           .map(
             (mode) => TextButton(
