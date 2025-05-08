@@ -1126,8 +1126,7 @@ class Device {
 
   /// Set up the player for communication.
   ///
-  /// This method should only be called after [startListener] or some equivalent
-  /// method is called.
+  /// This method should only be called after [stream] has a listener.
   Future<void> engage() async {
     if (!await queryPowerStatus()) {
       await powerOn();
@@ -1173,20 +1172,6 @@ class Device {
     } else {
       throw TimeoutException('Timed out waiting for device to power on.');
     }
-  }
-
-  /// Listens to inbound packet stream and parses those packets.
-  ///
-  /// Flutter apps will probably want to implement a function like this inside a
-  /// Provider/Consumer system. But for testing this package, it's handy to have
-  /// this function.
-  // TODO(jpwoodbu) Figure out why this function needs to be async to avoid the
-  // possibility we send a command before we start listening for
-  // responses.
-  Future<void> startListener() async {
-    stream().listen((event) {
-      parseEvent(event);
-    });
   }
 
   void parseEvent(String event) {
