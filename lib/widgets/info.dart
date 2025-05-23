@@ -8,9 +8,9 @@ const String _knownIssuesHeader =
 const String _knownIssue1 =
     "1. The documented API does not provide a way to directly select a directory item. This app does not implement a directory/file viewer, since without item selection, it wouldn't be sufficiently useful.";
 const String _knownIssue2 =
-    "2. The player often returns \"unknown\" for the audio type even when the OSD will display it.";
+    '2. The player often returns "unknown" for the audio type even when the OSD will display it.';
 const String _knownIssue3 =
-    "3. Only a single IP remote can be connected to the player at a time.";
+    '3. Only a single IP remote can be connected to the player at a time.';
 
 class KnownIssues extends StatelessWidget {
   const KnownIssues({super.key});
