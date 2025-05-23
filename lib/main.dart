@@ -58,7 +58,6 @@ class OppoApp extends StatelessWidget {
           ),
         ),
       ),
-      debugShowCheckedModeBanner: false,
       home: const ScanForDevices(),
     );
   }
