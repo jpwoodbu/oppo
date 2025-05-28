@@ -4,12 +4,7 @@ publish_to: 'none'
 # The month value in the version code (right side of +) is the month +12 because
 # the year was accidently incremented in a few releases back and the version
 # code must be an ever increasing int. This workaround can be lifted in 2026 :(.
-# WARNING: The month portion of the version code was accidently set to 16 when
-# it should have been 15. Until May 2025, the month portion and everything
-# after it will be set to 16400 + an incrementing int. The "day" will be 40
-# until we get to May 2025, when this second mitigation can be lifted and the
-# month portion can advance to 17.
-version: 1.2.0+2025164004
+version: 1.2.1+2025172801
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
