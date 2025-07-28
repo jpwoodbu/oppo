@@ -36,7 +36,7 @@ class NumberPadIcon extends StatelessWidget {
 }
 
 class NumberPadButton extends StatelessWidget {
-  final Function onPressed;
+  final Function() onPressed;
   final Widget child;
   const NumberPadButton(
       {super.key, required this.onPressed, required this.child});
@@ -57,7 +57,7 @@ class NumberPadButton extends StatelessWidget {
 }
 
 class NumberButton extends StatelessWidget {
-  final Function onPressed;
+  final Function() onPressed;
   final String label;
   const NumberButton({super.key, required this.onPressed, required this.label});
 

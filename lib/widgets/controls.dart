@@ -23,6 +23,7 @@ class _HomeRowState extends State<HomeRow> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     final device = context.read<DeviceChanges>().device;
+
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -288,7 +289,7 @@ class _PositionControlsState extends State<PositionControls>
 }
 
 class ColorButton extends StatelessWidget {
-  final Function onPressed;
+  final Function() onPressed;
   final Color color;
   final String semanticLabel;
   const ColorButton(

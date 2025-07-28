@@ -8,7 +8,7 @@ const double borderRadius = 4.0;
 const dialogPadding = EdgeInsets.all(12.0);
 const mainViewPadding = EdgeInsets.symmetric(horizontal: 4.0);
 
-dynamic addHaptic(Function function) {
+T addHaptic<T>(T Function() function) {
   HapticFeedback.lightImpact();
   return function();
 }
