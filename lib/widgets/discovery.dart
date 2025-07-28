@@ -12,10 +12,10 @@ import 'package:oppo/widgets/util.dart';
 
 class DiscoveryChanges with ChangeNotifier {
   final Set<oppo.OppoID> devices = {};
-  final oppo.Discover _discover;
+  final Stream<oppo.OppoID> _stream;
 
-  DiscoveryChanges(this._discover) {
-    _discover.stream().listen((broadcast) {
+  DiscoveryChanges(this._stream) {
+    _stream.listen((oppo.OppoID broadcast) {
       devices.add(broadcast);
       notifyListeners();
     });
@@ -102,7 +102,7 @@ class _DevicesState extends State<Devices> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => DiscoveryChanges(_discover),
+      create: (_) => DiscoveryChanges(_discover.stream()),
       builder: (context, _) {
         final ids = context.watch<DiscoveryChanges>().devices;
         return FutureBuilder(

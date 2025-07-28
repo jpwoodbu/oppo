@@ -163,8 +163,8 @@ class ActiveDiscover {
   Future<void> _open() async {
     if (_socket != null) return;
     try {
-      _socket = await RawDatagramSocket.bind(
-          InternetAddress.anyIPv4, _broadcastPort);
+      _socket =
+          await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
       _socket!.broadcastEnabled = true;
     } catch (e) {
       _log.severe('Unable to bind socket for ActiveDiscover: $e');
