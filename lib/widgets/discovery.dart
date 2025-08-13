@@ -13,11 +13,9 @@ import 'package:oppo/widgets/util.dart';
 class DiscoveryChanges with ChangeNotifier {
   final Set<oppo.OppoID> devices = {};
   final oppo.Discover _discover;
-  late Stream<oppo.OppoID> _stream;
 
   DiscoveryChanges(this._discover) {
-    _stream = _discover.stream();
-    _stream.listen((oppo.OppoID broadcast) {
+    _discover.stream().listen((broadcast) {
       devices.add(broadcast);
       notifyListeners();
     });
@@ -210,7 +208,7 @@ class _DevicesState extends State<Devices> {
 void _connect(BuildContext context, oppo.OppoID id) {
   // [saveLastDevice] is an async func but making [_connect] async, causes a
   // warning when passing [context] to Navigator below.
-  saveLastDevice(id);
+  saveLastDevice(id).ignore();
   Navigator.pushAndRemoveUntil(
     context,
     MaterialPageRoute(
