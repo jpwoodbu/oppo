@@ -42,7 +42,7 @@ class OppoApp extends StatelessWidget {
     return MaterialApp(
       // Based on
       // https://api.flutter.dev/flutter/material/MaterialApp/title.html, this
-      // field should not be used on iOS, but since Apple is giving me hard time
+      // field is not used on iOS, but since Apple is giving me a hard time
       // about using the name "Oppo", I'm going to change this in case I'm
       // misunderstanding how this is used.
       title: isApple(context) ? appleApplicationName : applicationName,
