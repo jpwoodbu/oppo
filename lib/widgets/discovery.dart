@@ -228,14 +228,8 @@ class ManuallyConnect extends StatefulWidget {
 }
 
 class _ManuallyConnectState extends State<ManuallyConnect> {
-  late TextEditingController _controller;
+  final _controller = TextEditingController();
   String? _errorText;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
 
   @override
   void dispose() {
