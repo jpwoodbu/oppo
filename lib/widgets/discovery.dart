@@ -270,10 +270,6 @@ class _ManuallyConnectState extends State<ManuallyConnect> {
                   autofocus: true,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
-                  // This is a workaround for the text being dark on dark when using
-                  // a dark theme (the only theme this app uses).
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   placeholder: hintText,
                 ),
               ],
