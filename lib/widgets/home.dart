@@ -30,11 +30,9 @@ class HomePage extends StatelessWidget {
           }
           return const MainView();
         } else {
-          return const SafeArea(
-            child: Scaffold(
-              body: Center(
-                child: Text('Powering on and setting up communication...'),
-              ),
+          return const Scaffold(
+            body: Center(
+              child: Text('Powering on and setting up communication...'),
             ),
           );
         }
@@ -48,17 +46,15 @@ class MainView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Position(),
-          centerTitle: true,
-          titleSpacing: 0.0,
-          actions: const [NumberPadIcon()],
-        ),
-        drawer: const Drawer(),
-        body: const Switch(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Position(),
+        centerTitle: true,
+        titleSpacing: 0.0,
+        actions: const [NumberPadIcon()],
       ),
+      drawer: const Drawer(),
+      body: const Switch(),
     );
   }
 }
