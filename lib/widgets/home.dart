@@ -31,8 +31,10 @@ class HomePage extends StatelessWidget {
           return const MainView();
         } else {
           return const Scaffold(
-            body: Center(
-              child: Text('Powering on and setting up communication...'),
+            body: SafeArea(
+              child: Center(
+                child: Text('Powering on and setting up communication...'),
+              ),
             ),
           );
         }
@@ -54,7 +56,7 @@ class MainView extends StatelessWidget {
         actions: const [NumberPadIcon()],
       ),
       drawer: const Drawer(),
-      body: const Switch(),
+      body: const SafeArea(child: Switch()),
     );
   }
 }

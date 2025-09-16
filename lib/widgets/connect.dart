@@ -70,20 +70,22 @@ class ConnectionError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Error connecting to device.'),
-            TextButton(
-              onPressed: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const ScanForDevices()),
-                (Route<dynamic> route) => false,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Error connecting to device.'),
+              TextButton(
+                onPressed: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ScanForDevices()),
+                  (Route<dynamic> route) => false,
+                ),
+                child: const Text('Scan for players'),
               ),
-              child: const Text('Scan for players'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
