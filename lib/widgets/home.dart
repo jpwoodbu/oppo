@@ -12,17 +12,30 @@ import 'package:oppo/widgets/position.dart';
 import 'package:oppo/widgets/track_info.dart';
 import 'package:oppo/widgets/util.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Future<void> _future;
+
+  @override
+  void initState() {
     final device = context.read<DeviceChanges>().device;
+    // Show the waiting message for at least 1s while we perform the
+    // background work.
+    _future = Future.wait(
+        [Future.delayed(const Duration(seconds: 1)), device.engage()]);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return FutureBuilder<void>(
-      // Show the waiting message for at least 1s while we perform the
-      // background work.
-      future: Future.wait(
-          [Future.delayed(const Duration(seconds: 1)), device.engage()]),
+      future: _future,
       builder: (_, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
