@@ -69,7 +69,11 @@ class MainView extends StatelessWidget {
         actions: const [NumberPadIcon()],
       ),
       drawer: const Drawer(),
-      body: const SafeArea(child: Switch()),
+      // Since the controls displayed are scrollable, we can let them be visible
+      // all the way to edge of the bottom of the screen, potentially into an
+      // "unsafe" area. The scroll system will let the user scroll them
+      // completely in the "safe" area.
+      body: const SafeArea(bottom: false, child: Switch()),
     );
   }
 }
