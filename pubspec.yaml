@@ -4,7 +4,7 @@ publish_to: 'none'
 # The month value in the version code (right side of +) is the month +12 because
 # the year was accidently incremented in a few releases back and the version
 # code must be an ever increasing int. This workaround can be lifted in 2026 :(.
-version: 1.2.8+2025222301
+version: 1.2.9+2025240201
 
 environment:
   sdk: '>=3.2.3 <4.0.0'

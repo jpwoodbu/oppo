@@ -241,15 +241,7 @@ class _ManuallyConnectState extends State<ManuallyConnect> {
   Widget build(BuildContext context) {
     final hintText = 'Enter an IPv4 address';
     return AlertDialog.adaptive(
-      // TODO(jpowoodbu) Remove this workaround if Flutter fixes the widget.
-      // Since Flutter 3.35.2, the title of this widget gets partly cutoff when
-      // targetting iOS.
-      title: Padding(
-        padding: isApple(context)
-            ? const EdgeInsets.fromLTRB(0.0, 18.0, 0.0, 0.0)
-            : EdgeInsets.zero,
-        child: const Text('Manually connect'),
-      ),
+      title: const Text('Manually connect'),
       content: isApple(context)
           ? Column(
               children: [
