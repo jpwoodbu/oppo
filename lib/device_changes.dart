@@ -14,7 +14,7 @@ class DeviceChanges with ChangeNotifier {
   late StreamSubscription<String> _subscription;
   bool _connected = true;
   late final AppLifecycleListener _lifecycleListener;
-  AppLifecycleState _state = AppLifecycleState.detached;
+  AppLifecycleState _state = .detached;
 
   DeviceChanges(this.device, this._context) {
     _subscription = _startListener();

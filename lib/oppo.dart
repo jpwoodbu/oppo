@@ -123,13 +123,15 @@ class Discover {
   /// Calling [stream] also opens a socket for listening for beacon packets. You
   /// must call [close] to close that socket.
   Stream<OppoID> stream() async* {
-    _socket =
-        await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
+    _socket = await RawDatagramSocket.bind(
+      InternetAddress.anyIPv4,
+      _broadcastPort,
+    );
     _socket!.writeEventsEnabled = false;
     _log.info('Listening for Oppo beacon packets.');
     await for (final event in _socket!) {
       switch (event) {
-        case RawSocketEvent.read:
+        case .read:
           final datagram = _socket!.receive();
           if (datagram == null) continue;
           try {
@@ -137,10 +139,10 @@ class Discover {
           } catch (e) {
             _log.warning('Failed to parse beacon packet: $e');
           }
-        case RawSocketEvent.write:
+        case .write:
           continue;
-        case RawSocketEvent.readClosed:
-        case RawSocketEvent.closed:
+        case .readClosed:
+        case .closed:
           _socket = null;
           _log.fine('No longer listening for Oppo beacon packets.');
       }
@@ -163,8 +165,10 @@ class ActiveDiscover {
   Future<void> _open() async {
     if (_socket != null) return;
     try {
-      _socket =
-          await RawDatagramSocket.bind(InternetAddress.anyIPv4, _broadcastPort);
+      _socket = await RawDatagramSocket.bind(
+        InternetAddress.anyIPv4,
+        _broadcastPort,
+      );
       _socket!.broadcastEnabled = true;
     } catch (e) {
       _log.severe('Unable to bind socket for ActiveDiscover: $e');
@@ -187,8 +191,11 @@ class ActiveDiscover {
   /// service on port 436 reachable.
   Future<void> ping() async {
     await _open();
-    final bytesSent = _socket!.send(_pingMessage.codeUnits,
-        InternetAddress('255.255.255.255'), _broadcastPort);
+    final bytesSent = _socket!.send(
+      _pingMessage.codeUnits,
+      InternetAddress('255.255.255.255'),
+      _broadcastPort,
+    );
     if (bytesSent == 0) {
       _log.warning('Failed to send OREMOTE LOGIN packet.');
     } else {
@@ -205,7 +212,7 @@ class ActiveDiscover {
     await ping(); // [ping] also creates the socket.
     await for (final event in _socket!) {
       switch (event) {
-        case RawSocketEvent.read:
+        case .read:
           final datagram = _socket!.receive();
           if (datagram == null) continue;
           // Since we broadcast the ping on the same port we listen for the
@@ -217,10 +224,10 @@ class ActiveDiscover {
           } catch (e) {
             _log.warning('Failed to parse OREMOTE LOGIN response packet: $e');
           }
-        case RawSocketEvent.write:
+        case .write:
           continue;
-        case RawSocketEvent.readClosed:
-        case RawSocketEvent.closed:
+        case .readClosed:
+        case .closed:
           _log.fine('No longer listening for Oppo OREMOTE LOGIN packets.');
           _socket = null;
       }
@@ -238,8 +245,9 @@ enum VerboseMode {
 
   factory VerboseMode.fromTypeCode(String typeCode) {
     try {
-      return VerboseMode.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return VerboseMode.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for verbose mode: $typeCode';
     }
@@ -292,8 +300,9 @@ enum PlaybackStatus {
       // 'CLOSE' is undocumented but observed. It's so close to 'CLOS' it likely
       // means the same thing.
       if (typeCode == 'CLOSE') return PlaybackStatus.closingTray;
-      return PlaybackStatus.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return PlaybackStatus.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for playback status: $typeCode';
     }
@@ -304,27 +313,27 @@ enum PlaybackStatus {
   factory PlaybackStatus.fromQueryResponse(String response) {
     switch (response) {
       case 'PAUSE':
-        return PlaybackStatus.playbackPaused;
+        return .playbackPaused;
       case 'STEP':
-        return PlaybackStatus.forwardFrameByFrame;
+        return .forwardFrameByFrame;
       case 'FREV':
-        return PlaybackStatus.fastReverse1;
+        return .fastReverse1;
       case 'FFWD':
-        return PlaybackStatus.fastForward1;
+        return .fastForward1;
       case 'SFWD':
-        return PlaybackStatus.slowForwardHalf;
+        return .slowForwardHalf;
       case 'SREV':
-        return PlaybackStatus.slowReverseHalf;
+        return .slowReverseHalf;
       case 'HOME MENU':
-        return PlaybackStatus.homeMenu;
+        return .homeMenu;
       case 'MEDIA CENTER':
-        return PlaybackStatus.mediaCenter;
+        return .mediaCenter;
       case 'SCREEN SAVER':
-        return PlaybackStatus.screenSaver;
+        return .screenSaver;
       case 'DISC MENU':
-        return PlaybackStatus.discMenu;
+        return .discMenu;
       default:
-        return PlaybackStatus.fromTypeCode(response);
+        return .fromTypeCode(response);
     }
   }
 }
@@ -450,7 +459,7 @@ class AspectRatioSetting {
   }
 
   factory AspectRatioSetting.fromQueryResponse(String typeCode) =>
-      AspectRatioSetting.fromUpdateParameters(typeCode);
+      .fromUpdateParameters(typeCode);
 }
 
 enum TimeInformation {
@@ -470,8 +479,9 @@ enum TimeInformation {
 
   factory TimeInformation.fromTypeCode(String typeCode) {
     try {
-      return TimeInformation.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return TimeInformation.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for time information: $typeCode';
     }
@@ -514,8 +524,9 @@ enum DirectoryItemType {
 
   factory DirectoryItemType.fromTypeCode(String typeCode) {
     try {
-      return DirectoryItemType.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return DirectoryItemType.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for directory item type: $typeCode';
     }
@@ -561,8 +572,9 @@ enum HdmiResolution {
 
   factory HdmiResolution.fromTypeCode(String typeCode) {
     try {
-      return HdmiResolution.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return HdmiResolution.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for HDMI resolution: $typeCode';
     }
@@ -595,8 +607,9 @@ enum VideoResolution {
 
   factory VideoResolution.fromTypeCode(String typeCode) {
     try {
-      return VideoResolution.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return VideoResolution.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for Video resolution: $typeCode';
     }
@@ -627,8 +640,9 @@ enum ZoomRatio {
 
   factory ZoomRatio.fromTypeCode(String typeCode) {
     try {
-      return ZoomRatio.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return ZoomRatio.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for zoom ratio: $typeCode';
     }
@@ -644,31 +658,31 @@ enum ZoomRatio {
     }
     switch (mode) {
       case 0:
-        return ZoomRatio.oneX;
+        return .oneX;
       case 1:
-        return ZoomRatio.aspectRatioCorrection;
+        return .aspectRatioCorrection;
       case 2:
-        return ZoomRatio.fullScreen;
+        return .fullScreen;
       case 3:
-        return ZoomRatio.underScan;
+        return .underScan;
       case 4:
-        return ZoomRatio.onePointTwoX;
+        return .onePointTwoX;
       case 5:
-        return ZoomRatio.onePointThreeX;
+        return .onePointThreeX;
       case 6:
-        return ZoomRatio.onePointFiveX;
+        return .onePointFiveX;
       case 7:
-        return ZoomRatio.twoX;
+        return .twoX;
       // case 8:
-      //   return ZoomRatio.threeX;
+      //   return .threeX;
       // case 9:
-      //   return ZoomRatio.fourX;
+      //   return .fourX;
       case 10:
-        return ZoomRatio.oneHalf;
+        return .oneHalf;
       // case 11:
-      //   return ZoomRatio.oneThird;
+      //   return .oneThird;
       // case 12:
-      //   return ZoomRatio.oneQuarter;
+      //   return .oneQuarter;
       default:
         throw 'Unknown zoom mode code: $mode';
     }
@@ -690,8 +704,9 @@ enum RepeatMode {
 
   factory RepeatMode.fromTypeCode(String typeCode) {
     try {
-      return RepeatMode.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return RepeatMode.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for repeat mode: $typeCode';
     }
@@ -707,19 +722,19 @@ enum RepeatMode {
     }
     switch (mode) {
       case 0:
-        return RepeatMode.off;
+        return .off;
       case 1:
-        return RepeatMode.one;
+        return .one;
       case 2:
-        return RepeatMode.chapter;
+        return .chapter;
       case 3:
-        return RepeatMode.all;
+        return .all;
       case 4:
-        return RepeatMode.titleOrTrack;
+        return .titleOrTrack;
       case 5:
-        return RepeatMode.shuffle;
+        return .shuffle;
       case 6:
-        return RepeatMode.random;
+        return .random;
       default:
         throw 'Unknown repeat mode: $mode';
     }
@@ -740,8 +755,9 @@ enum HdrSetting {
 
   factory HdrSetting.fromTypeCode(String typeCode) {
     try {
-      return HdrSetting.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return HdrSetting.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for HDR setting: $typeCode';
     }
@@ -763,8 +779,9 @@ enum InputSource {
 
   factory InputSource.fromTypeCode(String typeCode) {
     try {
-      return InputSource.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return InputSource.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for input source: $typeCode';
     }
@@ -780,17 +797,17 @@ enum InputSource {
     }
     switch (source) {
       case 0:
-        return InputSource.blurayPlayer;
+        return .blurayPlayer;
       case 1:
-        return InputSource.hdmi;
+        return .hdmi;
       case 2:
-        return InputSource.arc;
+        return .arc;
       case 3:
-        return InputSource.optical;
+        return .optical;
       case 4:
-        return InputSource.coax;
+        return .coax;
       case 5:
-        return InputSource.usb;
+        return .usb;
       default:
         throw 'Unknown input source: $source';
     }
@@ -808,8 +825,9 @@ enum ScreenSaverSetting {
 
   factory ScreenSaverSetting.fromTypeCode(String typeCode) {
     try {
-      return ScreenSaverSetting.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return ScreenSaverSetting.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for screen saver setting: $typeCode';
     }
@@ -848,8 +866,9 @@ enum SacdPriority {
 
   factory SacdPriority.fromTypeCode(String typeCode) {
     try {
-      return SacdPriority.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return SacdPriority.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for SACD priority: $typeCode';
     }
@@ -867,8 +886,9 @@ enum SacdOutputMode {
 
   factory SacdOutputMode.fromTypeCode(String typeCode) {
     try {
-      return SacdOutputMode.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return SacdOutputMode.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for SACD output mode: $typeCode';
     }
@@ -892,8 +912,9 @@ enum PlaybackSpeed {
 
   factory PlaybackSpeed.fromTypeCode(String typeCode) {
     try {
-      return PlaybackSpeed.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return PlaybackSpeed.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for playback speed: $typeCode';
     }
@@ -919,8 +940,9 @@ enum DiscType {
 
   factory DiscType.fromTypeCode(String typeCode) {
     try {
-      return DiscType.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return DiscType.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for disc type: $typeCode';
     }
@@ -929,17 +951,17 @@ enum DiscType {
   factory DiscType.fromQueryResponse(String text) {
     switch (text) {
       case 'BD-MV':
-        return DiscType.blueRay;
+        return .blueRay;
       case 'DVD-VIDEO':
-        return DiscType.dvdVideo;
+        return .dvdVideo;
       case 'DVD-AUDIO':
-        return DiscType.dvdAudio;
+        return .dvdAudio;
       case 'DATA-DISC':
-        return DiscType.data;
+        return .data;
       case 'UNKNOW-DISC':
-        return DiscType.unknown;
+        return .unknown;
       default:
-        return DiscType.fromTypeCode(text);
+        return .fromTypeCode(text);
     }
   }
 }
@@ -971,9 +993,10 @@ enum AudioType {
   factory AudioType.fromTypeCode(String typeCode) {
     try {
       // Sometimes the player uses DDP instead of DP. :|
-      if (typeCode == 'DDP') return AudioType.dolbyDigitalPlus;
-      return AudioType.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      if (typeCode == 'DDP') return .dolbyDigitalPlus;
+      return AudioType.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for audio type: $typeCode';
     }
@@ -984,15 +1007,15 @@ enum AudioType {
     // examples.
     switch (text) {
       case 'AAC':
-        return AudioType.ac;
+        return .ac;
       case 'DTS':
-        return AudioType.dts;
+        return .dts;
       case 'DTS-HD':
-        return AudioType.dtsHdHighResolution;
+        return .dtsHdHighResolution;
       case 'LPCM':
-        return AudioType.lPcm;
+        return .lPcm;
       default:
-        return AudioType.fromTypeCode(text);
+        return .fromTypeCode(text);
     }
   }
 }
@@ -1006,8 +1029,9 @@ enum ResultCode {
 
   factory ResultCode.fromTypeCode(String typeCode) {
     try {
-      return ResultCode.values
-          .firstWhere((element) => element.typeCode == typeCode);
+      return ResultCode.values.firstWhere(
+        (element) => element.typeCode == typeCode,
+      );
     } on StateError {
       throw 'Unknown typeCode for result code: $typeCode';
     }
@@ -1052,11 +1076,11 @@ class Device {
   String? firmwareVersion;
   Position? position;
   bool threeDimensional = false;
-  PlaybackStatus playbackStatus = PlaybackStatus.unknown;
+  PlaybackStatus playbackStatus = .unknown;
   int? volume;
   bool? muted;
-  DiscType discType = DiscType.unknown;
-  AudioType audioType = AudioType.unknown;
+  DiscType discType = .unknown;
+  AudioType audioType = .unknown;
   int? currentAudioTrack;
   int? availableAudioTracks;
   String? audioLanguage; // ISO 3166 country codes
@@ -1079,7 +1103,7 @@ class Device {
   /// This function is used both when [playbackStatus] is
   /// [PlaybackStatus.playbackStopped] and when the player is powered off.
   void _clearFields() {
-    audioType = AudioType.unknown;
+    audioType = .unknown;
     currentAudioTrack = null;
     availableAudioTracks = null;
     position = null;
@@ -1101,10 +1125,13 @@ class Device {
       _log.warning('connect() called on already connected Device.');
       return;
     }
-    _socket = await Socket.connect(address, port,
-        timeout: const Duration(seconds: 3));
+    _socket = await Socket.connect(
+      address,
+      port,
+      timeout: const Duration(seconds: 3),
+    );
     _log.info('Connected to device at ${address.address}.');
-    _socket!.setOption(SocketOption.tcpNoDelay, true);
+    _socket!.setOption(.tcpNoDelay, true);
     // Sets encoding for writing strings.
     _socket!.encoding = const AsciiCodec();
   }
@@ -1137,7 +1164,7 @@ class Device {
     final d = ActiveDiscover();
     d.ping();
     d.close();
-    await setVerboseMode(VerboseMode.detailed);
+    await setVerboseMode(.detailed);
     await fetchState();
   }
 
@@ -1168,7 +1195,9 @@ class Device {
     } else if (attemptsRemaining > 0) {
       attemptsRemaining--;
       await Future.delayed(
-          delay, () => _waitForPowerOn(delay, attemptsRemaining));
+        delay,
+        () => _waitForPowerOn(delay, attemptsRemaining),
+      );
     } else {
       throw TimeoutException('Timed out waiting for device to power on.');
     }
@@ -1224,27 +1253,30 @@ class Device {
             'there was no pending response command: $message';
       } else {
         commandCode = _lastCommandCode!;
-        resultCode = ResultCode.fromTypeCode(part1);
+        resultCode = .fromTypeCode(part1);
         parameters = part2;
       }
     } else {
       commandCode = part1;
-      resultCode = ResultCode.fromTypeCode(part2);
+      resultCode = .fromTypeCode(part2);
       parameters = parts.sublist(2).join(' ').trim();
     }
     _responses.add(
       Response(
-          resultCode: resultCode,
-          commandCode: commandCode,
-          parameters: parameters.isEmpty ? null : parameters),
+        resultCode: resultCode,
+        commandCode: commandCode,
+        parameters: parameters.isEmpty ? null : parameters,
+      ),
     );
     // Since we just got a response, we can clear the response tracking fields.
     _lastCommandTimestamp = null;
     _lastCommandCode = null;
 
-    if (resultCode == ResultCode.error) {
-      _log.warning('Got an error with command code $commandCode '
-          'with parameters: $parameters');
+    if (resultCode == .error) {
+      _log.warning(
+        'Got an error with command code $commandCode '
+        'with parameters: $parameters',
+      );
     }
   }
 
@@ -1255,27 +1287,27 @@ class Device {
           powered = true;
         } else if (parameters == '0') {
           powered = false;
-          playbackStatus = PlaybackStatus.unknown;
+          playbackStatus = .unknown;
           _clearFields();
         } else {
           _log.severe('Invalid UPW parameter: $parameters');
         }
       case 'UPL':
         try {
-          playbackStatus = PlaybackStatus.fromTypeCode(parameters);
+          playbackStatus = .fromTypeCode(parameters);
         } catch (e) {
           _log.severe(e);
         }
-        if (playbackStatus == PlaybackStatus.openTray) {
+        if (playbackStatus == .openTray) {
           discType = DiscType.unknown;
         }
-        if (playbackStatus == PlaybackStatus.playbackStopped) {
+        if (playbackStatus == .playbackStopped) {
           _clearFields();
         }
       case 'UVL':
         VolumeResponse r;
         try {
-          r = VolumeResponse.fromString(parameters);
+          r = .fromString(parameters);
         } catch (e) {
           _log.severe('Unable to parse volume value: $e');
           break;
@@ -1284,7 +1316,7 @@ class Device {
         volume = r.volume;
       case 'UDT':
         try {
-          discType = DiscType.fromTypeCode(parameters);
+          discType = .fromTypeCode(parameters);
         } catch (e) {
           _log.severe(e);
         }
@@ -1293,7 +1325,7 @@ class Device {
         try {
           update = _AudioTypeUpdate.fromUpdateParameters(parameters);
         } on _PcmAudioTypeException {
-          audioType = AudioType.pcm;
+          audioType = .pcm;
           break;
         } catch (e) {
           _log.severe(e);
@@ -1334,13 +1366,12 @@ class Device {
         }
       case 'UAR':
         try {
-          aspectRatioSetting =
-              AspectRatioSetting.fromUpdateParameters(parameters);
+          aspectRatioSetting = .fromUpdateParameters(parameters);
         } catch (e) {
           _log.severe(e);
         }
       case 'UTC':
-        position = Position.fromTimeCodeUpdate(parameters);
+        position = .fromTimeCodeUpdate(parameters);
         if (position?.clock == '00:00:01') {
           // This is a workaround for the player sometimes not knowing the audio
           // type right after a play command is issued. Querying the audio type
@@ -1404,15 +1435,20 @@ class Device {
       final waiting = DateTime.now().difference(_lastCommandTimestamp!);
       if (waiting > const Duration(seconds: 10)) {
         _log.severe(
-            'Giving up on getting a response for the previous command.');
+          'Giving up on getting a response for the previous command.',
+        );
         _lastCommandTimestamp = null;
         _lastCommandCode = null;
         return _command(code, parameters: parameters);
       }
-      _log.fine('Waiting on a response to the previous command. '
-          'Have been waiting $waiting. Will try again in 500ms.');
-      await Future.delayed(const Duration(milliseconds: 500),
-          () => _command(code, parameters: parameters));
+      _log.fine(
+        'Waiting on a response to the previous command. '
+        'Have been waiting $waiting. Will try again in 500ms.',
+      );
+      await Future.delayed(
+        const Duration(milliseconds: 500),
+        () => _command(code, parameters: parameters),
+      );
       return;
     }
     final c = _formatCommand(code, parameters);
@@ -1443,7 +1479,7 @@ class Device {
         break;
       }
     }
-    if (response.resultCode == ResultCode.error) {
+    if (response.resultCode == .error) {
       throw '$code call returned an error result code.';
     }
     return response;
@@ -1499,7 +1535,7 @@ class Device {
     // It's been observed that in some cases, when a FULL STOP response is
     // returned, there's no update regarding the playback status having changed.
     if (response.parameters == 'FULL STOP') {
-      playbackStatus = PlaybackStatus.playbackStopped;
+      playbackStatus = .playbackStopped;
       _clearFields();
     }
   }
@@ -1606,12 +1642,14 @@ class Device {
 
   Future<void> searchToChapterTime(Duration position) {
     return searchTo(
-        'C ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
+      'C ${position.inHours}:${position.inMinutes}:${position.inSeconds}',
+    );
   }
 
   Future<void> searchToTitleTime(Duration position) {
     return searchTo(
-        'T ${position.inHours}:${position.inMinutes}:${position.inSeconds}');
+      'T ${position.inHours}:${position.inMinutes}:${position.inSeconds}',
+    );
   }
 
   /// Opens the "Program Play" menu when playing CDs. Similar to pushing the
@@ -1686,7 +1724,7 @@ class Device {
 
   Future<bool> queryPowerStatus() async {
     final r = await _rpc('QPW');
-    bool p = r.parameters! == 'ON' ? true : false;
+    bool p = r.parameters! == 'ON';
     powered = p;
     return p;
   }
@@ -1714,7 +1752,7 @@ class Device {
   /// resolution setting is set to match whatever the source is.
   Future<HdmiResolution> queryHdmiResolution() async {
     final r = await _rpc('QHD');
-    return HdmiResolution.fromTypeCode(r.parameters!);
+    return .fromTypeCode(r.parameters!);
   }
 
   Future<PlaybackStatus> queryPlaybackStatus() async {
@@ -1722,10 +1760,10 @@ class Device {
     var p = PlaybackStatus.fromQueryResponse(r.parameters!);
     // Workaround the playback status sometimes returning that the tray is
     // closing continuously.
-    if (p == PlaybackStatus.closingTray) {
+    if (p == .closingTray) {
       final g = await getGlobalInfo();
       if (g.somethingIsPlaying()) {
-        p = PlaybackStatus.playbackStarted;
+        p = .playbackStarted;
         _log.info('Corrected playback status with HTTP API.');
       }
     }
@@ -1796,8 +1834,8 @@ class Device {
     // Sometimes the player doesn't return an audio type parameter but the
     // result code was not an error.
     if (r.parameters == null) {
-      audioType = AudioType.unknown;
-      return AudioTypeResponse(AudioType.unknown);
+      audioType = .unknown;
+      return AudioTypeResponse(.unknown);
     }
     final audioTypeResponse = AudioTypeResponse.fromString(r.parameters!);
     audioType = await _correctAudioType(audioTypeResponse.type);
@@ -1851,17 +1889,17 @@ class Device {
 
   Future<RepeatMode> queryRepeatMode() async {
     final r = await _rpc('QRP');
-    return RepeatMode.fromQueryResponse(r.parameters!);
+    return .fromQueryResponse(r.parameters!);
   }
 
   Future<ZoomRatio> queryZoomMode() async {
     final r = await _rpc('QZM');
-    return ZoomRatio.fromQueryResponse(r.parameters!);
+    return .fromQueryResponse(r.parameters!);
   }
 
   Future<HdrSetting> queryHdrSetting() async {
     final r = await _rpc('QHR');
-    return HdrSetting.fromTypeCode(r.parameters!);
+    return .fromTypeCode(r.parameters!);
   }
 
   Future<bool> query3dStatus() async {
@@ -1876,12 +1914,12 @@ class Device {
 
   Future<HdrStatus> queryHdrStatus() async {
     final r = await _rpc('QHS');
-    return HdrStatus.fromTypeCode(r.parameters!);
+    return .fromTypeCode(r.parameters!);
   }
 
   Future<InputSource> queryInputSource() async {
     final r = await _rpc('QIS');
-    return InputSource.fromQueryResponse(r.parameters!);
+    return .fromQueryResponse(r.parameters!);
   }
 
   /// WARNING: broken
@@ -1939,7 +1977,7 @@ class Device {
 
   Future<AspectRatioSetting> queryAspectRatio() async {
     final r = await _rpc('QAR');
-    return AspectRatioSetting.fromQueryResponse(r.parameters!);
+    return .fromQueryResponse(r.parameters!);
   }
 
   Future<int> queryDirectorySize() async {
@@ -1960,7 +1998,7 @@ class Device {
     var type = DirectoryItemType.file;
     var name = parameters.trim();
     try {
-      type = DirectoryItemType.fromTypeCode(parameters[0]);
+      type = .fromTypeCode(parameters[0]);
       name = parameters.substring(1).trim();
     } catch (_) {
       // Use the default values if there was a parsing error.
@@ -2052,9 +2090,9 @@ class Device {
   /// this workaround.
   Future<AudioType> _correctAudioType(AudioType audioType) async {
     _log.fine('Reported AudioType is ${audioType.displayName}');
-    if (audioType == AudioType.dolbyDigital ||
-        audioType == AudioType.unknown ||
-        audioType == AudioType.dtsHdHighResolution) {
+    if (audioType == .dolbyDigital ||
+        audioType == .unknown ||
+        audioType == .dtsHdHighResolution) {
       try {
         final audioTracks = await getAudioMenuList();
         _log.fine('Fetched audio menu list.');
@@ -2063,19 +2101,19 @@ class Device {
             _log.fine('Found selected track.');
             if (track.name.contains('Dolby TrueHD')) {
               _log.info('Corrected audio type to Dolby TrueHD.');
-              return AudioType.dolbyTrueHD;
+              return .dolbyTrueHD;
             }
             if (track.name.contains('MLP')) {
               _log.info('Corrected audio type to MLP.');
-              return AudioType.mlp;
+              return .mlp;
             }
             if (track.name.contains('DTS-HD MA')) {
               _log.info('Corrected audio type to DTS-HD MA.');
-              return AudioType.dtsHdMasterAudio;
+              return .dtsHdMasterAudio;
             }
             if (track.name.contains('FLAC')) {
               _log.info('Corrected audio type to FLAC.');
-              return AudioType.flac;
+              return .flac;
             }
           } else {
             continue;
@@ -2096,19 +2134,25 @@ class _AudioTypeUpdate {
   final String language;
   final String channels;
 
-  _AudioTypeUpdate(this.type, this.currentTrack, this.availableTracks,
-      this.language, this.channels);
+  _AudioTypeUpdate(
+    this.type,
+    this.currentTrack,
+    this.availableTracks,
+    this.language,
+    this.channels,
+  );
 
   factory _AudioTypeUpdate.fromUpdateParameters(String parameters) {
     final parts = parameters.split(' ');
     final type = AudioType.fromTypeCode(parts[0].trim());
-    if (type == AudioType.pcm) {
+    if (type == .pcm) {
       throw _PcmAudioTypeException(
-          'The PCM audio type update does not include any other fields normally in a UAT message');
+        'The PCM audio type update does not include any other fields normally in a UAT message',
+      );
     }
     TrackInfo trackInfo;
     try {
-      trackInfo = TrackInfo.fromString(parts[1]);
+      trackInfo = .fromString(parts[1]);
     } catch (e) {
       throw 'Could not parse track info from audio type update: $parameters';
     }
@@ -2144,13 +2188,16 @@ class _SubtitleTypeUpdate {
     }
     TrackInfo trackInfo;
     try {
-      trackInfo = TrackInfo.fromString(parts[0]);
+      trackInfo = .fromString(parts[0]);
     } catch (e) {
       throw 'Could not parse track info from subtitle type update: $parameters';
     }
     final language = parts[1].trim();
     return _SubtitleTypeUpdate(
-        trackInfo.currentTrack, trackInfo.availableTracks, language);
+      trackInfo.currentTrack,
+      trackInfo.availableTracks,
+      language,
+    );
   }
 }
 
@@ -2268,7 +2315,7 @@ class AudioTypeResponse {
     if (parts.length > 1) {
       r = AudioTypeResponse(AudioType.fromQueryResponse(parts[0]));
       try {
-        trackInfo = TrackInfo.fromString(parts[1].trim());
+        trackInfo = .fromString(parts[1].trim());
         r.currentTrack = trackInfo.currentTrack;
         r.availableTracks = trackInfo.availableTracks;
         // If the text includes valid track info it will sometimes also include
@@ -2278,15 +2325,17 @@ class AudioTypeResponse {
         // When playing a CD, sometimes we get parameter text like 'PCM 44.1/16'
         // not track info and language. When playing a FLAC over DLNA, sometimes
         // the text is like 'FLAC 44.1'.
-        _log.info('Audio type response did not include track info. '
-            'Asigning given parameters to "extraInfo".');
+        _log.info(
+          'Audio type response did not include track info. '
+          'Asigning given parameters to "extraInfo".',
+        );
         r.extraInfo = parts.sublist(1).join(' ');
       }
     } else {
       final parameter = parts[0].trim();
       // Getting a single parameter back might mean we only got track info.
       try {
-        trackInfo = TrackInfo.fromString(parameter);
+        trackInfo = .fromString(parameter);
         r.currentTrack = trackInfo.currentTrack;
         r.availableTracks = trackInfo.availableTracks;
       } catch (_) {
@@ -2354,8 +2403,12 @@ class Id3Info {
   final String album;
   final String year;
 
-  const Id3Info(
-      {this.title = '', this.artist = '', this.album = '', this.year = ''});
+  const Id3Info({
+    this.title = '',
+    this.artist = '',
+    this.album = '',
+    this.year = '',
+  });
 
   bool get isEmpty {
     return [title, artist, album, year].every((element) => element.isEmpty);
@@ -2398,8 +2451,8 @@ class GlobalInfo {
 
 class FakeDevice extends Device {
   final _fakeStream = StreamController<String>();
-  Duration _fakeClock = Duration.zero;
-  final AudioType _fakeAudioType = AudioType.dolbyTrueHD;
+  Duration _fakeClock = .zero;
+  final AudioType _fakeAudioType = .dolbyTrueHD;
   final int _fakeCurrentAudioTrack = 1;
   final int _fakeAvailableAudioTracks = 2;
   final String _fakeChannels = '7.1';
@@ -2411,8 +2464,8 @@ class FakeDevice extends Device {
     AspectRatioMode.wideAuto,
     AspectRatioPlayback.wide,
   );
-  final VideoResolution _fakeContentResolution = VideoResolution.r1080p24;
-  final VideoResolution _fakeOutputResolution = VideoResolution.rUhd24;
+  final VideoResolution _fakeContentResolution = .r1080p24;
+  final VideoResolution _fakeOutputResolution = .rUhd24;
   int _subtitleShift = 0;
   int _osdPosition = 0;
 
@@ -2429,18 +2482,18 @@ class FakeDevice extends Device {
     aspectRatioSetting = _fakeAspectRatioSetting;
     contentResolution = _fakeContentResolution;
     outputResolution = _fakeOutputResolution;
-    playbackStatus = PlaybackStatus.playbackStarted;
+    playbackStatus = .playbackStarted;
     setupPositionUpdates();
   }
 
   void setupPositionUpdates() async {
     await for (final _ in Stream.periodic(const Duration(seconds: 1))) {
-      if (playbackStatus == PlaybackStatus.playbackStarted ||
-          playbackStatus == PlaybackStatus.fastForward1 ||
-          playbackStatus == PlaybackStatus.fastReverse1) {
-        if (playbackStatus == PlaybackStatus.fastReverse1) {
+      if (playbackStatus == .playbackStarted ||
+          playbackStatus == .fastForward1 ||
+          playbackStatus == .fastReverse1) {
+        if (playbackStatus == .fastReverse1) {
           _fakeClock -= const Duration(seconds: 3);
-        } else if (playbackStatus == PlaybackStatus.fastForward1) {
+        } else if (playbackStatus == .fastForward1) {
           _fakeClock += const Duration(seconds: 3);
         } else {
           _fakeClock += const Duration(seconds: 1);
@@ -2459,18 +2512,26 @@ class FakeDevice extends Device {
         contentResolution = _fakeContentResolution;
         outputResolution = _fakeOutputResolution;
 
-        final paddedCurrentAudioTrack =
-            currentAudioTrack.toString().padLeft(3, '0');
-        final paddedAvailableAudioTracks =
-            availableAudioTracks.toString().padLeft(3, '0');
+        final paddedCurrentAudioTrack = currentAudioTrack.toString().padLeft(
+          3,
+          '0',
+        );
+        final paddedAvailableAudioTracks = availableAudioTracks
+            .toString()
+            .padLeft(3, '0');
         final paddedHours = _fakeClock.inHours.toString().padLeft(2, '0');
-        final paddedMinutes =
-            (_fakeClock.inMinutes % 60).toString().padLeft(2, '0');
-        final paddedSeconds =
-            (_fakeClock.inSeconds % 60).toString().padLeft(2, '0');
-        _fakeStream
-            .add('@UTC $paddedCurrentAudioTrack $paddedAvailableAudioTracks C '
-                '$paddedHours:$paddedMinutes:$paddedSeconds');
+        final paddedMinutes = (_fakeClock.inMinutes % 60).toString().padLeft(
+          2,
+          '0',
+        );
+        final paddedSeconds = (_fakeClock.inSeconds % 60).toString().padLeft(
+          2,
+          '0',
+        );
+        _fakeStream.add(
+          '@UTC $paddedCurrentAudioTrack $paddedAvailableAudioTracks C '
+          '$paddedHours:$paddedMinutes:$paddedSeconds',
+        );
       }
     }
   }
@@ -2511,9 +2572,9 @@ class FakeDevice extends Device {
 
   @override
   Future<void> pause() async {
-    if (playbackStatus == PlaybackStatus.playbackPaused) {
+    if (playbackStatus == .playbackPaused) {
       _fakeStream.add('@UPL PLAY');
-    } else if (playbackStatus == PlaybackStatus.playbackStopped) {
+    } else if (playbackStatus == .playbackStopped) {
       // do nothing
     } else {
       _fakeStream.add('@UPL PAUS');
@@ -2523,7 +2584,7 @@ class FakeDevice extends Device {
   @override
   Future<void> stop() async {
     _fakeStream.add('@UPL STOP');
-    _fakeClock = Duration.zero;
+    _fakeClock = .zero;
   }
 
   @override
@@ -2540,14 +2601,14 @@ class FakeDevice extends Device {
   Future<void> powerOn() async {
     _fakeStream.add('@UPW 1');
     // Yes, stopped. This is so the UI will display some playback status icon.
-    playbackStatus = PlaybackStatus.playbackStopped;
+    playbackStatus = .playbackStopped;
   }
 
   @override
   Future<void> powerOff() async {
     _fakeStream.add('@UPW 0');
-    playbackStatus = PlaybackStatus.playbackStopped;
-    _fakeClock = Duration.zero;
+    playbackStatus = .playbackStopped;
+    _fakeClock = .zero;
     position = null;
   }
 

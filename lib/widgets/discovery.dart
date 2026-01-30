@@ -33,32 +33,38 @@ class ScanForDevices extends StatelessWidget {
         onPressed: () {
           if (isApple(context)) {
             showCupertinoDialog(
-                context: context,
-                builder: (BuildContext context) => const ManuallyConnect());
+              context: context,
+              builder: (BuildContext context) => const ManuallyConnect(),
+            );
           } else {
             showDialog(
-                context: context,
-                builder: (BuildContext context) => const ManuallyConnect());
+              context: context,
+              builder: (BuildContext context) => const ManuallyConnect(),
+            );
           }
         },
       ),
       body: SafeArea(
         child: Semantics(
-          label: 'list of discovered devices with '
+          label:
+              'list of discovered devices with '
               'option to enter demo mode',
           child: ListView(
-            padding: const EdgeInsets.all(25.0),
+            padding: const .all(25.0),
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: .spaceBetween,
                 children: [
-                  Text('Device discovery',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    'Device discovery',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   TextButton(
                     onPressed: () => Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const FakeConnect()),
-                        (Route<dynamic> route) => false),
+                      context,
+                      MaterialPageRoute(builder: (_) => const FakeConnect()),
+                      (Route<dynamic> route) => false,
+                    ),
                     child: const Text('Demo mode'),
                   ),
                 ],
@@ -112,8 +118,7 @@ class _DevicesState extends State<Devices> {
             // conditionally mark a device as being the one we connected to
             // last.
             String? lastDeviceAddress;
-            if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.hasData) {
+            if (snapshot.connectionState == .done && snapshot.hasData) {
               final p = Preferences(snapshot.data!);
               lastDeviceAddress = p.lastDeviceAddress;
               if (lastDeviceAddress != null &&
@@ -153,33 +158,36 @@ class _DevicesState extends State<Devices> {
                               context: context,
                               builder: (BuildContext context) =>
                                   AlertDialog.adaptive(
-                                title: const Text('Remove device'),
-                                content: const Text(
-                                    'Remove device from list of discovered devices?'),
-                                actions: [
-                                  isApple(context)
-                                      ? CupertinoDialogAction(
-                                          onPressed: () =>
-                                              Navigator.pop(context, null),
-                                          child: const Text('Cancel'))
-                                      : TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, null),
-                                          child: const Text('Cancel'),
-                                        ),
-                                  isApple(context)
-                                      ? CupertinoDialogAction(
-                                          onPressed: () =>
-                                              Navigator.pop(context, e),
-                                          isDestructiveAction: true,
-                                          child: const Text('Remove'))
-                                      : TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, e),
-                                          child: const Text('Remove'),
-                                        ),
-                                ],
-                              ),
+                                    title: const Text('Remove device'),
+                                    content: const Text(
+                                      'Remove device from list of discovered devices?',
+                                    ),
+                                    actions: [
+                                      isApple(context)
+                                          ? CupertinoDialogAction(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, null),
+                                              child: const Text('Cancel'),
+                                            )
+                                          : TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, null),
+                                              child: const Text('Cancel'),
+                                            ),
+                                      isApple(context)
+                                          ? CupertinoDialogAction(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, e),
+                                              isDestructiveAction: true,
+                                              child: const Text('Remove'),
+                                            )
+                                          : TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, e),
+                                              child: const Text('Remove'),
+                                            ),
+                                    ],
+                                  ),
                             );
                             if (result != null) {
                               // If the device to remove is the one saved as the
@@ -212,9 +220,8 @@ void _connect(BuildContext context, oppo.OppoID id) {
   Navigator.pushAndRemoveUntil(
     context,
     MaterialPageRoute(
-      builder: (_) => Connect(
-        device: oppo.Device(id.name, id.address, id.port),
-      ),
+      builder: (_) =>
+          Connect(device: oppo.Device(id.name, id.address, id.port)),
     ),
     (Route<dynamic> route) => false,
   );
@@ -246,16 +253,12 @@ class _ManuallyConnectState extends State<ManuallyConnect> {
           ? Column(
               children: [
                 if (_errorText != null)
-                  Text(
-                    _errorText!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
+                  Text(_errorText!, style: const TextStyle(color: Colors.red)),
                 const SizedBox(height: 12.0),
                 CupertinoTextField(
                   controller: _controller,
                   autofocus: true,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const .numberWithOptions(decimal: true),
                   placeholder: hintText,
                 ),
               ],
@@ -263,7 +266,7 @@ class _ManuallyConnectState extends State<ManuallyConnect> {
           : TextField(
               controller: _controller,
               autofocus: true,
-              keyboardType: TextInputType.number,
+              keyboardType: .number,
               decoration: InputDecoration(
                 hintText: hintText,
                 errorText: _errorText,
@@ -297,12 +300,10 @@ class _ManuallyConnectState extends State<ManuallyConnect> {
     final address = _controller.text;
     try {
       id = oppo.OppoID(
-          InternetAddress(
-            address,
-            type: InternetAddressType.IPv4,
-          ),
-          23,
-          'Manually added');
+        InternetAddress(address, type: InternetAddressType.IPv4),
+        23,
+        'Manually added',
+      );
     } catch (e) {
       setState(() {
         _errorText = 'Invalid address';

@@ -25,7 +25,7 @@ class KnownIssues extends StatelessWidget {
         ),
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            padding: const .symmetric(horizontal: 20.0),
             child: ListView(
               children: [
                 // Apple doesn't want me to have references to Oppo.

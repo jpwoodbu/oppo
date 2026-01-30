@@ -7,7 +7,7 @@ import 'package:oppo/widgets/discovery.dart';
 import 'package:oppo/widgets/util.dart';
 
 void main() {
-  Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;
+  Logger.root.level = kDebugMode ? .ALL : .INFO;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.level.name}: ${record.time}: ${record.message}');
@@ -37,7 +37,7 @@ class OppoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: Colors.blue,
-      brightness: Brightness.dark,
+      brightness: .dark,
     );
     return MaterialApp(
       // Based on
@@ -54,7 +54,7 @@ class OppoApp extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius),
             ),
-            padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 20.0),
+            padding: const .fromLTRB(5.0, 20.0, 5.0, 20.0),
           ),
         ),
       ),

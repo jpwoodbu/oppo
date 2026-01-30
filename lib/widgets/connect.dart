@@ -45,7 +45,7 @@ class _ConnectState extends State<Connect> {
     return FutureBuilder<void>(
       future: _connect,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
+        if (snapshot.connectionState == .done) {
           if (snapshot.hasError) {
             return const ConnectionError();
           }
@@ -73,7 +73,7 @@ class ConnectionError extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: .center,
             children: [
               const Text('Error connecting to device.'),
               TextButton(

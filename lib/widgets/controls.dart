@@ -25,15 +25,12 @@ class _HomeRowState extends State<HomeRow> with AutomaticKeepAliveClientMixin {
     final device = context.read<DeviceChanges>().device;
 
     return Wrap(
-      alignment: WrapAlignment.spaceBetween,
-      crossAxisAlignment: WrapCrossAlignment.center,
+      alignment: .spaceBetween,
+      crossAxisAlignment: .center,
       children: [
         IconButton(
           onPressed: () => addHaptic(device.home),
-          icon: const Icon(
-            Icons.home,
-            semanticLabel: 'home',
-          ),
+          icon: const Icon(Icons.home, semanticLabel: 'home'),
         ),
         TextButton.icon(
           onPressed: () => addHaptic(device.goto),
@@ -47,17 +44,11 @@ class _HomeRowState extends State<HomeRow> with AutomaticKeepAliveClientMixin {
         ),
         IconButton(
           onPressed: () => addHaptic(device.osd),
-          icon: const Icon(
-            Icons.info,
-            semanticLabel: 'info',
-          ),
+          icon: const Icon(Icons.info, semanticLabel: 'info'),
         ),
         IconButton(
           onPressed: () => addHaptic(device.infoDetailed),
-          icon: const Icon(
-            Icons.query_stats,
-            semanticLabel: 'detailed info',
-          ),
+          icon: const Icon(Icons.query_stats, semanticLabel: 'detailed info'),
         ),
       ],
     );
@@ -78,96 +69,109 @@ class _ArrowsState extends State<Arrows> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return LayoutBuilder(builder: (_, constraints) {
-      final device = context.read<DeviceChanges>().device;
-      final iconSize = min<double>(constraints.maxWidth / 4, 100.0);
-      return Table(
-        defaultColumnWidth: const IntrinsicColumnWidth(),
-        children: <TableRow>[
-          TableRow(
-            children: [
-              TableCell(
-                verticalAlignment: TableCellVerticalAlignment.middle,
-                child: ElevatedButton(
-                  onPressed: () => addHaptic(device.topMenu),
-                  child: const VerticalIcon(
-                      icon: Icon(Icons.navigation), label: 'Top'),
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        final device = context.read<DeviceChanges>().device;
+        final iconSize = min<double>(constraints.maxWidth / 4, 100.0);
+        return Table(
+          defaultColumnWidth: const IntrinsicColumnWidth(),
+          children: <TableRow>[
+            TableRow(
+              children: [
+                TableCell(
+                  verticalAlignment: .middle,
+                  child: ElevatedButton(
+                    onPressed: () => addHaptic(device.topMenu),
+                    child: const VerticalIcon(
+                      icon: Icon(Icons.navigation),
+                      label: 'Top',
+                    ),
+                  ),
                 ),
-              ),
-              IconButton(
-                onPressed: () => addHaptic(device.arrowUp),
-                icon: Icon(
-                  Icons.keyboard_arrow_up,
-                  size: iconSize,
-                  semanticLabel: 'up',
+                IconButton(
+                  onPressed: () => addHaptic(device.arrowUp),
+                  icon: Icon(
+                    Icons.keyboard_arrow_up,
+                    size: iconSize,
+                    semanticLabel: 'up',
+                  ),
                 ),
-              ),
-              TableCell(
-                verticalAlignment: TableCellVerticalAlignment.middle,
-                child: ElevatedButton(
-                  onPressed: () => addHaptic(device.popupMenu),
-                  child: const VerticalIcon(
-                      icon: Icon(Icons.article), label: 'Pop-up'),
+                TableCell(
+                  verticalAlignment: .middle,
+                  child: ElevatedButton(
+                    onPressed: () => addHaptic(device.popupMenu),
+                    child: const VerticalIcon(
+                      icon: Icon(Icons.article),
+                      label: 'Pop-up',
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          TableRow(
-            children: [
-              IconButton(
+              ],
+            ),
+            TableRow(
+              children: [
+                IconButton(
                   onPressed: () => addHaptic(device.arrowLeft),
                   icon: Icon(
                     Icons.keyboard_arrow_left,
                     size: iconSize,
                     semanticLabel: 'left',
-                  )),
-              IconButton(
+                  ),
+                ),
+                IconButton(
                   onPressed: () => addHaptic(device.enter),
                   icon: Icon(
                     Icons.circle_outlined,
                     size: iconSize,
                     semanticLabel: 'enter',
-                  )),
-              IconButton(
+                  ),
+                ),
+                IconButton(
                   onPressed: () => addHaptic(device.arrowRight),
                   icon: Icon(
                     Icons.keyboard_arrow_right,
                     size: iconSize,
                     semanticLabel: 'right',
-                  )),
-            ],
-          ),
-          TableRow(
-            children: [
-              TableCell(
-                verticalAlignment: TableCellVerticalAlignment.middle,
-                child: ElevatedButton(
-                  onPressed: () => addHaptic(device.option),
-                  child: const VerticalIcon(
-                      icon: Icon(Icons.emergency), label: 'Option'),
+                  ),
                 ),
-              ),
-              IconButton(
+              ],
+            ),
+            TableRow(
+              children: [
+                TableCell(
+                  verticalAlignment: .middle,
+                  child: ElevatedButton(
+                    onPressed: () => addHaptic(device.option),
+                    child: const VerticalIcon(
+                      icon: Icon(Icons.emergency),
+                      label: 'Option',
+                    ),
+                  ),
+                ),
+                IconButton(
                   onPressed: () => addHaptic(device.arrowDown),
                   icon: Icon(
                     Icons.keyboard_arrow_down,
                     size: iconSize,
                     semanticLabel: 'down',
-                  )),
-              TableCell(
-                verticalAlignment: TableCellVerticalAlignment.middle,
-                child: ElevatedButton(
+                  ),
+                ),
+                TableCell(
+                  verticalAlignment: .middle,
+                  child: ElevatedButton(
                     onPressed: () => addHaptic(device.returnToPrevious),
                     child: const VerticalIcon(
                       icon: Icon(Icons.arrow_back),
                       label: 'Return',
-                    )),
-              ),
-            ],
-          ),
-        ],
-      );
-    });
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -186,46 +190,46 @@ class _PlayControlsState extends State<PlayControls>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return LayoutBuilder(builder: (_, constraints) {
-      final device = context.read<DeviceChanges>().device;
-      final iconSize = min<double>(constraints.maxWidth / 4, 85.0);
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-            onPressed: () => addHaptic(device.stop),
-            onLongPress: () async {
-              final selection = await showDialog<bool?>(
-                  context: context, builder: (context) => const PowerOff());
-              if (selection != null && selection == true) {
-                await device.powerOff();
-              }
-            },
-            icon: Icon(
-              Icons.stop_circle,
-              size: iconSize,
-              semanticLabel: 'stop',
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        final device = context.read<DeviceChanges>().device;
+        final iconSize = min<double>(constraints.maxWidth / 4, 85.0);
+        return Row(
+          mainAxisAlignment: .center,
+          children: [
+            IconButton(
+              onPressed: () => addHaptic(device.stop),
+              onLongPress: () async {
+                final selection = await showDialog<bool?>(
+                  context: context,
+                  builder: (context) => const PowerOff(),
+                );
+                if (selection != null && selection == true) {
+                  await device.powerOff();
+                }
+              },
+              icon: Icon(
+                Icons.stop_circle,
+                size: iconSize,
+                semanticLabel: 'stop',
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () => addHaptic(device.play),
-            icon: Icon(
-              Icons.play_arrow,
-              size: iconSize,
-              semanticLabel: 'play',
+            IconButton(
+              onPressed: () => addHaptic(device.play),
+              icon: Icon(
+                Icons.play_arrow,
+                size: iconSize,
+                semanticLabel: 'play',
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () => addHaptic(device.pause),
-            icon: Icon(
-              Icons.pause,
-              size: iconSize,
-              semanticLabel: 'pause',
+            IconButton(
+              onPressed: () => addHaptic(device.pause),
+              icon: Icon(Icons.pause, size: iconSize, semanticLabel: 'pause'),
             ),
-          ),
-        ],
-      );
-    });
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -244,47 +248,49 @@ class _PositionControlsState extends State<PositionControls>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return LayoutBuilder(builder: (_, constraints) {
-      final device = context.read<DeviceChanges>().device;
-      final iconSize = min<double>(constraints.maxWidth / 6, 65.0);
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-            onPressed: () => addHaptic(device.previous),
-            icon: Icon(
-              Icons.skip_previous,
-              size: iconSize,
-              semanticLabel: 'previous',
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        final device = context.read<DeviceChanges>().device;
+        final iconSize = min<double>(constraints.maxWidth / 6, 65.0);
+        return Row(
+          mainAxisAlignment: .center,
+          children: [
+            IconButton(
+              onPressed: () => addHaptic(device.previous),
+              icon: Icon(
+                Icons.skip_previous,
+                size: iconSize,
+                semanticLabel: 'previous',
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () => addHaptic(device.reverse),
-            icon: Icon(
-              Icons.fast_rewind,
-              size: iconSize,
-              semanticLabel: 'scan reverse',
+            IconButton(
+              onPressed: () => addHaptic(device.reverse),
+              icon: Icon(
+                Icons.fast_rewind,
+                size: iconSize,
+                semanticLabel: 'scan reverse',
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () => addHaptic(device.forward),
-            icon: Icon(
-              Icons.fast_forward,
-              size: iconSize,
-              semanticLabel: 'scan forward',
+            IconButton(
+              onPressed: () => addHaptic(device.forward),
+              icon: Icon(
+                Icons.fast_forward,
+                size: iconSize,
+                semanticLabel: 'scan forward',
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () => addHaptic(device.next),
-            icon: Icon(
-              Icons.skip_next,
-              size: iconSize,
-              semanticLabel: 'next',
+            IconButton(
+              onPressed: () => addHaptic(device.next),
+              icon: Icon(
+                Icons.skip_next,
+                size: iconSize,
+                semanticLabel: 'next',
+              ),
             ),
-          ),
-        ],
-      );
-    });
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -292,11 +298,12 @@ class ColorButton extends StatelessWidget {
   final Function() onPressed;
   final Color color;
   final String semanticLabel;
-  const ColorButton(
-      {super.key,
-      required this.onPressed,
-      required this.color,
-      required this.semanticLabel});
+  const ColorButton({
+    super.key,
+    required this.onPressed,
+    required this.color,
+    required this.semanticLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,9 +312,13 @@ class ColorButton extends StatelessWidget {
       child: FilledButton(
         onPressed: () => addHaptic(onPressed),
         style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(color),
-            shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(borderRadius)))),
+          backgroundColor: WidgetStateProperty.all(color),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+            ),
+          ),
+        ),
         child: const SizedBox(),
       ),
     );
@@ -329,19 +340,23 @@ class TableCellPadded extends StatelessWidget {
 
 ButtonStyle dialogButtonStyle(BuildContext context) {
   return ButtonStyle(
-    backgroundColor:
-        WidgetStatePropertyAll(Theme.of(context).colorScheme.onSecondary),
-    foregroundColor:
-        WidgetStatePropertyAll(Theme.of(context).colorScheme.secondary),
+    backgroundColor: WidgetStatePropertyAll(
+      Theme.of(context).colorScheme.onSecondary,
+    ),
+    foregroundColor: WidgetStatePropertyAll(
+      Theme.of(context).colorScheme.secondary,
+    ),
   );
 }
 
 ButtonStyle alertDialogButtonStyle(BuildContext context) {
   return ButtonStyle(
-    backgroundColor:
-        WidgetStatePropertyAll(Theme.of(context).colorScheme.onTertiary),
-    foregroundColor:
-        WidgetStatePropertyAll(Theme.of(context).colorScheme.tertiary),
+    backgroundColor: WidgetStatePropertyAll(
+      Theme.of(context).colorScheme.onTertiary,
+    ),
+    foregroundColor: WidgetStatePropertyAll(
+      Theme.of(context).colorScheme.tertiary,
+    ),
   );
 }
 
@@ -363,80 +378,96 @@ class _BottomGridState extends State<BottomGrid>
     final device = context.read<DeviceChanges>().device;
     return Table(
       children: <TableRow>[
-        TableRow(children: [
-          TableCellPadded(
-            child: ColorButton(
-              onPressed: () => addHaptic(device.red),
-              color: Colors.red,
-              semanticLabel: 'red button',
+        TableRow(
+          children: [
+            TableCellPadded(
+              child: ColorButton(
+                onPressed: () => addHaptic(device.red),
+                color: Colors.red,
+                semanticLabel: 'red button',
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ColorButton(
-              onPressed: () => addHaptic(device.green),
-              color: Colors.green,
-              semanticLabel: 'green button',
+            TableCellPadded(
+              child: ColorButton(
+                onPressed: () => addHaptic(device.green),
+                color: Colors.green,
+                semanticLabel: 'green button',
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ColorButton(
-              onPressed: () => addHaptic(device.blue),
-              color: Colors.blue,
-              semanticLabel: 'blue button',
+            TableCellPadded(
+              child: ColorButton(
+                onPressed: () => addHaptic(device.blue),
+                color: Colors.blue,
+                semanticLabel: 'blue button',
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ColorButton(
-              onPressed: () => addHaptic(device.yellow),
-              color: Colors.yellow,
-              semanticLabel: 'yellow button',
+            TableCellPadded(
+              child: ColorButton(
+                onPressed: () => addHaptic(device.yellow),
+                color: Colors.yellow,
+                semanticLabel: 'yellow button',
+              ),
             ),
-          ),
-        ]),
-        TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.pureAudio),
-              child: const VerticalIcon(
-                  icon: Icon(Icons.graphic_eq), label: 'Pure audio'),
+          ],
+        ),
+        TableRow(
+          children: [
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.pureAudio),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.graphic_eq),
+                  label: 'Pure audio',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.volumeDown),
-              child: const VerticalIcon(
-                  icon: Icon(Icons.volume_down), label: 'Vol -'),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.volumeDown),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.volume_down),
+                  label: 'Vol -',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.volumeUp),
-              child: const VerticalIcon(
-                  icon: Icon(Icons.volume_up), label: 'Vol +'),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.volumeUp),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.volume_up),
+                  label: 'Vol +',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.mute),
-              child: const VerticalIcon(
-                  icon: Icon(Icons.volume_mute), label: 'Mute'),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.mute),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.volume_mute),
+                  label: 'Mute',
+                ),
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
         TableRow(
           children: [
             TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.audio),
                 child: const VerticalIcon(
-                    icon: Icon(Icons.animation), label: 'Audio'),
+                  icon: Icon(Icons.animation),
+                  label: 'Audio',
+                ),
               ),
             ),
             TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.subtitle),
                 child: const VerticalIcon(
-                    icon: Icon(Icons.subtitles), label: 'Subtitle'),
+                  icon: Icon(Icons.subtitles),
+                  label: 'Subtitle',
+                ),
               ),
             ),
             TableCellPadded(
@@ -444,110 +475,139 @@ class _BottomGridState extends State<BottomGrid>
                 style: dialogButtonStyle(context),
                 onPressed: () async {
                   final selection = await showDialog<oppo.ZoomRatio>(
-                      context: context,
-                      builder: (context) => const DialogSelector(
-                          titleText: 'Zoom ratio',
-                          values: oppo.ZoomRatio.values));
+                    context: context,
+                    builder: (context) => const DialogSelector(
+                      titleText: 'Zoom ratio',
+                      values: oppo.ZoomRatio.values,
+                    ),
+                  );
                   if (selection != null) {
                     await device.setZoomRatio(selection);
                   }
                 },
                 child: const VerticalIcon(
-                    icon: Icon(Icons.zoom_in), label: 'Zoom'),
+                  icon: Icon(Icons.zoom_in),
+                  label: 'Zoom',
+                ),
               ),
             ),
             TableCellPadded(
               child: ElevatedButton(
                 onPressed: () => addHaptic(device.dim),
                 child: const VerticalIcon(
-                    icon: Icon(Icons.light_mode), label: 'Dimmer'),
+                  icon: Icon(Icons.light_mode),
+                  label: 'Dimmer',
+                ),
               ),
             ),
           ],
         ),
-        TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.setup),
-              child:
-                  const VerticalIcon(icon: Icon(Icons.build), label: 'Setup'),
+        TableRow(
+          children: [
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.setup),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.build),
+                  label: 'Setup',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.repeatAB),
-              child: const VerticalIcon(
-                  icon: Icon(Icons.undo), label: 'AB Replay'),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.repeatAB),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.undo),
+                  label: 'AB Replay',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.RepeatMode>(
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.RepeatMode>(
                     context: context,
                     builder: (context) => DialogSelector(
-                        titleText: 'Repeat mode',
-                        // RepeatMode.one is not available for the SRP command.
-                        values: oppo.RepeatMode.values.where(
-                            (element) => element != oppo.RepeatMode.one)));
-                if (selection != null) {
-                  await device.setRepeatMode(selection);
-                }
-              },
-              child:
-                  const VerticalIcon(icon: Icon(Icons.repeat), label: 'Repeat'),
+                      titleText: 'Repeat mode',
+                      // RepeatMode.one is not available for the SRP command.
+                      values: oppo.RepeatMode.values.where(
+                        (element) => element != .one,
+                      ),
+                    ),
+                  );
+                  if (selection != null) {
+                    await device.setRepeatMode(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.repeat),
+                  label: 'Repeat',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.pictureAdjustmentMenu),
-              child: const VerticalIcon(icon: Icon(Icons.apps), label: 'Pic'),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.pictureAdjustmentMenu),
+                child: const VerticalIcon(icon: Icon(Icons.apps), label: 'Pic'),
+              ),
             ),
-          ),
-        ]),
-        TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.HdmiResolution>(
+          ],
+        ),
+        TableRow(
+          children: [
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.HdmiResolution>(
                     context: context,
                     builder: (context) => const DialogSelector(
-                        titleText: 'HDMI resolution',
-                        values: oppo.HdmiResolution.values));
-                if (selection != null) {
-                  await device.setHdmiResolution(selection);
-                }
-              },
-              child: const VerticalIcon(
-                  icon: Icon(Icons.aspect_ratio), label: 'Resolution'),
+                      titleText: 'HDMI resolution',
+                      values: oppo.HdmiResolution.values,
+                    ),
+                  );
+                  if (selection != null) {
+                    await device.setHdmiResolution(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.aspect_ratio),
+                  label: 'Resolution',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.pageDown),
-              child: const VerticalIcon(
-                  icon: Icon(Icons.keyboard_double_arrow_down), label: 'Page'),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.pageDown),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.keyboard_double_arrow_down),
+                  label: 'Page',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.pageUp),
-              child: const VerticalIcon(
-                  icon: Icon(Icons.keyboard_double_arrow_up), label: 'Page'),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.pageUp),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.keyboard_double_arrow_up),
+                  label: 'Page',
+                ),
+              ),
             ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              // setHdrSetting is not being used here because the API for it
-              // mostly doesn't work.
-              onPressed: () => addHaptic(device.hdrMenu),
-              child: const VerticalIcon(
-                  icon: Icon(Icons.hdr_strong), label: 'HDR'),
+            TableCellPadded(
+              child: ElevatedButton(
+                // setHdrSetting is not being used here because the API for it
+                // mostly doesn't work.
+                onPressed: () => addHaptic(device.hdrMenu),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.hdr_strong),
+                  label: 'HDR',
+                ),
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ],
     );
   }
@@ -571,187 +631,238 @@ class _ExtraControlsState extends State<ExtraControls>
     final device = context.read<DeviceChanges>().device;
     return Table(
       children: [
-        TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              style: alertDialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<bool?>(
-                    context: context, builder: (context) => const PowerOff());
-                if (selection != null && selection == true) {
-                  await device.powerOff();
-                }
-              },
-              child: const VerticalIcon(
-                  icon: Icon(Icons.power_settings_new), label: 'Power'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.App>(
+        TableRow(
+          children: [
+            TableCellPadded(
+              child: ElevatedButton(
+                style: alertDialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<bool?>(
                     context: context,
-                    builder: (context) => const DialogSelector(
-                        titleText: 'Apps', values: oppo.App.values));
-                if (selection != null) {
-                  await device.runApp(selection);
-                }
-              },
-              child: const VerticalIcon(icon: Icon(Icons.apps), label: 'Apps'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.InputSource>(
-                    context: context,
-                    builder: (context) => const DialogSelector(
-                        titleText: 'Input source',
-                        values: oppo.InputSource.values));
-                if (selection != null) {
-                  await device.setInputSource(selection);
-                }
-              },
-              child:
-                  const VerticalIcon(icon: Icon(Icons.input), label: 'Input'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: alertDialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<bool?>(
-                    context: context, builder: (context) => const ToggleTray());
-                if (selection != null && selection == true) {
-                  await device.trayToggle();
-                }
-              },
-              child: const VerticalIcon(icon: Icon(Icons.eject), label: 'Open'),
-            ),
-          ),
-        ]),
-        TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.TimeInformation>(
-                    context: context,
-                    builder: (context) => const DialogSelector(
-                        titleText: 'Time mode',
-                        values: oppo.TimeInformation.values));
-                if (selection != null) {
-                  await device.setTimeInformationDisplay(selection);
-                }
-              },
-              child: const VerticalIcon(
-                  icon: Icon(Icons.hourglass_bottom), label: 'Time'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<int>(
-                    context: context,
-                    builder: (context) => SetSubtitleShift(device: device));
-                if (selection != null) {
-                  await device.setSubtitleShift(selection);
-                }
-              },
-              child: const VerticalIcon(
-                  icon: Icon(Icons.format_indent_increase),
-                  label: 'Subtitle shift',
-                  small: true),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<int>(
-                    context: context,
-                    builder: (context) => SetOsdPosition(device: device));
-                if (selection != null) {
-                  await device.setOsdPosition(selection);
-                }
-              },
-              child: const VerticalIcon(icon: Icon(Icons.margin), label: 'OSD'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.audioVideoSyncMenu),
-              child:
-                  const VerticalIcon(icon: Icon(Icons.tune), label: 'A/V sync'),
-            ),
-          ),
-        ]),
-        TableRow(children: [
-          TableCellPadded(
-            child: ElevatedButton(
-              onPressed: () => addHaptic(device.threeDimensionalMenu),
-              child:
-                  const VerticalIcon(icon: Icon(Icons.view_in_ar), label: '3D'),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.ScreenSaverSetting>(
-                    context: context,
-                    builder: (context) => const DialogSelector(
-                        titleText: 'Screensaver',
-                        values: oppo.ScreenSaverSetting.values));
-                if (selection != null) {
-                  await device.setScreenSaver(selection);
-                }
-              },
-              child: const VerticalIcon(
-                  icon: Icon(Icons.tv), label: 'Screensaver', small: true),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.SacdPriority>(
-                    context: context,
-                    builder: (context) => const DialogSelector(
-                        titleText: 'SACD priority',
-                        values: oppo.SacdPriority.values));
-                if (selection != null) {
-                  await device.setSacdPriority(selection);
-                }
-              },
-              child: const VerticalIcon(
-                  icon: Icon(Icons.album), label: 'SACD priority', small: true),
-            ),
-          ),
-          TableCellPadded(
-            child: ElevatedButton(
-              style: dialogButtonStyle(context),
-              onPressed: () async {
-                final selection = await showDialog<oppo.SacdOutputMode>(
-                    context: context,
-                    builder: (context) => const DialogSelector(
-                        titleText: 'SACD output mode',
-                        values: oppo.SacdOutputMode.values));
-                if (selection != null) {
-                  await device.setSacdOutputMode(selection);
-                }
-              },
-              child: const VerticalIcon(
-                icon: Icon(Icons.transform),
-                label: 'SACD output',
-                small: true,
+                    builder: (context) => const PowerOff(),
+                  );
+                  if (selection != null && selection == true) {
+                    await device.powerOff();
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.power_settings_new),
+                  label: 'Power',
+                ),
               ),
             ),
-          ),
-        ]),
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.App>(
+                    context: context,
+                    builder: (context) => const DialogSelector(
+                      titleText: 'Apps',
+                      values: oppo.App.values,
+                    ),
+                  );
+                  if (selection != null) {
+                    await device.runApp(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.apps),
+                  label: 'Apps',
+                ),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.InputSource>(
+                    context: context,
+                    builder: (context) => const DialogSelector(
+                      titleText: 'Input source',
+                      values: oppo.InputSource.values,
+                    ),
+                  );
+                  if (selection != null) {
+                    await device.setInputSource(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.input),
+                  label: 'Input',
+                ),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                style: alertDialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<bool?>(
+                    context: context,
+                    builder: (context) => const ToggleTray(),
+                  );
+                  if (selection != null && selection == true) {
+                    await device.trayToggle();
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.eject),
+                  label: 'Open',
+                ),
+              ),
+            ),
+          ],
+        ),
+        TableRow(
+          children: [
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.TimeInformation>(
+                    context: context,
+                    builder: (context) => const DialogSelector(
+                      titleText: 'Time mode',
+                      values: oppo.TimeInformation.values,
+                    ),
+                  );
+                  if (selection != null) {
+                    await device.setTimeInformationDisplay(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.hourglass_bottom),
+                  label: 'Time',
+                ),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<int>(
+                    context: context,
+                    builder: (context) => SetSubtitleShift(device: device),
+                  );
+                  if (selection != null) {
+                    await device.setSubtitleShift(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.format_indent_increase),
+                  label: 'Subtitle shift',
+                  small: true,
+                ),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<int>(
+                    context: context,
+                    builder: (context) => SetOsdPosition(device: device),
+                  );
+                  if (selection != null) {
+                    await device.setOsdPosition(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.margin),
+                  label: 'OSD',
+                ),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.audioVideoSyncMenu),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.tune),
+                  label: 'A/V sync',
+                ),
+              ),
+            ),
+          ],
+        ),
+        TableRow(
+          children: [
+            TableCellPadded(
+              child: ElevatedButton(
+                onPressed: () => addHaptic(device.threeDimensionalMenu),
+                child: const VerticalIcon(
+                  icon: Icon(Icons.view_in_ar),
+                  label: '3D',
+                ),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.ScreenSaverSetting>(
+                    context: context,
+                    builder: (context) => const DialogSelector(
+                      titleText: 'Screensaver',
+                      values: oppo.ScreenSaverSetting.values,
+                    ),
+                  );
+                  if (selection != null) {
+                    await device.setScreenSaver(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.tv),
+                  label: 'Screensaver',
+                  small: true,
+                ),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.SacdPriority>(
+                    context: context,
+                    builder: (context) => const DialogSelector(
+                      titleText: 'SACD priority',
+                      values: oppo.SacdPriority.values,
+                    ),
+                  );
+                  if (selection != null) {
+                    await device.setSacdPriority(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.album),
+                  label: 'SACD priority',
+                  small: true,
+                ),
+              ),
+            ),
+            TableCellPadded(
+              child: ElevatedButton(
+                style: dialogButtonStyle(context),
+                onPressed: () async {
+                  final selection = await showDialog<oppo.SacdOutputMode>(
+                    context: context,
+                    builder: (context) => const DialogSelector(
+                      titleText: 'SACD output mode',
+                      values: oppo.SacdOutputMode.values,
+                    ),
+                  );
+                  if (selection != null) {
+                    await device.setSacdOutputMode(selection);
+                  }
+                },
+                child: const VerticalIcon(
+                  icon: Icon(Icons.transform),
+                  label: 'SACD output',
+                  small: true,
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -763,10 +874,7 @@ class PopupSelectionChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(label),
-    );
+    return Align(alignment: Alignment.centerLeft, child: Text(label));
   }
 }
 
@@ -774,8 +882,11 @@ class DialogSelector extends StatelessWidget {
   final String titleText;
   final dynamic values;
 
-  const DialogSelector(
-      {required this.titleText, required this.values, super.key});
+  const DialogSelector({
+    required this.titleText,
+    required this.values,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -784,9 +895,12 @@ class DialogSelector extends StatelessWidget {
       return CupertinoAlertDialog(
         title: title,
         actions: values
-            .map<Widget>((value) => CupertinoDialogAction(
+            .map<Widget>(
+              (value) => CupertinoDialogAction(
                 onPressed: () => addHaptic(() => Navigator.pop(context, value)),
-                child: Text(value.displayName)))
+                child: Text(value.displayName),
+              ),
+            )
             .toList(),
       );
     } else {
@@ -794,9 +908,12 @@ class DialogSelector extends StatelessWidget {
         title: title,
         contentPadding: dialogPadding,
         children: values
-            .map<Widget>((value) => TextButton(
+            .map<Widget>(
+              (value) => TextButton(
                 onPressed: () => addHaptic(() => Navigator.pop(context, value)),
-                child: PopupSelectionChoice(label: value.displayName)))
+                child: PopupSelectionChoice(label: value.displayName),
+              ),
+            )
             .toList(),
       );
     }
@@ -822,9 +939,11 @@ class SetSubtitleShift extends StatelessWidget {
               return const WaitingOnSlider();
             }
             return SubtitleShiftSlider(
-                device: device, initialShift: snapshot.data!);
+              device: device,
+              initialShift: snapshot.data!,
+            );
           },
-        )
+        ),
       ],
     );
   }
@@ -838,7 +957,7 @@ class WaitingOnSlider extends StatelessWidget {
     return const Padding(
       // This padding makes the progress bar the same height a standard height
       // slider.
-      padding: EdgeInsets.symmetric(vertical: 22.0),
+      padding: .symmetric(vertical: 22.0),
       child: LinearProgressIndicator(),
     );
   }
@@ -872,9 +991,8 @@ class _SubtitleShiftSliderState extends State<SubtitleShiftSlider> {
     return Slider.adaptive(
       value: _shift,
       onChanged: (value) => setState(() => _shift = value),
-      onChangeEnd: (value) => addHaptic(
-        () => widget.device.setSubtitleShift(value.toInt()),
-      ),
+      onChangeEnd: (value) =>
+          addHaptic(() => widget.device.setSubtitleShift(value.toInt())),
       min: -10,
       max: 10,
       label: _shift.toInt().toString(),
@@ -903,9 +1021,11 @@ class SetOsdPosition extends StatelessWidget {
               return const WaitingOnSlider();
             }
             return OsdMarginSlider(
-                device: device, initialMargin: snapshot.data!);
+              device: device,
+              initialMargin: snapshot.data!,
+            );
           },
-        )
+        ),
       ],
     );
   }
@@ -939,9 +1059,8 @@ class _OsdMarginSliderState extends State<OsdMarginSlider> {
     return Slider.adaptive(
       value: _margin,
       onChanged: (value) => setState(() => _margin = value),
-      onChangeEnd: (value) => addHaptic(
-        () => widget.device.setOsdPosition(value.toInt()),
-      ),
+      onChangeEnd: (value) =>
+          addHaptic(() => widget.device.setOsdPosition(value.toInt())),
       min: 0,
       max: 5,
       label: _margin.toInt().toString(),
@@ -1005,8 +1124,11 @@ class PowerOff extends StatelessWidget {
               isDestructiveAction: true,
               onPressed: () {
                 addHaptic(() => Navigator.pop(context, true));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Waiting for power off signal...')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Waiting for power off signal...'),
+                  ),
+                );
               },
               child: const Text('Proceed'),
             ),
@@ -1019,8 +1141,11 @@ class PowerOff extends StatelessWidget {
             TextButton(
               onPressed: () {
                 addHaptic(() => Navigator.pop(context, true));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Waiting for power off signal...')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Waiting for power off signal...'),
+                  ),
+                );
               },
               child: const Text('Proceed'),
             ),

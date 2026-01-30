@@ -29,7 +29,7 @@ class TrackMetadata extends StatelessWidget {
         if (snapshot.hasError) {
           _log.warning('Error fetching track metadata: ${snapshot.error}');
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
               Text(
                 'Error fetching track metadata.',
@@ -49,7 +49,7 @@ class TrackMetadata extends StatelessWidget {
             return const Text('Metadata not available.');
           }
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
               if (id3Info.artist.isNotEmpty) Text(id3Info.artist),
               if (id3Info.album.isNotEmpty) Text(id3Info.album),

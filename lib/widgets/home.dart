@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder<void>(
       future: _future,
       builder: (_, AsyncSnapshot snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
+        if (snapshot.connectionState == .done) {
           if (snapshot.hasError) {
             return const PowerUpError();
           }
@@ -112,8 +112,8 @@ class Drawer extends StatelessWidget {
               appIcon,
               const SizedBox(width: 8.0),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: .start,
+                mainAxisAlignment: .center,
                 children: [
                   Text(isApple(context)
                       ? appleApplicationName
@@ -186,7 +186,7 @@ class PowerUpError extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: .center,
             children: [
               const Text('Error while waiting on device to power up.'),
               TextButton(
@@ -252,7 +252,7 @@ class NotPoweredOn extends StatelessWidget {
       padding: mainViewPadding,
       child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: .center,
           children: [
             const Text('Power on to use the remote.'),
             const SizedBox(height: 10.0),

@@ -17,8 +17,12 @@ class VerticalIcon extends StatelessWidget {
   final String label;
   final Icon icon;
   final bool small;
-  const VerticalIcon(
-      {super.key, required this.label, required this.icon, this.small = false});
+  const VerticalIcon({
+    super.key,
+    required this.label,
+    required this.icon,
+    this.small = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +31,8 @@ class VerticalIcon extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.titleSmall,
-          textScaler: TextScaler.linear(small ? 0.8 : 1.0),
-          overflow: TextOverflow.ellipsis,
+          textScaler: .linear(small ? 0.8 : 1.0),
+          overflow: .ellipsis,
         ),
         // Set the default icon size to 24.0. That used to be the default before
         // it changed in Flutter 3.27. The new default is a tad small for this
@@ -41,5 +45,5 @@ class VerticalIcon extends StatelessWidget {
 
 bool isApple(BuildContext context) {
   final p = Theme.of(context).platform;
-  return p == TargetPlatform.iOS || p == TargetPlatform.macOS;
+  return p == .iOS || p == .macOS;
 }

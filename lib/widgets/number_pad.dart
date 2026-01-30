@@ -26,10 +26,7 @@ class NumberPadIcon extends StatelessWidget {
                 builder: (_) => NumberPad(device: device),
               );
             },
-            icon: const Icon(
-              Icons.dialpad,
-              semanticLabel: 'open number pad',
-            ),
+            icon: const Icon(Icons.dialpad, semanticLabel: 'open number pad'),
           )
         : const SizedBox();
   }
@@ -38,15 +35,18 @@ class NumberPadIcon extends StatelessWidget {
 class NumberPadButton extends StatelessWidget {
   final Function() onPressed;
   final Widget child;
-  const NumberPadButton(
-      {super.key, required this.onPressed, required this.child});
+  const NumberPadButton({
+    super.key,
+    required this.onPressed,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TableCell(
-      verticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
+      verticalAlignment: .intrinsicHeight,
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: const .all(4.0),
         child: ElevatedButton(
           onPressed: () => addHaptic(onPressed),
           child: child,
@@ -80,9 +80,10 @@ class NumberPad extends StatelessWidget {
       label: 'number pad buttons',
       child: Dialog(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius)),
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const .all(8.0),
           child: Table(
             defaultColumnWidth: const IntrinsicColumnWidth(),
             children: [
@@ -98,15 +99,18 @@ class NumberPad extends StatelessWidget {
                   NumberPadButton(
                     onPressed: () => addHaptic(device.clear),
                     child: const VerticalIcon(
-                        icon: Icon(Icons.clear), label: 'Clear'),
+                      icon: Icon(Icons.clear),
+                      label: 'Clear',
+                    ),
                   ),
                   IconButton(
-                      alignment: Alignment.topRight,
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(
-                        Icons.close,
-                        semanticLabel: 'close number pad',
-                      )),
+                    alignment: Alignment.topRight,
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(
+                      Icons.close,
+                      semanticLabel: 'close number pad',
+                    ),
+                  ),
                 ],
               ),
               TableRow(
