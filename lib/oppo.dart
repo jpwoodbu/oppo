@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
 // This port number seems to be used for two purposes.
-// 1) The player broadcasts its existance every 10s to this destination port.
+// 1) The player broadcasts its existence every 10s to this destination port.
 // 2) It's the source and destination port for the "OREMOTE LOGIN" call and
 // responses initiated by the Oppo made MediaControl app.
 const int _broadcastPort = 7624;
@@ -44,7 +44,7 @@ class OppoID {
             port == other.port;
   }
 
-  /// Parses the becon packet sent by the player every 10s.
+  /// Parses the beacon packet sent by the player every 10s.
   factory OppoID.fromBeacon(Datagram datagram) {
     InternetAddress? address;
     int? port;
@@ -53,7 +53,7 @@ class OppoID {
     for (final line in decoded.split('\n')) {
       if (line.isEmpty) continue;
       // One user provided a packet capture showing this being the contents of
-      // their beacon packet. They were running the Russian Jailbrake firmware
+      // their beacon packet. They were running the Russian Jailbreak firmware
       // on a UDP-203.
       if (line.toUpperCase() == 'NOTIFY OPPO PLAYER SHUTDOWN') {
         throw ('Player reports IP control is shutdown; '
@@ -82,7 +82,7 @@ class OppoID {
     return OppoID(address, port, name);
   }
 
-  /// Parses the OEMOTE LOGIN response. See [ActiveDiscover].
+  /// Parses the OREMOTE LOGIN response. See [ActiveDiscover].
   factory OppoID.fromOremoteLoginResponse(Datagram datagram) {
     InternetAddress? address;
     String name = '';
@@ -95,7 +95,7 @@ class OppoID {
     final addressAndPort = parts[6].split(':');
     address = InternetAddress(addressAndPort[0]);
     // The port in the response packet seems to always be 19999. I don't know
-    // what that is. I can't conntect to it with TCP. We'll be connecting to the
+    // what that is. I can't connect to it with TCP. We'll be connecting to the
     // known ports [_serialPort] and [_httpPort]. _serialPort is used here since
     // its the port used for the documented API.
     return OppoID(address, _serialPort, name);
@@ -186,7 +186,7 @@ class ActiveDiscover {
 
   /// Sends the "call" part of the call and response.
   ///
-  /// This could be useful to call without listening for a repsonse if you
+  /// This could be useful to call without listening for a response if you
   /// already know the address of the player but you only want to make the HTTP
   /// service on port 436 reachable.
   Future<void> ping() async {
@@ -255,6 +255,7 @@ enum VerboseMode {
 }
 
 enum PlaybackStatus {
+  // cspell: disable
   noDisc('DISC'),
   loadingDisc('LOAD'),
   openTray('OPEN'),
@@ -291,6 +292,7 @@ enum PlaybackStatus {
   dlna('DLNA'), // undocumented
   setup('SETUP'), // only documented for the QPL command
   unknown('UNKNOW'); // undocumented
+  // cspell: enable
 
   final String typeCode;
   const PlaybackStatus(this.typeCode);
@@ -312,6 +314,7 @@ enum PlaybackStatus {
   /// from the UPL command. This factory translates those which are different.
   factory PlaybackStatus.fromQueryResponse(String response) {
     switch (response) {
+      // cspell: disable
       case 'PAUSE':
         return .playbackPaused;
       case 'STEP':
@@ -334,6 +337,7 @@ enum PlaybackStatus {
         return .discMenu;
       default:
         return .fromTypeCode(response);
+      // cspell: enable
     }
   }
 }
@@ -543,9 +547,9 @@ class DirectoryItem {
   String toString() => name;
 }
 
-/// Parameters passed to [setHdmiResolution]. This is distict from
+/// Parameters passed to [setHdmiResolution]. This is distinct from
 /// [VideoResolution] in that it includes not just valid HDMI resolutions, but
-/// also conceputal modes like 'auto'.
+/// also conceptual modes like 'auto'.
 enum HdmiResolution {
   auto('AUTO', 'Auto'),
   src('SRC', 'Source direct'),
@@ -690,7 +694,7 @@ enum ZoomRatio {
 }
 
 enum RepeatMode {
-  chapter('CH', 'Chatper'),
+  chapter('CH', 'Chapter'),
   titleOrTrack('TT', 'Title/Track (One)'),
   all('ALL', 'All'),
   shuffle('SHF', 'Shuffle'),
@@ -922,6 +926,7 @@ enum PlaybackSpeed {
 }
 
 enum DiscType {
+  // cspell: disable
   uhdBlueRay('UHBD', 'UHD Blu-ray'),
   blueRay('BDMV', 'Blu-ray'),
   dvdVideo('DVDV', 'DVD'),
@@ -933,6 +938,7 @@ enum DiscType {
   svcd('SVCD', 'Super Video CD'),
   unknown('UNKW', 'Unknown'),
   noDisc('NO-DISC', 'No disc'); // Only documented for the QDT command.
+  // cspell: enable
 
   final String typeCode;
   final String displayName;
@@ -958,6 +964,7 @@ enum DiscType {
         return .dvdAudio;
       case 'DATA-DISC':
         return .data;
+      // cspell: disable-next-line
       case 'UNKNOW-DISC':
         return .unknown;
       default:
@@ -1116,7 +1123,7 @@ class Device {
     outputResolution = null;
   }
 
-  /// Estasblishes a socket to the Oppo player.
+  /// Establishes a socket to the Oppo player.
   ///
   /// If a connection has already been established, this method does nothing but
   /// log a warning.
@@ -1462,14 +1469,14 @@ class Device {
     }
   }
 
-  /// Wrapper to simulate procedural call semantecs for a command.
+  /// Wrapper to simulate procedural call semantics for a command.
   ///
   /// This Future doesn't complete until a response is received for the command
   /// or until a preset timeout is reached, in which case an exception is
   /// thrown.
   Future<Response> _rpc(String code, {String parameters = ''}) async {
     await _command(code, parameters: parameters);
-    // Because with verboseMode.detailed, we might get unsoliticed responses, we
+    // Because with verboseMode.detailed, we might get unsolicited responses, we
     // need to check all responses in a loop until we get a response to our last
     // command, or we timeout.
     var response = const Response();
@@ -1585,7 +1592,7 @@ class Device {
   Future<void> hdrMenu() => _command('HDR');
   Future<void> outputResolutionAuto() => _command('RLH');
 
-  /// Show defailed info. The same operation as long pressing the info button.
+  /// Show detailed info. The same operation as long pressing the info button.
   Future<void> infoDetailed() => _command('INH');
 
   Future<void> audioVideoSyncMenu() => _command('AVS');
@@ -1618,7 +1625,7 @@ class Device {
     return _command('SVL', parameters: sanitizedLevel.toString());
   }
 
-  // This RPC seems to be redudant since there is mute().
+  // This RPC seems to be redundant since there is mute().
   // Future<void> setMute() => _command('SVL', parameters: 'MUTE');
 
   Future<void> setRepeatMode(RepeatMode repeatMode) {
@@ -1927,7 +1934,7 @@ class Device {
   /// violating their documented response structure Their example shows
   /// QC1 and QC2 prefixed before the result code. And indeed, the QCD command
   /// returns TWO responses, one prefixed with QC1 (CDDB1 probably) and QC2
-  /// (CDBB2 probably). The low-level functions in this module currently do not
+  /// (CDDB2 probably). The low-level functions in this module currently do not
   /// allow for a command to return two responses nor a response that's not
   /// prefixed with the command code sent in the request.
   Future<String> queryCddbNumber() async {
@@ -2051,6 +2058,7 @@ class Device {
   }
 
   Future<Id3Info> getMusicLocalId3Info() async {
+    // cspell: disable-next-line
     final data = await _httpRpc('getmusiclocalid3info');
     final id3info = data['userdata'];
     return Id3Info(
@@ -2063,6 +2071,7 @@ class Device {
   }
 
   Future<List<AudioTrack>> getAudioMenuList() async {
+    // cspell: disable-next-line
     final data = await _httpRpc('getaudiomenulist');
     List<AudioTrack> audioTracks = [];
     for (final a in data['audio_list']) {
@@ -2072,6 +2081,7 @@ class Device {
   }
 
   Future<GlobalInfo> getGlobalInfo() async {
+    // cspell: disable-next-line
     final data = await _httpRpc('getglobalinfo');
     return GlobalInfo(
       isAudioPlaying: data['is_audio_playing'],
@@ -2308,7 +2318,7 @@ class AudioTypeResponse {
   AudioTypeResponse(this.type);
 
   factory AudioTypeResponse.fromString(String parameters) {
-    _log.fine('Audio type response paramaters: $parameters');
+    _log.fine('Audio type response parameters: $parameters');
     final parts = parameters.split(' ');
     var r = AudioTypeResponse(AudioType.unknown);
     TrackInfo? trackInfo;
@@ -2327,7 +2337,7 @@ class AudioTypeResponse {
         // the text is like 'FLAC 44.1'.
         _log.info(
           'Audio type response did not include track info. '
-          'Asigning given parameters to "extraInfo".',
+          'Assigning given parameters to "extraInfo".',
         );
         r.extraInfo = parts.sublist(1).join(' ');
       }
@@ -2577,6 +2587,7 @@ class FakeDevice extends Device {
     } else if (playbackStatus == .playbackStopped) {
       // do nothing
     } else {
+      // cspell: disable-next-line
       _fakeStream.add('@UPL PAUS');
     }
   }

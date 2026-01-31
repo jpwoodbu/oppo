@@ -5,5 +5,14 @@
   },
   "files.watcherExclude": {
     "**/.fvm": true
-  }
+  },
+  "cSpell.words": [
+    "Bdmv",
+    "bluray",
+    "CDDB",
+    "LPCM",
+    "oppo",
+    "OREMOTE",
+    "Sacd"
+  ]
 }
