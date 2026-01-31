@@ -155,13 +155,11 @@ class Drawer extends StatelessWidget {
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => const KnownIssues())),
         ),
-        // Debug logs reference "oppo", which Apple doesn't like.
-        if (!isApple(context))
-          ListTile(
-            leading: const Icon(Icons.feedback),
-            title: const Text('Debug logs'),
-            onTap: () => LogConsole.open(context),
-          ),
+        ListTile(
+          leading: const Icon(Icons.feedback),
+          title: const Text('Debug logs'),
+          onTap: () => LogConsole.open(context),
+        ),
         ListTile(
           leading: const Icon(Icons.article),
           title: const Text('Licenses'),
