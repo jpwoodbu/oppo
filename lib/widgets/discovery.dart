@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oppo/oppo.dart' as oppo;
 import 'package:oppo/preferences.dart';
 import 'package:oppo/widgets/connect.dart';
+import 'package:oppo/widgets/connection_help.dart';
 import 'package:oppo/widgets/util.dart';
 
 class DiscoveryChanges with ChangeNotifier {
@@ -55,9 +56,22 @@ class ScanForDevices extends StatelessWidget {
               Row(
                 mainAxisAlignment: .spaceBetween,
                 children: [
-                  Text(
-                    'Device discovery',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  Row(
+                    children: [
+                      Text(
+                        'Device discovery',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ConnectionHelp(),
+                          ),
+                        ),
+                        icon: const Icon(Icons.help),
+                      ),
+                    ],
                   ),
                   TextButton(
                     onPressed: () => Navigator.pushAndRemoveUntil(
