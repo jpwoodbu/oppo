@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 const applicationName = 'Oppo Remote';
-// Apple is complaining about using other's intellectual property.
-const appleApplicationName = 'Remote Control';
 const double borderRadius = 4.0;
 const dialogPadding = EdgeInsets.all(12.0);
 const mainViewPadding = EdgeInsets.symmetric(horizontal: 4.0);

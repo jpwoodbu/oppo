@@ -27,8 +27,10 @@ class _HomePageState extends State<HomePage> {
     final device = context.read<DeviceChanges>().device;
     // Show the waiting message for at least 1s while we perform the
     // background work.
-    _future = Future.wait(
-        [Future.delayed(const Duration(seconds: 1)), device.engage()]);
+    _future = Future.wait([
+      Future.delayed(const Duration(seconds: 1)),
+      device.engage(),
+    ]);
     super.initState();
   }
 
@@ -83,8 +85,9 @@ class Switch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final powered =
-        context.select((DeviceChanges d) => d.device.powered ?? false);
+    final powered = context.select(
+      (DeviceChanges d) => d.device.powered ?? false,
+    );
     return powered ? const Buttons() : const NotPoweredOn();
   }
 }
@@ -101,8 +104,9 @@ class Drawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final smallText = Theme.of(context).textTheme.bodySmall;
-    final powered =
-        context.select((DeviceChanges d) => d.device.powered ?? false);
+    final powered = context.select(
+      (DeviceChanges d) => d.device.powered ?? false,
+    );
     final device = context.read<DeviceChanges>().device;
     return NavigationDrawer(
       children: [
@@ -115,12 +119,12 @@ class Drawer extends StatelessWidget {
                 crossAxisAlignment: .start,
                 mainAxisAlignment: .center,
                 children: [
-                  Text(isApple(context)
-                      ? appleApplicationName
-                      : applicationName),
+                  const Text(applicationName),
                   Text(device.name, style: smallText),
-                  Text('Firmware: ${device.firmwareVersion ?? 'unknown'}',
-                      style: smallText),
+                  Text(
+                    'Firmware: ${device.firmwareVersion ?? 'unknown'}',
+                    style: smallText,
+                  ),
                 ],
               ),
             ],
@@ -152,8 +156,10 @@ class Drawer extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.bug_report),
           title: const Text('Known issues'),
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const KnownIssues())),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const KnownIssues()),
+          ),
         ),
         ListTile(
           leading: const Icon(Icons.feedback),
@@ -166,8 +172,7 @@ class Drawer extends StatelessWidget {
           onTap: () => showLicensePage(
             context: context,
             applicationIcon: appIcon,
-            applicationName:
-                isApple(context) ? appleApplicationName : applicationName,
+            applicationName: applicationName,
           ),
         ),
       ],
@@ -190,18 +195,17 @@ class PowerUpError extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ScanForDevices()),
-                      (Route<dynamic> route) => false);
+                    context,
+                    MaterialPageRoute(builder: (_) => const ScanForDevices()),
+                    (Route<dynamic> route) => false,
+                  );
                 },
                 child: const Text('Scan for players'),
               ),
-              // Debug logs reference "oppo", which Apple doesn't like.
-              if (!isApple(context))
-                TextButton(
-                  onPressed: () => LogConsole.open(context),
-                  child: const Text('Debug logs'),
-                ),
+              TextButton(
+                onPressed: () => LogConsole.open(context),
+                child: const Text('Debug logs'),
+              ),
             ],
           ),
         ),
@@ -216,7 +220,8 @@ class Buttons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'scrollable area with information display and '
+      label:
+          'scrollable area with information display and '
           'remote control buttons',
       child: Padding(
         padding: mainViewPadding,
@@ -257,8 +262,11 @@ class NotPoweredOn extends StatelessWidget {
             IconButton(
               onPressed: () {
                 addHaptic(device.powerOn);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Waiting for power on signal...')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Waiting for power on signal...'),
+                  ),
+                );
               },
               icon: const Icon(
                 Icons.power_settings_new,
