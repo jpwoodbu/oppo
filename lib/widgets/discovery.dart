@@ -53,10 +53,12 @@ class ScanForDevices extends StatelessWidget {
           child: ListView(
             padding: const .all(25.0),
             children: [
-              Row(
-                mainAxisAlignment: .spaceBetween,
+              // On very narrow screens, wrapping is necessary.
+              Wrap(
+                alignment: .spaceBetween,
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         'Device discovery',
