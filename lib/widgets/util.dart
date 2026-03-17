@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-const applicationName = 'Oppo Remote';
+const applicationName = 'Remote for Oppo';
 const double borderRadius = 4.0;
 const dialogPadding = EdgeInsets.all(12.0);
 const mainViewPadding = EdgeInsets.symmetric(horizontal: 4.0);
