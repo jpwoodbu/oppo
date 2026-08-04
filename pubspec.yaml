@@ -1,7 +1,7 @@
 name: oppo
 description: "A remote for Oppo UDP-20X Blu-ray players."
 publish_to: 'none'
-version: 1.2.19+2026070201
+version: 1.2.20+2026080301
 
 environment:
   sdk: '>=3.10.0 <4.0.0'
