@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:oppo/device_changes.dart';
+import 'package:oppo/widgets/util.dart';
 
 const _iconSize = 20.0;
 const _scrubPadding = 2.0;
@@ -48,8 +49,15 @@ class ClockRow extends StatelessWidget {
   }
 }
 
-class Clock extends StatelessWidget {
+class Clock extends StatefulWidget {
   const Clock({super.key});
+
+  @override
+  State<Clock> createState() => _ClockState();
+}
+
+class _ClockState extends State<Clock> {
+  bool _largeMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -58,14 +66,25 @@ class Clock extends StatelessWidget {
       return const SizedBox(height: _iconSize, width: _iconSize);
     }
 
-    final style = Theme.of(context).textTheme.bodySmall;
-    // Hide the time information type (e.g. elapsed vs. remaining time) on very
-    // small screens. At 346 logical pixels there's not room for all the widgets
-    // on a single row. We're using MediaQuery here instead of LayoutBuilder
-    // because this widget is wrapped in a Row which has an infinite max width.
-    return MediaQuery.sizeOf(context).width > 346.0
-        ? Text('${p.timeInformation.displayName}: ${p.clock}', style: style)
-        : Text(p.clock, style: style);
+    final textTheme = Theme.of(context).textTheme;
+    final style = _largeMode ? textTheme.bodyLarge : textTheme.bodySmall;
+    return GestureDetector(
+      onLongPress: () {
+        addHaptic(() {
+          setState(() {
+            _largeMode = !_largeMode;
+          });
+        });
+      },
+      // Hide the time information type (e.g. elapsed vs. remaining time) on
+      // very small screens and in large mode. At 346 logical pixels there's not
+      // room for all the widgets on a single row. We're using MediaQuery here
+      // instead of LayoutBuilder because this widget is wrapped in a Row which
+      // has an infinite max width.
+      child: !_largeMode && MediaQuery.sizeOf(context).width > 346.0
+          ? Text('${p.timeInformation.displayName}: ${p.clock}', style: style)
+          : Text(p.clock, style: style),
+    );
   }
 }
 
