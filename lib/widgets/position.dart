@@ -61,8 +61,8 @@ class _ClockState extends State<Clock> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.select((DeviceChanges d) => d.device.position);
-    if (p == null) {
+    final position = context.select((DeviceChanges d) => d.device.position);
+    if (position == null) {
       return const SizedBox(height: _iconSize, width: _iconSize);
     }
 
@@ -82,8 +82,11 @@ class _ClockState extends State<Clock> {
       // instead of LayoutBuilder because this widget is wrapped in a Row which
       // has an infinite max width.
       child: !_largeMode && MediaQuery.sizeOf(context).width > 346.0
-          ? Text('${p.timeInformation.displayName}: ${p.clock}', style: style)
-          : Text(p.clock, style: style),
+          ? Text(
+              '${position.timeInformation.displayName}: ${position.clock}',
+              style: style,
+            )
+          : Text(position.clock, style: style),
     );
   }
 }
