@@ -65,8 +65,12 @@ class MainView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // Set leadingWidth to 48.0 to match the 48.0px width of NumberPadIcon in
+        // actions (instead of the default 56.0). Equalizing the left and right
+        // slots ensures the available space for Position is centered with
+        // respect to the screen.
+        leadingWidth: 48.0,
         title: const Position(),
-        centerTitle: true,
         titleSpacing: 0.0,
         actions: const [NumberPadIcon()],
       ),

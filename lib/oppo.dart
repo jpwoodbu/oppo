@@ -292,6 +292,7 @@ enum PlaybackStatus {
   dlna('DLNA'), // undocumented
   setup('SETUP'), // only documented for the QPL command
   unknown('UNKNOW'); // undocumented
+
   // cspell: enable
 
   final String typeCode;
@@ -490,6 +491,8 @@ enum TimeInformation {
       throw 'Unknown typeCode for time information: $typeCode';
     }
   }
+
+  bool get countingDown => ['R', 'X', 'K'].contains(typeCode);
 }
 
 class Position {
@@ -938,6 +941,7 @@ enum DiscType {
   svcd('SVCD', 'Super Video CD'),
   unknown('UNKW', 'Unknown'),
   noDisc('NO-DISC', 'No disc'); // Only documented for the QDT command.
+
   // cspell: enable
 
   final String typeCode;
@@ -2476,6 +2480,7 @@ class FakeDevice extends Device {
   );
   final VideoResolution _fakeContentResolution = .r1080p24;
   final VideoResolution _fakeOutputResolution = .rUhd24;
+  var _fakeTimeInformation = TimeInformation.fromTypeCode('C');
   int _subtitleShift = 0;
   int _osdPosition = 0;
 
@@ -2539,7 +2544,8 @@ class FakeDevice extends Device {
           '0',
         );
         _fakeStream.add(
-          '@UTC $paddedCurrentAudioTrack $paddedAvailableAudioTracks C '
+          '@UTC $paddedCurrentAudioTrack $paddedAvailableAudioTracks '
+          '${_fakeTimeInformation.typeCode} '
           '$paddedHours:$paddedMinutes:$paddedSeconds',
         );
       }
@@ -2637,5 +2643,12 @@ class FakeDevice extends Device {
   @override
   Future<void> setOsdPosition(int position) async {
     _osdPosition = position;
+  }
+
+  @override
+  Future<void> setTimeInformationDisplay(
+    TimeInformation timeInformation,
+  ) async {
+    _fakeTimeInformation = timeInformation;
   }
 }

@@ -86,7 +86,11 @@ class _ClockState extends State<Clock> {
               '${position.timeInformation.displayName}: ${position.clock}',
               style: style,
             )
-          : Text(position.clock, style: style),
+          : Text(
+              (position.timeInformation.countingDown ? '- ' : '') +
+                  position.clock,
+              style: style,
+            ),
     );
   }
 }
