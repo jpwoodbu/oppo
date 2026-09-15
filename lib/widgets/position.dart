@@ -81,7 +81,7 @@ class _ClockState extends State<Clock> {
           setState(() {
             _largeMode = !_largeMode;
           });
-          setLargeModeClock(_largeMode);
+          context.read<Preferences>().largeModeClock = _largeMode;
         });
       },
       // Hide the time information type (e.g. elapsed vs. remaining time) on

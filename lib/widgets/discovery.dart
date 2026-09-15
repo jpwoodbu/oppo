@@ -197,7 +197,9 @@ class _DevicesState extends State<Devices> {
                           // If the device to remove is the one saved as the
                           // last device, clear it.
                           if (e.address.address == lastDeviceAddress) {
-                            await clearLastDevice();
+                            if (context.mounted) {
+                              context.read<Preferences>().clearLastDevice();
+                            }
                           }
                           setState(() {
                             ids.remove(e);
@@ -216,9 +218,7 @@ class _DevicesState extends State<Devices> {
 }
 
 void _connect(BuildContext context, oppo.OppoID id) {
-  // [saveLastDevice] is an async func but making [_connect] async, causes a
-  // warning when passing [context] to Navigator below.
-  saveLastDevice(id).ignore();
+  context.read<Preferences>().lastDevice = id;
   Navigator.pushAndRemoveUntil(
     context,
     MaterialPageRoute(

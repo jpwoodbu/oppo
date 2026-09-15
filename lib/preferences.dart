@@ -10,28 +10,6 @@ const String _settingLargeModeClock = 'largeModeClock';
 
 final _log = Logger('preferences');
 
-/// Record the last device we connected to.
-///
-/// This function exists instead of a bunch of setters in the [Preferences]
-/// class because setters can't be async.
-Future<void> saveLastDevice(oppo.OppoID id) async {
-  final p = await SharedPreferences.getInstance();
-  await p.setString(_settingLastDeviceName, id.name);
-  await p.setString(_settingLastDeviceAddress, id.address.address);
-  await p.setInt(_settingLastDevicePort, id.port);
-  _log.info('Saved last device: ${id.address.address}');
-}
-
-Future<bool> clearLastDevice() async {
-  final p = await SharedPreferences.getInstance();
-  return await p.clear();
-}
-
-Future<void> setLargeModeClock(bool enabled) async {
-  final p = await SharedPreferences.getInstance();
-  await p.setBool(_settingLargeModeClock, enabled);
-}
-
 class Preferences {
   final SharedPreferences _sharedPreferences;
 
@@ -45,6 +23,27 @@ class Preferences {
 
   int? get lastDevicePort => _sharedPreferences.getInt(_settingLastDevicePort);
 
+  // TODO(jpwoodbu) Consider whether it's really OK that all the setters ignore
+  // errors. They do this because setters cannot be async.
+  set lastDevice(oppo.OppoID id) {
+    _sharedPreferences.setString(_settingLastDeviceName, id.name).ignore();
+    _sharedPreferences
+        .setString(_settingLastDeviceAddress, id.address.address)
+        .ignore();
+    _sharedPreferences.setInt(_settingLastDevicePort, id.port).ignore();
+    _log.info('Saved last device: ${id.address.address}');
+  }
+
+  void clearLastDevice() {
+    _sharedPreferences.remove(_settingLastDeviceName).ignore();
+    _sharedPreferences.remove(_settingLastDeviceAddress).ignore();
+    _sharedPreferences.remove(_settingLastDevicePort).ignore();
+  }
+
   bool? get largeModeClock =>
       _sharedPreferences.getBool(_settingLargeModeClock);
+
+  set largeModeClock(bool enabled) {
+    _sharedPreferences.setBool(_settingLargeModeClock, enabled).ignore();
+  }
 }
