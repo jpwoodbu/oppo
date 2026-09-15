@@ -6,11 +6,12 @@ import 'package:oppo/oppo.dart' as oppo;
 const String _settingLastDeviceName = 'lastDeviceName';
 const String _settingLastDeviceAddress = 'lastDeviceAddress';
 const String _settingLastDevicePort = 'lastDevicePort';
+const String _settingLargeModeClock = 'largeModeClock';
 
 final _log = Logger('preferences');
 
 /// Record the last device we connected to.
-/// 
+///
 /// This function exists instead of a bunch of setters in the [Preferences]
 /// class because setters can't be async.
 Future<void> saveLastDevice(oppo.OppoID id) async {
@@ -26,6 +27,11 @@ Future<bool> clearLastDevice() async {
   return await p.clear();
 }
 
+Future<void> setLargeModeClock(bool enabled) async {
+  final p = await SharedPreferences.getInstance();
+  await p.setBool(_settingLargeModeClock, enabled);
+}
+
 class Preferences {
   final SharedPreferences _sharedPreferences;
 
@@ -38,4 +44,7 @@ class Preferences {
       _sharedPreferences.getString(_settingLastDeviceAddress);
 
   int? get lastDevicePort => _sharedPreferences.getInt(_settingLastDevicePort);
+
+  bool? get largeModeClock =>
+      _sharedPreferences.getBool(_settingLargeModeClock);
 }

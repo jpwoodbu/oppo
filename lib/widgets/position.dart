@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:oppo/device_changes.dart';
+import 'package:oppo/preferences.dart';
 import 'package:oppo/widgets/util.dart';
 
 const _iconSize = 20.0;
@@ -60,6 +61,12 @@ class _ClockState extends State<Clock> {
   bool _largeMode = false;
 
   @override
+  void initState() {
+    super.initState();
+    _largeMode = context.read<Preferences>().largeModeClock ?? false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final position = context.select((DeviceChanges d) => d.device.position);
     if (position == null) {
@@ -74,6 +81,7 @@ class _ClockState extends State<Clock> {
           setState(() {
             _largeMode = !_largeMode;
           });
+          setLargeModeClock(_largeMode);
         });
       },
       // Hide the time information type (e.g. elapsed vs. remaining time) on

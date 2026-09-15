@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:logging_flutter/logging_flutter.dart';
 
+import 'package:oppo/preferences.dart';
 import 'package:oppo/widgets/discovery.dart';
 import 'package:oppo/widgets/util.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
   Logger.root.level = kDebugMode ? .ALL : .INFO;
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
@@ -27,7 +30,15 @@ void main() {
       bufferSize: 1000,
     ),
   );
-  runApp(const OppoApp());
+  // Ensure platform channels are ready as they'll be used by SharedPreferences.
+  WidgetsFlutterBinding.ensureInitialized();
+  final sharedPreferences = await SharedPreferences.getInstance();
+  runApp(
+    Provider<Preferences>.value(
+      value: Preferences(sharedPreferences),
+      child: const OppoApp(),
+    ),
+  );
 }
 
 class OppoApp extends StatelessWidget {
