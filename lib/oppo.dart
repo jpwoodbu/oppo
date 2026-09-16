@@ -492,7 +492,7 @@ enum TimeInformation {
     }
   }
 
-  bool get countingDown => ['R', 'X', 'K'].contains(typeCode);
+  bool get countingDown => {'R', 'X', 'K'}.contains(typeCode);
 }
 
 class Position {
