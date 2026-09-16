@@ -468,14 +468,14 @@ class AspectRatioSetting {
 }
 
 enum TimeInformation {
-  totalElapsedTime('Total elapsed time', 'E'),
-  totalRemainingTime('Total remaining time', 'R'),
-  titleElapsedTime('Title elapsed time', 'T'),
-  titleRemainingTime('Title remaining time', 'X'),
+  totalElapsedTime('Total elapsed', 'E'),
+  totalRemainingTime('Total remaining', 'R'),
+  titleElapsedTime('Title elapsed', 'T'),
+  titleRemainingTime('Title remaining', 'X'),
   // It's typical to be playing tracks (audio) when using these modes, so I
   // don't mention chapters in their display names.
-  chapterOrTrackElapsedTime('Track elapsed time', 'C'),
-  chapterOrTrackRemainingTime('Track remaining time', 'K');
+  chapterOrTrackElapsedTime('Track elapsed', 'C'),
+  chapterOrTrackRemainingTime('Track remaining', 'K');
 
   final String displayName;
   final String typeCode;
