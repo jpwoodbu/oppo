@@ -74,7 +74,7 @@ class _ClockState extends State<Clock> {
     }
 
     final textTheme = Theme.of(context).textTheme;
-    final style = _largeMode ? textTheme.bodyLarge : textTheme.bodySmall;
+    final style = _largeMode ? textTheme.displaySmall : textTheme.bodySmall;
     return GestureDetector(
       onLongPress: () {
         addHaptic(() {
