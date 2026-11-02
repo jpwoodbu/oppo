@@ -15,9 +15,9 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
 
 SPEC CHECKSUMS:
-  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
+  shared_preferences_foundation: 9a36184bb1299692bf7b972bd6c60ab373084504
 
-PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
+PODFILE CHECKSUM: f0c21717cb7ee9112f915044c74bfceb5b12e02a
 
 COCOAPODS: 1.16.2
