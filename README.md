@@ -12,6 +12,14 @@ and the
 Previous generation players (such as the BDP-83, BDP-93, BDP-95, BDP-103, and
 BDP-105) are not supported.
 
+## License
+
+The source code in this repository is licensed under the GNU General Public
+License v3.0 (see `LICENSE`). Official compiled builds distributed through the
+Apple App Store and Google Play Store are published by the copyright holder
+under a separate commercial license and the respective storefront End User
+License Agreements.
+
 ## Trademarks & Brand Assets
 
 - **Oppo**: Oppo, player model names (such as UDP-203 and UDP-205), and
